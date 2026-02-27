@@ -13,8 +13,8 @@ OUT_DIR = SITE_DIR / 'out'
 DB_PATH = os.environ.get('DB_PATH', '/opt/shared_cache.db')
 LANGS = ['ru']
 BASE_URL = 'https://podstr.cc'
-CHANGELOG_PATH = SITE_DIR.parent / 'CHANGELOG.md'
-MANIFEST_PATH = SITE_DIR.parent / 'extension' / 'manifest.json'
+CHANGELOG_PATH = Path(os.environ.get('CHANGELOG_PATH', SITE_DIR.parent / 'CHANGELOG.md'))
+MANIFEST_PATH = Path(os.environ.get('MANIFEST_PATH', SITE_DIR.parent / 'extension' / 'manifest.json'))
 
 # ─── Model display names ───
 

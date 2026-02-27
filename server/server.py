@@ -58,6 +58,7 @@ QUEUE_URL = os.environ.get("QUEUE_URL", "http://localhost:5001")
 QUEUE_API_KEY = os.environ.get("AIS_API_KEY")  # Required for worker/upload modes
 POLL_INTERVAL = 30        # seconds between queue polls when idle
 VERSION = "3.0"
+LOCAL_BACKUP_DB = os.environ.get('LOCAL_BACKUP_DB', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'local_cache.db'))
 
 # Active CLI process (for cleanup on error)
 _active_proc = {"proc": None, "lock": threading.Lock()}
@@ -78,6 +79,47 @@ def _kill_active():
             except Exception:
                 pass
         _active_proc["proc"] = None
+
+
+# ── Local backup DB ──────────────────────────────────────────────────
+
+def _init_local_db():
+    """Create local backup DB with same schema as shared cache."""
+    import sqlite3 as _sqlite3
+    conn = _sqlite3.connect(LOCAL_BACKUP_DB)
+    conn.execute('''CREATE TABLE IF NOT EXISTS translations (
+        key TEXT PRIMARY KEY,
+        vtt TEXT NOT NULL,
+        model TEXT NOT NULL,
+        model_rank INTEGER NOT NULL,
+        title TEXT DEFAULT '',
+        target_lang TEXT DEFAULT '',
+        created_at INTEGER,
+        updated_at INTEGER
+    )''')
+    conn.commit()
+    conn.close()
+
+
+def save_to_local_db(cache_key, vtt, model, model_rank, title='', target_lang=''):
+    """Save translation to local SQLite backup DB."""
+    import sqlite3 as _sqlite3
+    try:
+        _init_local_db()
+        conn = _sqlite3.connect(LOCAL_BACKUP_DB)
+        now = int(time.time())
+        conn.execute(
+            '''INSERT OR REPLACE INTO translations
+               (key, vtt, model, model_rank, title, target_lang, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, COALESCE((SELECT created_at FROM translations WHERE key = ?), ?), ?)''',
+            (cache_key, vtt, model, model_rank, title, target_lang, cache_key, now, now)
+        )
+        conn.commit()
+        count = conn.execute('SELECT COUNT(*) FROM translations').fetchone()[0]
+        conn.close()
+        log.info(f"  💾 Локальный бекап: {cache_key[:20]}... ({count} всего)")
+    except Exception as e:
+        log.warning(f"  ⚠ Локальный бекап failed: {e}")
 
 
 # ── Step 1: VTT Parser ──────────────────────────────────────────────
@@ -768,6 +810,13 @@ def translate_job(job):
     else:
         report_result(job_id, translated_vtt, model)
 
+        # Local backup
+        full_model = CLI_MODEL_MAP.get(model, model)
+        rank = CLI_MODEL_RANKS.get(model, 1)
+        vtt_hash = hashlib.sha256(job['vtt'].encode()).hexdigest()
+        local_key = f"{vtt_hash}@auto@{target_lang}"
+        save_to_local_db(local_key, translated_vtt, full_model, rank, '', target_lang)
+
 
 # ── Step 9: Translate local file ─────────────────────────────────────
 
@@ -929,6 +978,13 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
         upload_to_cache(original_text, translated_vtt, model, title, target_lang)
     elif upload and missed > 0:
         log.info(f"  ⚠ Не загружаю в кеш — {missed} строк пропущено")
+
+    # Always save locally (even incomplete — better than nothing)
+    full_model = CLI_MODEL_MAP.get(model, model)
+    rank = CLI_MODEL_RANKS.get(model, 1)
+    vtt_hash = hashlib.sha256(original_text.encode()).hexdigest()
+    local_key = f"{vtt_hash}@file@{target_lang}"
+    save_to_local_db(local_key, translated_vtt, full_model, rank, title, target_lang)
 
     return out_path
 

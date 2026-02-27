@@ -15,6 +15,7 @@ import re
 import sqlite3
 import time
 import traceback
+import subprocess
 import uuid
 import zlib
 from collections import defaultdict
@@ -23,8 +24,39 @@ from socketserver import ThreadingMixIn
 from threading import Lock
 from urllib.parse import urlparse, parse_qs, unquote, quote
 
+# ── Backup trigger (debounced) ──
+BACKUP_SCRIPT = os.environ.get('BACKUP_SCRIPT', os.path.join(os.path.dirname(__file__), '..', 'scripts', 'backup-db.sh'))
+BACKUP_DEBOUNCE = int(os.environ.get('BACKUP_DEBOUNCE', 3600))  # 1 hour default
+_last_backup_time = 0
+_backup_lock = Lock()
+
 DB_PATH = os.path.join(os.path.dirname(__file__), 'shared_cache.db')
 API_KEY = os.environ.get('AIS_API_KEY')  # Required: set via env var on VPS
+
+
+def trigger_backup():
+    """Run backup script in background if enough time has passed (debounce)."""
+    global _last_backup_time
+    with _backup_lock:
+        now = time.time()
+        if now - _last_backup_time < BACKUP_DEBOUNCE:
+            return
+        _last_backup_time = now
+
+    if not os.path.isfile(BACKUP_SCRIPT):
+        return
+
+    try:
+        subprocess.Popen(
+            [BACKUP_SCRIPT],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            env={**os.environ, 'DB_PATH': DB_PATH},
+        )
+        print(f'  \U0001f504 Backup triggered')
+    except Exception as e:
+        print(f'  \u26a0 Backup trigger failed: {e}')
+
 PORT = 5001
 RATE_LIMIT = 10  # PUT /cache requests per minute per IP
 QUEUE_RATE_LIMIT = 5  # POST /queue/submit requests per minute per IP
@@ -240,6 +272,7 @@ def db_put(key, vtt, model, model_rank, title='', page_url='', normalized_url=''
 
     conn.commit()
     conn.close()
+    trigger_backup()
     return True
 
 

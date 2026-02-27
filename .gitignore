@@ -10,6 +10,7 @@ update-extension.bat
 *.db
 server/server.log
 server/*.db
+server/local_cache.db
 
 # Generated site output
 site/out/
