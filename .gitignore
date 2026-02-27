@@ -1,0 +1,15 @@
+server/cache/
+*.pyc
+__pycache__/
+.DS_Store
+
+# Secrets & operations (never commit)
+OPERATIONS.md
+update-extension.bat
+*.log
+*.db
+server/server.log
+server/*.db
+
+# Generated site output
+site/out/

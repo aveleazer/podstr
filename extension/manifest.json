@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "Подстрочник",
+  "version": "0.4.0",
+  "description": "AI-перевод субтитров для зарубежных сериалов",
+  "permissions": ["storage", "webRequest", "webNavigation", "sidePanel"],
+  "host_permissions": [
+    "http://localhost:5000/*",
+    "http://localhost:5001/*",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["content.js"],
+      "css": ["overlay.css"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
