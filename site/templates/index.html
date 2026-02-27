@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero__content">
+        <div class="hero__eyebrow reveal reveal-d1">{{ t.hero.eyebrow }}</div>
+        <h1 class="hero__title reveal reveal-d2">{{ t.hero.title }}</h1>
+        <p class="hero__subtitle reveal reveal-d3">{{ t.hero.subtitle_1 }}</p>
+        <p class="hero__subtitle reveal reveal-d3" style="margin-top:0.75rem;">
+          {{ t.hero.subtitle_2 }}
+        </p>
+        <div class="hero__actions reveal reveal-d4">
+          <a href="/extension.zip" class="btn btn--primary">{{ t.hero.btn_download }}</a>
+          <a href="https://github.com/aveleazer/podstr" class="btn btn--ghost" target="_blank" rel="noopener">{{ t.hero.btn_github }}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- HOW -->
+  <section id="how">
+    <div class="container">
+      <div class="section-header sr">
+        <span class="section-number">{{ t.how.number }}</span>
+        <h2 class="section-title">{{ t.how.title }}</h2>
+      </div>
+    </div>
+    <div class="container--wide">
+      <div class="steps sr">
+        {% for step in t.how.steps %}
+        <div class="step">
+          <div class="step__num">{{ '%02d' % loop.index }}</div>
+          <div class="step__text">{{ step }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- WHY -->
+  <section id="why">
+    <div class="container">
+      <div class="section-header sr">
+        <span class="section-number">{{ t.why.number }}</span>
+        <h2 class="section-title">{{ t.why.title }}</h2>
+      </div>
+    </div>
+    <div class="container--wide">
+      <div class="advantages sr">
+        {% for item in t.why['items'] %}
+        <div class="advantage">
+          <div class="advantage__title">{{ item.title }}</div>
+          <div class="advantage__text">{{ item.text }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- TRANSLATIONS -->
+  <section id="translations" class="translations-section">
+    <div class="container--wide">
+      <div class="section-header sr">
+        <span class="section-number">{{ t.translations.number }}</span>
+        <h2 class="section-title">{{ t.translations.title }}</h2>
+        <p style="font-family:var(--font-body);font-size:1.05rem;color:var(--text-secondary);margin-top:1rem;max-width:640px;line-height:1.6;">{{ t.translations.subtitle }}</p>
+      </div>
+
+      <div id="translations-content" class="sr">
+        {% if translation_groups %}
+          {% for group in translation_groups %}
+          <div class="group-header">
+            <span class="group-chevron">&#9654;</span>
+            <span class="group-title">{{ group.name }}</span>
+            <span class="group-count">{{ group.episode_count }} {{ t.translations.ep_suffix }}</span>
+            {% if group.best_model_display %}
+            <span class="group-model{{ ' group-model--gold' if group.best_rank >= 4 else '' }}">{{ group.best_model_display }}</span>
+            {% endif %}
+          </div>
+          <div class="group-episodes">
+            {% for season in group.seasons %}
+            {% if season.number %}
+            <div class="season-label">{{ t.translations.season }} {{ season.number }}</div>
+            {% endif %}
+            {% for ep in season.episodes %}
+            <div class="ep-row">
+              {% if ep.code %}<span class="ep-code">{{ ep.code }}</span>{% endif %}
+              <span class="ep-name">
+                {%- if ep.name and ep.page_url %}<a href="{{ ep.page_url }}" target="_blank" rel="noopener">{{ ep.name }}</a>
+                {%- elif ep.name %}{{ ep.name }}
+                {%- elif not ep.code %}{{ group.name }}
+                {%- endif -%}
+              </span>
+              <span class="ep-model{{ ' ep-model--gold' if ep.rank >= 4 else '' }}">{{ ep.model_display }}</span>
+              <a class="ep-dl" href="/cache/{{ ep.key_encoded }}?format=vtt" download>.vtt</a>
+              <a class="ep-dl" href="/cache/{{ ep.key_encoded }}?format=srt" download>.srt</a>
+              <span class="ep-date">{{ ep.date }}</span>
+            </div>
+            {% endfor %}
+            {% endfor %}
+          </div>
+          {% endfor %}
+
+          <div class="table-stats">{{ stats_text }}</div>
+        {% else %}
+          <div class="table-empty">{{ t.translations.empty }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-header sr">
+        <span class="section-number">{{ t.faq.number }}</span>
+        <h2 class="section-title">{{ t.faq.title }}</h2>
+      </div>
+      <div class="faq-list sr">
+        {% for item in t.faq['items'] %}
+        <div class="faq-item">
+          <div class="faq-q">{{ item.q }}</div>
+          <div class="faq-a">{{ item.a }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- INSTALL -->
+  <section id="install" class="install">
+    <div class="container">
+      <div class="section-header sr">
+        <span class="section-number">{{ t.install.number }}</span>
+        <h2 class="section-title">{{ t.install.title }}</h2>
+      </div>
+      <div class="install-tracks sr">
+        <div class="track track--primary">
+          <span class="track__label">{{ t.install.viewer.label }}</span>
+          <h3 class="track__title">{{ t.install.viewer.title }}</h3>
+          <p class="track__subtitle">{{ t.install.viewer.subtitle }}</p>
+          <ol class="install-steps">
+            {% for step in t.install.viewer.steps %}
+            <li>{{ step | safe }}</li>
+            {% endfor %}
+          </ol>
+          <div style="margin-top:1.5rem;">
+            <a href="/extension.zip" class="btn btn--primary btn--small">{{ t.install.viewer.btn }}</a>
+          </div>
+          <p class="track__note">{{ t.install.viewer.note }}</p>
+        </div>
+        <div class="track track--secondary">
+          <span class="track__label">{{ t.install.translator.label }}</span>
+          <h3 class="track__title">{{ t.install.translator.title }}</h3>
+          <p class="track__subtitle">{{ t.install.translator.subtitle }}</p>
+          <p class="track__text">{{ t.install.translator.text }}</p>
+          <ol class="install-steps">
+            {% for step in t.install.translator.steps %}
+            <li>{{ step }}</li>
+            {% endfor %}
+          </ol>
+          <p class="track__note">{{ t.install.translator.note }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- JOIN -->
+  <section id="join" class="join">
+    <div class="container">
+      <div class="join__inner sr">
+        <span class="section-number">{{ t.join.number }}</span>
+        <h2 class="join__title">{{ t.join.title }}</h2>
+        <p class="join__text">{{ t.join.text | replace('\n\n', '<br><br>') | safe }}</p>
+        <div class="join__actions">
+          <a href="https://github.com/aveleazer/podstr" class="btn btn--primary btn--small" target="_blank" rel="noopener">{{ t.join.btn_github }}</a>
+          <a href="https://github.com/aveleazer/podstr/blob/master/docs/CONTRIBUTING.md" class="btn btn--ghost btn--small" target="_blank" rel="noopener">{{ t.join.btn_docs }}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-rule">
+
+  <!-- CHANGELOG -->
+  <section id="changelog">
+    <div class="container">
+      <div class="section-header sr">
+        <span class="section-number">{{ t.changelog.number }}</span>
+        <h2 class="section-title">{{ t.changelog.title }}</h2>
+      </div>
+      <ul class="changelog-list sr">
+        {% for entry in changelog_entries %}
+        <li class="changelog-item">
+          <span class="changelog-date">{{ entry.date }} <span class="changelog-tag">{{ entry.tag }}</span></span>
+          <span class="changelog-text">{{ entry.text }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+{% endblock %}

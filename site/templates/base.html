@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ page_title or t.site_title }}</title>
+<meta name="description" content="{{ page_description or t.meta_description }}">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="/static/style.css">
+{% block head %}{% endblock %}
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <nav class="nav">
+    <div class="container">
+      <div class="nav__inner">
+        <a href="/{{ lang }}/" class="nav__logo">{{ t.hero.title }} <span>/ v{{ version }}</span></a>
+        <ul class="nav__links">
+          <li><a href="#how">{{ t.nav.how }}</a></li>
+          <li><a href="#why">{{ t.nav.why }}</a></li>
+          <li><a href="#translations">{{ t.nav.translations }}</a></li>
+          <li><a href="#faq">{{ t.nav.faq }}</a></li>
+          <li><a href="#install">{{ t.nav.install }}</a></li>
+          <li><a href="#changelog">{{ t.nav.changelog }}</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__text">
+          {{ t.footer.copy }} <a href="https://github.com/aveleazer/podstr" target="_blank" rel="noopener">{{ t.footer.license }}</a>
+          &nbsp;&middot;&nbsp;
+          <a href="https://t.me/aeleazer" target="_blank" rel="noopener">@aeleazer</a>
+        </div>
+        <div class="footer__text">
+          <a href="#how">{{ t.nav.how }}</a> &nbsp;&middot;&nbsp;
+          <a href="#translations">{{ t.nav.translations }}</a> &nbsp;&middot;&nbsp;
+          <a href="#faq">{{ t.nav.faq }}</a> &nbsp;&middot;&nbsp;
+          <a href="#install">{{ t.nav.install }}</a> &nbsp;&middot;&nbsp;
+          <a href="https://github.com/aveleazer/podstr" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="/static/main.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
