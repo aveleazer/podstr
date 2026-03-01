@@ -109,11 +109,24 @@ SERVER_MODEL_RANKS = {
 # Keyword fallback for unknown full model names
 _RANK_KEYWORDS = [('opus', 5), ('sonnet', 4), ('gemini', 3), ('llama', 2), ('haiku', 1)]
 
+# Short name → full model ID (normalize on write)
+_MODEL_NORMALIZE = {
+    'opus': 'claude-opus-4-6',
+    'sonnet': 'claude-sonnet-4-6',
+    'haiku': 'claude-haiku-4-5',
+}
+
+
+def normalize_model(model):
+    """Normalize short model names to full IDs."""
+    return _MODEL_NORMALIZE.get(model, model)
+
 
 def get_server_model_rank(model):
     """Determine model rank server-side. Client-provided rank is ignored."""
     if not model:
         return 1
+    model = normalize_model(model)
     if model in SERVER_MODEL_RANKS:
         return SERVER_MODEL_RANKS[model]
     model_lower = model.lower()
@@ -299,6 +312,7 @@ def db_get(key):
 
 def db_put(key, vtt, model, model_rank, title='', page_url='', normalized_url='', target_lang=''):
     """Insert or update if new rank >= existing rank. Returns True if written."""
+    model = normalize_model(model)
     conn = sqlite3.connect(DB_PATH)
     existing = conn.execute(
         'SELECT model_rank FROM translations WHERE key = ?', (key,)
