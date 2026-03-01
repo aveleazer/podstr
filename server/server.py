@@ -349,11 +349,72 @@ def extract_glossary(translations, model, target_lang):
 
 # ── Step 3: Incremental JSON Object Parser ───────────────────────────
 
+def _fallback_json_parse(text):
+    """Try to parse buffer via json.loads, then regex (handles broken state machine).
+
+    Returns list of {id, tr} objects or empty list.
+    """
+    text = text.strip()
+
+    # 1. Try json.loads as array
+    for candidate in [text, '[' + text.rstrip(',') + ']']:
+        try:
+            arr = json.loads(candidate)
+            if isinstance(arr, list):
+                result = [obj for obj in arr if isinstance(obj, dict)
+                          and 'id' in obj and 'tr' in obj]
+                if result:
+                    return result
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # 2. Try extracting array from surrounding text (markdown fences, etc.)
+    m = re.search(r'\[[\s\S]*\]', text)
+    if m:
+        try:
+            arr = json.loads(m.group(0))
+            if isinstance(arr, list):
+                result = [obj for obj in arr if isinstance(obj, dict)
+                          and 'id' in obj and 'tr' in obj]
+                if result:
+                    return result
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # 3. Regex: extract {"id": N, "tr": "..."} objects individually
+    # Handles malformed JSON (unescaped quotes, literal newlines, etc.)
+    results = []
+    for m in re.finditer(r'\{\s*"id"\s*:\s*(\d+)\s*,\s*"tr"\s*:\s*"', text):
+        id_val = int(m.group(1))
+        start = m.end()
+        # Find closing: " followed by } (skip escaped quotes)
+        pos = start
+        while pos < len(text):
+            ch = text[pos]
+            if ch == '\\':
+                pos += 2
+                continue
+            if ch == '"':
+                rest = text[pos + 1:].lstrip()
+                if rest.startswith('}'):
+                    raw = text[start:pos]
+                    try:
+                        tr_val = json.loads('"' + raw + '"')
+                    except (json.JSONDecodeError, ValueError):
+                        tr_val = raw.replace('\\n', '\n').replace('\\t', '\t').replace('\\"', '"')
+                    results.append({'id': id_val, 'tr': tr_val})
+                    break
+            pos += 1
+
+    return results
+
+
 def parse_json_objects(buffer):
     """Extract completed {...} JSON objects from a text buffer.
 
     Returns (list_of_parsed_objects, remaining_buffer).
     Handles escaped quotes and nested strings correctly.
+    Falls back to json.loads if state machine finds nothing.
     """
     results = []
     depth = 0
@@ -397,7 +458,14 @@ def parse_json_objects(buffer):
                     if 'id' in obj and 'tr' in obj:
                         results.append(obj)
                 except json.JSONDecodeError:
-                    pass
+                    # Fix literal newlines/tabs (invalid JSON but Claude produces them)
+                    try:
+                        fixed = obj_text.replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+                        obj = json.loads(fixed)
+                        if 'id' in obj and 'tr' in obj:
+                            results.append(obj)
+                    except json.JSONDecodeError:
+                        pass
                 obj_start = -1
 
         i += 1
@@ -407,6 +475,14 @@ def parse_json_objects(buffer):
         remaining = buffer[obj_start:]
     else:
         remaining = ""
+
+    # Fallback: if state machine found nothing but buffer has content,
+    # try json.loads (handles cases where unescaped quotes break state tracking)
+    if not results and len(buffer.strip()) > 10:
+        fallback = _fallback_json_parse(buffer)
+        if fallback:
+            log.info(f"  [parse_json_objects] state machine: 0, json.loads fallback: {len(fallback)} objects")
+            return fallback, ""
 
     return results, remaining
 
@@ -554,6 +630,14 @@ def translate_cli_stream(prompt, model, on_line=None, on_heartbeat=None, timeout
                     on_line(obj)
         else:
             log.info(f"  [final_parse] remaining buffer ({len(text_buffer)} chars, no objects): {text_buffer[:200]}")
+            # Dump full buffer to file for debugging
+            dump_path = os.path.join(os.path.dirname(__file__), f'parse_fail_{int(time.time())}.txt')
+            try:
+                with open(dump_path, 'w', encoding='utf-8') as df:
+                    df.write(text_buffer)
+                log.info(f"  [final_parse] buffer dumped to {dump_path}")
+            except Exception as e:
+                log.info(f"  [final_parse] dump failed: {e}")
 
     if killed_by_timeout[0]:
         raise RuntimeError(f"CLI timed out after {stream_timeout}s")

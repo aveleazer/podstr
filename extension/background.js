@@ -12,7 +12,7 @@ importScripts('providers.js');
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
 const SHARED_CACHE_KEY = '';  // Set via popup settings or env
-const SHARED_CACHE_DEFAULT_URL = '';  // Set via popup settings
+const SHARED_CACHE_DEFAULT_URL = 'https://podstr.cc';
 const seenUrls = new Set();
 const detectedByTab = {}; // tabId -> [{type, url}]
 

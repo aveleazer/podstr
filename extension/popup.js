@@ -220,9 +220,8 @@ $('stylePosition').addEventListener('change', () => saveSubtitleStyle());
 // ── Shared cache settings (Settings tab) ──
 // ══════════════════════════════════════════════════
 
-chrome.storage.sync.get(['sharedCacheEnabled', 'sharedCacheUrl'], (data) => {
+chrome.storage.sync.get(['sharedCacheEnabled'], (data) => {
   $('toggleSharedCache').checked = data.sharedCacheEnabled !== false;
-  if (data.sharedCacheUrl) $('sharedCacheUrl').value = data.sharedCacheUrl;
 });
 chrome.storage.local.get(['sharedCacheApiKey'], (data) => {
   if (data.sharedCacheApiKey) $('sharedCacheApiKey').value = data.sharedCacheApiKey;
@@ -230,14 +229,6 @@ chrome.storage.local.get(['sharedCacheApiKey'], (data) => {
 
 $('toggleSharedCache').addEventListener('change', () => {
   chrome.storage.sync.set({ sharedCacheEnabled: $('toggleSharedCache').checked });
-});
-
-let cacheUrlTimer;
-$('sharedCacheUrl').addEventListener('input', (e) => {
-  clearTimeout(cacheUrlTimer);
-  cacheUrlTimer = setTimeout(() => {
-    chrome.storage.sync.set({ sharedCacheUrl: e.target.value.trim() });
-  }, 500);
 });
 
 let cacheKeyTimer;
@@ -454,15 +445,9 @@ function loadTranslations() {
   $('translationsEmpty').style.display = 'none';
   $('translationsError').style.display = 'none';
 
-  chrome.storage.sync.get(['sharedCacheUrl'], (data) => {
-    const link = $('siteLink');
-    if (data.sharedCacheUrl) {
-      link.href = data.sharedCacheUrl;
-      link.style.display = 'block';
-    } else {
-      link.style.display = 'none';
-    }
-  });
+  const link = $('siteLink');
+  link.href = 'https://podstr.cc';
+  link.style.display = 'block';
 
   chrome.runtime.sendMessage({
     type: 'get_translations_list',
