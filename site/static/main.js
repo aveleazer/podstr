@@ -17,15 +17,5 @@
     srElements.forEach(function(el) { el.classList.add('is-visible'); });
   }
 
-  // ─── Accordion toggle (event delegation) ───
-  document.addEventListener('click', function(e) {
-    var header = e.target.closest('.group-header');
-    if (!header) return;
-    header.classList.toggle('open');
-    var body = header.nextElementSibling;
-    if (body && body.classList.contains('group-episodes')) {
-      body.classList.toggle('open');
-    }
-  });
 
 })();

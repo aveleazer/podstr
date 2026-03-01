@@ -1,4 +1,45 @@
 {% extends "base.html" %}
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": {{ t.hero.title|tojson }},
+  "description": {{ t.meta_description|tojson }},
+  "applicationCategory": "BrowserExtension",
+  "operatingSystem": "Chrome",
+  "url": {{ canonical_url|tojson }},
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "RUB"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "aeleazer",
+    "url": "https://t.me/aeleazer"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for item in t.faq['items'] %}
+    {
+      "@type": "Question",
+      "name": {{ item.q|tojson }},
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": {{ item.a|tojson }}
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 
   <!-- HERO -->
@@ -71,49 +112,40 @@
       <div class="section-header sr">
         <span class="section-number">{{ t.translations.number }}</span>
         <h2 class="section-title">{{ t.translations.title }}</h2>
-        <p style="font-family:var(--font-body);font-size:1.05rem;color:var(--text-secondary);margin-top:1rem;max-width:640px;line-height:1.6;">{{ t.translations.subtitle }}</p>
+        <p class="section-subtitle">{{ t.translations.subtitle }}</p>
       </div>
 
-      <div id="translations-content" class="sr">
-        {% if translation_groups %}
-          {% for group in translation_groups %}
-          <div class="group-header">
-            <span class="group-chevron">&#9654;</span>
-            <span class="group-title">{{ group.name }}</span>
-            <span class="group-count">{{ group.episode_count }} {{ t.translations.ep_suffix }}</span>
-            {% if group.best_model_display %}
-            <span class="group-model{{ ' group-model--gold' if group.best_rank >= 4 else '' }}">{{ group.best_model_display }}</span>
-            {% endif %}
-          </div>
-          <div class="group-episodes">
-            {% for season in group.seasons %}
-            {% if season.number %}
-            <div class="season-label">{{ t.translations.season }} {{ season.number }}</div>
-            {% endif %}
-            {% for ep in season.episodes %}
-            <div class="ep-row">
-              {% if ep.code %}<span class="ep-code">{{ ep.code }}</span>{% endif %}
-              <span class="ep-name">
-                {%- if ep.name and ep.page_url %}<a href="{{ ep.page_url }}" target="_blank" rel="noopener">{{ ep.name }}</a>
-                {%- elif ep.name %}{{ ep.name }}
-                {%- elif not ep.code %}{{ group.name }}
-                {%- endif -%}
-              </span>
-              <span class="ep-model{{ ' ep-model--gold' if ep.rank >= 4 else '' }}">{{ ep.model_display }}</span>
-              <a class="ep-dl" href="/cache/{{ ep.key_encoded }}?format=vtt" download>.vtt</a>
-              <a class="ep-dl" href="/cache/{{ ep.key_encoded }}?format=srt" download>.srt</a>
-              <span class="ep-date">{{ ep.date }}</span>
-            </div>
-            {% endfor %}
-            {% endfor %}
-          </div>
-          {% endfor %}
-
-          <div class="table-stats">{{ stats_text }}</div>
-        {% else %}
-          <div class="table-empty">{{ t.translations.empty }}</div>
-        {% endif %}
+      {% if recent_translations %}
+      <div class="recent sr">
+        <h3 class="subsection-title">{{ t.translations.recent_title }}</h3>
+        {% for item in recent_translations %}
+        <a href="/{{ lang }}/subtitles/{{ item.slug }}/" class="recent-row">
+          <span class="recent-show">{{ item.show }}</span>
+          {% if item.code %}<span class="recent-code">{{ item.code }}</span>{% endif %}
+          {% if item.name %}<span class="recent-name">{{ item.name }}</span>{% endif %}
+          <span class="recent-date">{{ item.date }}</span>
+        </a>
+        {% endfor %}
       </div>
+      {% endif %}
+
+      {% if translation_groups %}
+      <div class="catalog sr">
+        <h3 class="subsection-title">{{ t.translations.all_series_title }}</h3>
+        {% for group in translation_groups %}
+        <a href="/{{ lang }}/subtitles/{{ group.slug }}/" class="catalog-row">
+          <span class="catalog-name">{{ group.name }}</span>
+          <span class="catalog-count">{{ group.episode_count }} {{ t.translations.ep_suffix }}</span>
+          {% if group.best_model_display %}
+          <span class="catalog-model{{ ' catalog-model--gold' if group.best_rank >= 4 else '' }}">{{ group.best_model_display }}</span>
+          {% endif %}
+        </a>
+        {% endfor %}
+        <div class="table-stats">{{ stats_text }}</div>
+      </div>
+      {% else %}
+      <div class="table-empty">{{ t.translations.empty }}</div>
+      {% endif %}
     </div>
   </section>
 

@@ -70,11 +70,13 @@ Output format: JSON array of objects with "id" and "tr" fields. Example:
 [{"id": 1, "tr": "Translated text"}, {"id": 2, "tr": "Another line"}]
 
 Rules:
-- Translate every line. Do not skip any.
-- Output ONLY the JSON array. No explanations, no markdown.
+- Translate EVERY line. Do not skip any. You MUST output exactly ${lines.length} objects.
+- Output ONLY the JSON array. No explanations, no markdown, no commentary.
 - Preserve emotion, slang, idioms \u2014 translate them naturally into ${targetLang}
 - Translate proper nouns where standard translations exist (London \u2192 \u041b\u043e\u043d\u0434\u043e\u043d, Jean \u2192 \u0416\u0430\u043d)
 - If a line is a sound effect like [musique], translate it too
+- Lines with \u266a (song lyrics) \u2014 translate the lyrics, keep the \u266a symbol
+- Lines that are just \u266a or [music] \u2014 copy as-is
 - Pay attention to grammatical gender \u2014 infer from context
 - Keep line breaks where they are (represented as \\n in the text)
 
@@ -222,5 +224,28 @@ function buildVtt(entries) {
   for (let i = 0; i < entries.length; i++) {
     vtt += `${i + 1}\n${entries[i].timing}\n${entries[i].text}\n\n`;
   }
+  // Credit cue: 2s after last subtitle, visible for 4s
+  if (entries.length > 0) {
+    const lastTiming = entries[entries.length - 1].timing;
+    const endPart = lastTiming.split('-->')[1].trim();
+    const endSecs = _parseVttTime(endPart);
+    const creditStart = _fmtVttTime(endSecs + 2);
+    const creditEnd = _fmtVttTime(endSecs + 6);
+    vtt += `${entries.length + 1}\n${creditStart} --> ${creditEnd}\nПереведено через Подстрочник — умные ИИ-субтитры\npodstr.cc\n\n`;
+  }
   return vtt;
+}
+
+function _parseVttTime(s) {
+  const parts = s.replace(',', '.').split(':');
+  if (parts.length === 3) return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseFloat(parts[2]);
+  if (parts.length === 2) return parseInt(parts[0]) * 60 + parseFloat(parts[1]);
+  return 0;
+}
+
+function _fmtVttTime(secs) {
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${s.toFixed(3).padStart(6,'0')}`;
 }

@@ -14,3 +14,4 @@ server/local_cache.db
 
 # Generated site output
 site/out/
+site/tmdb_cache.json

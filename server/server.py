@@ -283,11 +283,13 @@ Output format: JSON array of objects with "id" and "tr" fields. Example:
 [{{"id": 1, "tr": "Translated text"}}, {{"id": 2, "tr": "Another line"}}]
 
 Rules:
-- Translate every line. Do not skip any.
-- Output ONLY the JSON array. No explanations, no markdown.
+- Translate EVERY line. Do not skip any. You MUST output exactly {len(lines)} objects.
+- Output ONLY the JSON array. No explanations, no markdown, no commentary.
 - Preserve emotion, slang, idioms — translate them naturally into {target_lang}
 - Translate proper nouns where standard translations exist (London → Лондон, Jean → Жан)
 - If a line is a sound effect like [musique], translate it too
+- Lines with ♪ (song lyrics) — translate the lyrics, keep the ♪ symbol
+- Lines that are just ♪ or [music] — copy as-is
 - Pay attention to grammatical gender — infer from context
 - Keep line breaks where they are (represented as \\n in the text)
 {glossary_section}{context_section}{style_section}
@@ -506,8 +508,26 @@ def translate_cli_stream(prompt, model, on_line=None, on_heartbeat=None, timeout
                             if on_line:
                                 on_line(obj)
 
+            # Log rate limit events
+            if 'rate_limit' in event.get('type', ''):
+                retry_after = event.get('retry_after', event.get('data', {}).get('retry_after', '?'))
+                log.warning(f"  [rate_limit] retry_after={retry_after}s")
+
+            # Log message_delta (carries stop_reason in API format)
+            if event.get('type') == 'message_delta':
+                delta = event.get('delta', {})
+                stop = delta.get('stop_reason', '?')
+                usage = event.get('usage', {})
+                out_tokens = usage.get('output_tokens', '?')
+                log.info(f"  [message_delta] stop_reason={stop}, output_tokens={out_tokens}")
+
             # Check for error in result event
             if event.get('type') == 'result':
+                stop = event.get('stop_reason', '?')
+                usage = event.get('usage', {})
+                out_tokens = usage.get('output_tokens', '?')
+                subtype = event.get('subtype', '?')
+                log.info(f"  [result] stop_reason={stop}, output_tokens={out_tokens}, subtype={subtype}, objects={len(all_objects)}")
                 if event.get('is_error'):
                     err = event.get('result', 'Unknown CLI error')
                     raise RuntimeError(f"CLI error: {str(err)[:300]}")
@@ -523,6 +543,18 @@ def translate_cli_stream(prompt, model, on_line=None, on_heartbeat=None, timeout
         if heartbeat_thread:
             heartbeat_thread.join(timeout=2)
 
+    # Final parse of remaining buffer
+    if text_buffer.strip():
+        final_objects, _ = parse_json_objects(text_buffer)
+        if final_objects:
+            log.info(f"  [final_parse] recovered {len(final_objects)} objects from remaining buffer")
+            for obj in final_objects:
+                all_objects.append(obj)
+                if on_line:
+                    on_line(obj)
+        else:
+            log.info(f"  [final_parse] remaining buffer ({len(text_buffer)} chars, no objects): {text_buffer[:200]}")
+
     if killed_by_timeout[0]:
         raise RuntimeError(f"CLI timed out after {stream_timeout}s")
 
@@ -534,67 +566,106 @@ def translate_cli_stream(prompt, model, on_line=None, on_heartbeat=None, timeout
 
 # ── Step 5: Validate and Retry ───────────────────────────────────────
 
+RETRY_BATCH_SIZE = 50
+MAX_RETRY_ROUNDS = 2
+RETRY_DELAY = 30          # seconds before retry (rate limit cooldown)
+
+
 def validate_and_retry(lines, translations, model, target_lang, on_event=None):
-    """Check for missing translations and retry once via non-streaming CLI.
+    """Retry missing translations in small batches (up to MAX_RETRY_ROUNDS).
 
-    Returns merged list of translations.
+    Splits missing lines into chunks of RETRY_BATCH_SIZE, retries each via
+    streaming CLI (same mechanism as main translation). Stops early if a round
+    recovers nothing.
     """
-    translated_ids = {t['id'] for t in translations}
-    all_ids = {l['id'] for l in lines}
-    missing = all_ids - translated_ids
+    for round_num in range(1, MAX_RETRY_ROUNDS + 1):
+        translated_ids = {t['id'] for t in translations}
+        all_ids = {l['id'] for l in lines}
+        missing = all_ids - translated_ids
 
-    if not missing:
-        return translations
-
-    log.info(f"  ⚠ Пропущено {len(missing)} строк, retry...")
-    missing_lines = [l for l in lines if l['id'] in missing]
-
-    retry_prompt = build_json_prompt(missing_lines, target_lang)
-
-    try:
-        result = subprocess.run(
-            ['claude', '--model', model, '-p', retry_prompt],
-            capture_output=True, text=True, timeout=300,
-        )
-        if result.returncode != 0:
-            log.info(f"  ⚠ Retry CLI error: {result.stderr[:200]}")
+        if not missing:
             return translations
 
-        # Parse all JSON objects from retry output
-        objects, _ = parse_json_objects(result.stdout)
-        retry_count = len(objects)
+        missing_lines = [l for l in lines if l['id'] in missing]
+        log.info(f"  ⚠ Пропущено {len(missing)} строк, retry round {round_num} (пауза {RETRY_DELAY}с)...")
+        time.sleep(RETRY_DELAY)
 
-        # Emit retry results as line events
-        if on_event:
-            for obj in objects:
-                on_event({'type': 'line', 'id': obj['id'], 'tr': obj['tr']})
+        recovered = 0
+        for i in range(0, len(missing_lines), RETRY_BATCH_SIZE):
+            chunk = missing_lines[i:i + RETRY_BATCH_SIZE]
+            retry_prompt = build_json_prompt(chunk, target_lang)
 
-        if retry_count > 0:
-            log.info(f"  → Retry: +{retry_count} строк ✓")
-            return translations + objects
+            try:
+                objects = translate_cli_stream(retry_prompt, model, timeout=300)
+                # Filter to only requested IDs
+                chunk_ids = {l['id'] for l in chunk}
+                objects = [o for o in objects if o['id'] in chunk_ids]
+
+                if not objects:
+                    log.info(f"  ⚠ Retry chunk {i//RETRY_BATCH_SIZE+1} returned 0 objects")
+
+                if on_event:
+                    for obj in objects:
+                        on_event({'type': 'line', 'id': obj['id'], 'tr': obj['tr']})
+
+                if objects:
+                    translations = translations + objects
+                    recovered += len(objects)
+
+            except RuntimeError as e:
+                log.info(f"  ⚠ Retry chunk error: {e}")
+            except Exception as e:
+                log.info(f"  ⚠ Retry chunk error: {e}")
+
+        if recovered > 0:
+            log.info(f"  → Retry round {round_num}: +{recovered} строк ✓")
         else:
-            log.info(f"  ⚠ Retry вернул 0 строк")
-            return translations
+            log.info(f"  ⚠ Retry round {round_num} вернул 0 строк, прекращаю")
+            break
 
-    except subprocess.TimeoutExpired:
-        log.info(f"  ⚠ Retry timeout (300s)")
-        return translations
-    except Exception as e:
-        log.info(f"  ⚠ Retry error: {e}")
-        return translations
+    return translations
 
 
 # ── Step 6: Build Translated VTT ─────────────────────────────────────
+
+def _parse_vtt_time(s):
+    """Parse VTT timestamp like '01:23:45.678' to seconds."""
+    parts = s.strip().replace(',', '.').split(':')
+    if len(parts) == 3:
+        return int(parts[0]) * 3600 + int(parts[1]) * 60 + float(parts[2])
+    if len(parts) == 2:
+        return int(parts[0]) * 60 + float(parts[1])
+    return 0.0
+
+def _fmt_vtt_time(secs):
+    """Format seconds to VTT timestamp 'HH:MM:SS.mmm'."""
+    h = int(secs // 3600)
+    m = int((secs % 3600) // 60)
+    s = secs % 60
+    return f"{h:02d}:{m:02d}:{s:06.3f}"
+
+CREDIT_LINE = "Переведено через Подстрочник — умные ИИ-субтитры\npodstr.cc"
 
 def build_translated_vtt(lines):
     """Build VTT from parsed lines with translations.
 
     Each line: {id, time, src, tr?}. Uses tr if present, falls back to src.
+    Appends a credit cue at the end.
     """
     vtt = "WEBVTT\n\n"
     for line in lines:
         text = line.get('tr') or line['src']
         vtt += f"{line['id']}\n{line['time']}\n{text}\n\n"
+
+    # Credit cue: 2s after last subtitle, visible for 4s
+    if lines:
+        last_time = lines[-1]['time']
+        end_part = last_time.split('-->')[-1].strip()
+        end_secs = _parse_vtt_time(end_part)
+        credit_start = _fmt_vtt_time(end_secs + 2)
+        credit_end = _fmt_vtt_time(end_secs + 6)
+        vtt += f"{len(lines) + 1}\n{credit_start} --> {credit_end}\n{CREDIT_LINE}\n\n"
+
     return vtt
 
 
@@ -804,18 +875,19 @@ def translate_job(job):
     else:
         log.info(f"  ✅ Готово: {translated_final}/{total} строк за {elapsed}s ({total_batches} батч(ей))")
 
-    # 6. Upload result (shared_cache.py auto-saves to translations table)
+    # 6. Upload result — accept partial translations (missed lines keep original text)
+    miss_pct = missed / total * 100 if total else 0
     if missed > 0:
-        report_error(job_id, f'{missed} lines missed out of {total}')
-    else:
-        report_result(job_id, translated_vtt, model)
+        log.info(f"  ⚠ {missed}/{total} строк не переведены ({miss_pct:.0f}%), оригинал сохранён")
 
-        # Local backup
-        full_model = CLI_MODEL_MAP.get(model, model)
-        rank = CLI_MODEL_RANKS.get(model, 1)
-        vtt_hash = hashlib.sha256(job['vtt'].encode()).hexdigest()
-        local_key = f"{vtt_hash}@auto@{target_lang}"
-        save_to_local_db(local_key, translated_vtt, full_model, rank, '', target_lang)
+    report_result(job_id, translated_vtt, model)
+
+    # Local backup
+    full_model = CLI_MODEL_MAP.get(model, model)
+    rank = CLI_MODEL_RANKS.get(model, 1)
+    vtt_hash = hashlib.sha256(job['vtt'].encode()).hexdigest()
+    local_key = f"{vtt_hash}@auto@{target_lang}"
+    save_to_local_db(local_key, translated_vtt, full_model, rank, '', target_lang)
 
 
 # ── Step 9: Translate local file ─────────────────────────────────────

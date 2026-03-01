@@ -57,6 +57,37 @@ def trigger_backup():
     except Exception as e:
         print(f'  \u26a0 Backup trigger failed: {e}')
 
+# ── Site generation trigger (debounced) ──
+GENERATE_SCRIPT = os.environ.get('GENERATE_SCRIPT', os.path.join(os.path.dirname(__file__), '..', 'site', 'generate.py'))
+GENERATE_DEBOUNCE = int(os.environ.get('GENERATE_DEBOUNCE', 60))
+_last_generate_time = 0
+_generate_lock = Lock()
+
+
+def trigger_generate():
+    """Run site generation in background if enough time has passed (debounce)."""
+    global _last_generate_time
+    with _generate_lock:
+        now = time.time()
+        if now - _last_generate_time < GENERATE_DEBOUNCE:
+            return
+        _last_generate_time = now
+
+    if not os.path.isfile(GENERATE_SCRIPT):
+        return
+
+    try:
+        subprocess.Popen(
+            ['python3', GENERATE_SCRIPT],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            cwd=os.path.dirname(GENERATE_SCRIPT),
+        )
+        print(f'  \U0001f4c4 Site generation triggered')
+    except Exception as e:
+        print(f'  \u26a0 Generate trigger failed: {e}')
+
+
 PORT = 5001
 RATE_LIMIT = 10  # PUT /cache requests per minute per IP
 QUEUE_RATE_LIMIT = 5  # POST /queue/submit requests per minute per IP
@@ -108,6 +139,34 @@ def is_valid_subtitle(text):
 # ── Rate limiter (in-memory, resets on restart) ──
 rate_lock = Lock()
 rate_buckets = defaultdict(list)  # ip -> [timestamps]
+
+
+CREDIT_LINE = "Переведено через Подстрочник — умные ИИ-субтитры\npodstr.cc"
+
+def _parse_vtt_time(s):
+    parts = s.strip().replace(',', '.').split(':')
+    if len(parts) == 3:
+        return int(parts[0]) * 3600 + int(parts[1]) * 60 + float(parts[2])
+    if len(parts) == 2:
+        return int(parts[0]) * 60 + float(parts[1])
+    return 0.0
+
+def _fmt_vtt_time(secs):
+    h = int(secs // 3600)
+    m = int((secs % 3600) // 60)
+    s = secs % 60
+    return f"{h:02d}:{m:02d}:{s:06.3f}"
+
+def append_credit_vtt(vtt):
+    """Append credit cue to VTT: 2s after last subtitle, visible for 4s."""
+    # Find last timestamp
+    timestamps = re.findall(r'(\d{2}:\d{2}:\d{2}[\.,]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[\.,]\d{3})', vtt)
+    if not timestamps:
+        return vtt
+    last_end = _parse_vtt_time(timestamps[-1][1])
+    start = _fmt_vtt_time(last_end + 2)
+    end = _fmt_vtt_time(last_end + 6)
+    return vtt.rstrip() + f"\n\n{start} --> {end}\n{CREDIT_LINE}\n"
 
 
 def vtt_to_srt(vtt):
@@ -273,6 +332,7 @@ def db_put(key, vtt, model, model_rank, title='', page_url='', normalized_url=''
     conn.commit()
     conn.close()
     trigger_backup()
+    trigger_generate()
     return True
 
 
@@ -431,14 +491,7 @@ def job_result(job_id, vtt, model):
 
     if row:
         cache_key = f"{row[0]}@auto@{row[1]}"
-        rank = 2
-        model_lower = model.lower()
-        # Ranks synchronized with providers.js MODEL_RANKS (canonical source)
-        # haiku=1, sonnet=4, opus=5, gpt-4o=3, gemini-flash=1, llama=2
-        for kw, r in [('haiku', 1), ('sonnet', 4), ('opus', 5)]:
-            if kw in model_lower:
-                rank = r
-                break
+        rank = get_server_model_rank(model)
         db_put(cache_key, vtt, model, rank, row[2] or '', row[3] or '', row[4] or '', row[1])
         print(f'  ✓ Job {job_id}: done, saved to cache as {cache_key[:50]}')
 
@@ -643,15 +696,16 @@ class Handler(BaseHTTPRequestHandler):
                 _fname = re.sub(r'[^\w\s\-.]', '', _title).strip() or 'subtitles'
 
                 if fmt == 'vtt':
+                    vtt_out = append_credit_vtt(entry['vtt'])
                     self.send_response(200)
                     self._cors()
                     self.send_header('Content-Type', 'text/vtt; charset=utf-8')
                     self.send_header('Content-Disposition',
                                      f"attachment; filename*=UTF-8''{quote(_fname)}.vtt")
                     self.end_headers()
-                    self.wfile.write(entry['vtt'].encode())
+                    self.wfile.write(vtt_out.encode())
                 elif fmt == 'srt':
-                    srt = vtt_to_srt(entry['vtt'])
+                    srt = vtt_to_srt(append_credit_vtt(entry['vtt']))
                     self.send_response(200)
                     self._cors()
                     self.send_header('Content-Type', 'application/x-subrip; charset=utf-8')

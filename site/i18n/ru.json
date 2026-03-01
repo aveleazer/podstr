@@ -58,6 +58,8 @@
     "empty": "Переводов пока нет",
     "season": "Сезон",
     "ep_suffix": "эп.",
+    "recent_title": "Последние переводы",
+    "all_series_title": "Все сериалы",
     "stats": {
       "show_one": "сериал",
       "show_few": "сериала",
@@ -69,6 +71,12 @@
       "translated_few": "переведено",
       "translated_many": "переведено"
     }
+  },
+  "series": {
+    "review_title": "О\u00a0сериале",
+    "episodes_title": "Эпизоды с\u00a0субтитрами",
+    "title_suffix": "русские субтитры, скачать .srt",
+    "desc_template": "Русские субтитры для {name} ({year}). {count} {ep_word}. Скачать .vtt и .srt бесплатно"
   },
   "faq": {
     "number": "04 / Честно",
