@@ -728,27 +728,16 @@ def _fmt_vtt_time(secs):
     s = secs % 60
     return f"{h:02d}:{m:02d}:{s:06.3f}"
 
-CREDIT_LINE = "Переведено через Подстрочник — умные ИИ-субтитры\npodstr.cc"
-
 def build_translated_vtt(lines):
     """Build VTT from parsed lines with translations.
 
     Each line: {id, time, src, tr?}. Uses tr if present, falls back to src.
-    Appends a credit cue at the end.
+    Credit cue is appended by shared_cache on download, not stored in DB.
     """
     vtt = "WEBVTT\n\n"
     for line in lines:
         text = line.get('tr') or line['src']
         vtt += f"{line['id']}\n{line['time']}\n{text}\n\n"
-
-    # Credit cue: 2s after last subtitle, visible for 4s
-    if lines:
-        last_time = lines[-1]['time']
-        end_part = last_time.split('-->')[-1].strip()
-        end_secs = _parse_vtt_time(end_part)
-        credit_start = _fmt_vtt_time(end_secs + 2)
-        credit_end = _fmt_vtt_time(end_secs + 6)
-        vtt += f"{len(lines) + 1}\n{credit_start} --> {credit_end}\n{CREDIT_LINE}\n\n"
 
     return vtt
 
