@@ -3,7 +3,20 @@
 Формат: [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/).
 Версионирование: [Semver](https://semver.org/lang/ru/). Source of truth — `extension/manifest.json`.
 
-## [Unreleased]
+## [0.5.1] — 2026-03-02
+
+### Fixed
+- YouTube: субтитры работают без ручного нажатия CC — проактивное обнаружение треков из `ytInitialPlayerResponse` (youtube-detect.js в MAIN world), программное включение CC через player API для получения рабочего URL, автоотключение нативных CC после перехвата
+
+## [0.5.0] — 2026-03-02
+
+### Added
+- **Поддержка YouTube** — перехват субтитров через `/api/timedtext`, перевод ручных CC (ASR фильтруются). Picker появляется при включении CC. SPA-навигация: очистка треков при смене видео
+- Скрытие нативных YouTube CC (`.ytp-caption-window-container`) при показе перевода
+
+### Fixed
+- Overlay на YouTube: контейнер `.html5-video-container` имеет `height: 0` — теперь пропускается при поиске контейнера, overlay привязывается к `#movie_player`
+- Очистка title от YouTube-мусора: счётчик уведомлений `(16)`, суффикс `- YouTube`
 
 ### Changed
 - Главная: секция «Готовые переводы» — аккордеон заменён на «Последние переводы» (10 эпизодов по дате) + «Все сериалы» (компактный каталог). Скачивание .vtt/.srt — на страницах сериалов

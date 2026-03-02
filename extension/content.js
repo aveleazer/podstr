@@ -42,6 +42,7 @@
     '.kp-subtitles', '.jw-captions', '.vjs-text-track-display',
     '.shaka-text-container', '.plyr__captions', '.subtitle-text',
     '[class*="subtitle-overlay"]', '[class*="captions-display"]',
+    '.ytp-caption-window-container',
   ];
 
   // ── Helpers ──
@@ -72,6 +73,7 @@
   let lastCueCount = 0;
   let keepaliveInterval = null;
   let lastProgressTime = Date.now();
+  const ytUrlResolvers = {}; // youtube:videoId:lang -> resolve(webRequestUrl)
   let mouseHideTimer = null;
   let cacheNotifyElement = null;
   let cacheNotifyTimer = null;
@@ -124,6 +126,34 @@
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === 'm3u8_detected') {
       handlePlaylist(msg.url);
+    }
+
+    if (msg.type === 'youtube_detected') {
+      try {
+        const u = new URL(msg.url);
+        const videoId = u.searchParams.get('v')
+          || new URL(window.location.href).searchParams.get('v');
+        const lang = u.searchParams.get('lang') || 'unknown';
+        if (!videoId) return;
+        const trackUrl = `youtube:${videoId}:${lang}`;
+        const existing = detectedTracks.find(t => t.url === trackUrl);
+        if (existing) {
+          // Update with real webRequest URL (works for fetching)
+          existing._ytTimedTextUrl = msg.url;
+          if (ytUrlResolvers[trackUrl]) {
+            ytUrlResolvers[trackUrl](msg.url);
+            delete ytUrlResolvers[trackUrl];
+          }
+          return;
+        }
+        detectedTracks.push({
+          lang: lang,
+          url: trackUrl,
+          label: LANG_NAMES[lang] || lang.toUpperCase(),
+          _ytTimedTextUrl: msg.url,
+        });
+        showPicker();
+      } catch (e) {}
     }
 
     if (msg.type === 'translation_progress') {
@@ -208,6 +238,27 @@
     for (const item of urls) {
       if (item.type === 'm3u8_detected') {
         handlePlaylist(item.url);
+      } else if (item.type === 'youtube_detected') {
+        try {
+          const u = new URL(item.url);
+          const videoId = u.searchParams.get('v')
+            || new URL(window.location.href).searchParams.get('v');
+          const lang = u.searchParams.get('lang') || 'unknown';
+          if (!videoId) continue;
+          const trackUrl = `youtube:${videoId}:${lang}`;
+          const existing = detectedTracks.find(t => t.url === trackUrl);
+          if (existing) {
+            existing._ytTimedTextUrl = item.url;
+            continue;
+          }
+          detectedTracks.push({
+            lang: lang,
+            url: trackUrl,
+            label: LANG_NAMES[lang] || lang.toUpperCase(),
+            _ytTimedTextUrl: item.url,
+          });
+          showPicker();
+        } catch (e) {}
       }
     }
   });
@@ -238,6 +289,34 @@
     }
   }
   findVideo();
+
+  // ── YouTube: receive caption tracks from youtube-detect.js (MAIN world) ──
+  window.addEventListener('message', (e) => {
+    if (e.data?.type !== '__ai_sub_yt_tracks') return;
+    const videoId = new URL(location.href).searchParams.get('v');
+    if (!videoId) return;
+    for (const track of e.data.tracks) {
+      if (track.kind === 'asr') continue;
+      const lang = track.languageCode;
+      const trackUrl = `youtube:${videoId}:${lang}`;
+      if (detectedTracks.some(t => t.url === trackUrl)) continue;
+      detectedTracks.push({
+        lang,
+        url: trackUrl,
+        label: LANG_NAMES[lang] || lang.toUpperCase(),
+        _ytTimedTextUrl: track.baseUrl,
+      });
+    }
+    if (detectedTracks.length > 0) showPicker();
+  });
+
+  // ── YouTube SPA navigation: clear stale tracks ──
+  document.addEventListener('yt-navigate-finish', () => {
+    detectedTracks.length = 0;
+    activeTrackUrl = null;
+    processedPlaylists.clear();
+    hidePicker();
+  });
 
   // ── Phase 1: Detect track and show picker ──
   function handlePlaylist(url) {
@@ -292,6 +371,13 @@
     updatePicker();
     checkCachedTracks();
     checkSharedCache();
+  }
+
+  function hidePicker() {
+    if (pickerElement) {
+      pickerElement.remove();
+      pickerElement = null;
+    }
   }
 
   function checkCachedTracks() {
@@ -369,7 +455,7 @@
     let container = video.parentElement;
     while (container && container !== document.body) {
       const rect = container.getBoundingClientRect();
-      if (rect.width > 0 && rect.width >= video.clientWidth * 0.9) break;
+      if (rect.width >= video.clientWidth * 0.9 && rect.height > 0) break;
       container = container.parentElement;
     }
     if (!container || container === document.body) container = video.parentElement;
@@ -430,7 +516,7 @@
     let container = video.parentElement;
     while (container && container !== document.body) {
       const rect = container.getBoundingClientRect();
-      if (rect.width > 0 && rect.width >= video.clientWidth * 0.9) break;
+      if (rect.width >= video.clientWidth * 0.9 && rect.height > 0) break;
       container = container.parentElement;
     }
     if (!container || container === document.body) container = video.parentElement;
@@ -728,6 +814,8 @@
     } catch (e) { /* fall through */ }
     // Fallback: clean page title
     let title = document.title
+      .replace(/^\(\d+\)\s*/, '')                // YouTube notification count: (16)
+      .replace(/\s*[-–—|]\s*YouTube\s*$/i, '')   // YouTube suffix
       .replace(/\s*[-–—|].*(kinopub|кинопаб|смотреть|онлайн|hd|1080).*/i, '')
       .replace(/\s*[-–—|]\s*$/, '')
       .trim();
@@ -825,10 +913,11 @@
         }
         console.log(`[AI Subtitler] Watchdog: no progress for 8 min, re-sending start_translation`);
         lastProgressTime = Date.now(); // prevent rapid re-sends
+        const watchdogUrl = track.url.startsWith('youtube:') ? track.url : 'playlist:' + track.url;
         chrome.runtime.sendMessage({
           type: 'start_translation',
           vtt: track._cachedVtt,
-          url: 'playlist:' + track.url,
+          url: watchdogUrl,
           target_lang: targetLang,
           provider: selectedProvider,
           model: selectedModel,
@@ -854,6 +943,56 @@
     showBadge('translating', devMode ? `Скачиваю ${track.label} субтитры...` : 'Загрузка субтитров...');
 
     try {
+      // ── YouTube: enable CC via player API, wait for webRequest URL, fetch VTT ──
+      if (track.url.startsWith('youtube:')) {
+        const lang = track.url.split(':')[2];
+
+        // Ask YouTube player to load subtitles for this language
+        window.postMessage({ type: '__ai_sub_yt_enable_cc', lang }, '*');
+
+        // Wait for webRequest to catch the real timedtext URL (max 8s)
+        const fetchUrl = await Promise.race([
+          new Promise(resolve => { ytUrlResolvers[track.url] = resolve; }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
+        ]).catch(() => null);
+        delete ytUrlResolvers[track.url];
+
+        // Got the URL, disable native CC
+        window.postMessage({ type: '__ai_sub_yt_disable_cc' }, '*');
+
+        if (track.url !== activeTrackUrl) return; // cancelled while waiting
+        if (!fetchUrl) {
+          showBadge('error', 'Включите субтитры (CC) в плеере');
+          activeTrackUrl = null; updatePicker(); return;
+        }
+
+        const result = await new Promise(resolve =>
+          chrome.runtime.sendMessage({ type: 'fetch_youtube_vtt', url: fetchUrl }, resolve)
+        );
+        if (result.error) {
+          showBadge('error', 'YouTube: ' + result.error);
+          activeTrackUrl = null; updatePicker(); return;
+        }
+        if (track.url !== activeTrackUrl) return;
+        const cueCount = (result.vtt.match(/-->/g) || []).length;
+        if (!cueCount) {
+          showBadge('error', 'Нет субтитров'); activeTrackUrl = null; updatePicker(); return;
+        }
+        track._cachedVtt = result.vtt;
+        showBadge('translating', devMode ? `Перевожу ${cueCount} фраз...` : 'Загрузка субтитров...');
+        chrome.runtime.sendMessage({
+          type: 'start_translation', vtt: result.vtt, url: track.url,
+          target_lang: targetLang, provider: selectedProvider,
+          model: selectedModel, title: getPageTitle(),
+        }, (resp) => {
+          if (chrome.runtime.lastError || resp?.error) {
+            showBadge('error', resp?.error || 'Ошибка');
+            activeTrackUrl = null; updatePicker();
+          }
+        });
+        return;
+      }
+
       // Download segments via background (CORS)
       const result = await new Promise((resolve) => {
         chrome.runtime.sendMessage(
@@ -1167,7 +1306,7 @@
     let container = video.parentElement;
     while (container && container !== document.body) {
       const rect = container.getBoundingClientRect();
-      if (rect.width >= video.clientWidth * 0.9) break;
+      if (rect.width >= video.clientWidth * 0.9 && rect.height > 0) break;
       container = container.parentElement;
     }
     if (!container) container = video.parentElement;

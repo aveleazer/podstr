@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Подстрочник",
-  "version": "0.4.0",
-  "description": "AI-перевод субтитров для зарубежных сериалов",
+  "version": "0.5.1",
+  "description": "AI-перевод субтитров — сериалы, фильмы, шоу",
   "permissions": ["storage", "webRequest", "webNavigation", "sidePanel"],
   "host_permissions": [
     "http://localhost:5000/*",
@@ -27,6 +27,12 @@
       "css": ["overlay.css"],
       "run_at": "document_idle",
       "all_frames": true
+    },
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["youtube-detect.js"],
+      "run_at": "document_idle",
+      "world": "MAIN"
     }
   ],
   "content_security_policy": {

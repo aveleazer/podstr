@@ -83,6 +83,11 @@ chrome.webRequest.onCompleted.addListener(
 
     let type = null;
     if (url.includes('.m3u8')) type = 'm3u8_detected';
+    else if (url.includes('youtube.com/api/timedtext')) {
+      // Skip ASR (auto-recognition) — only manual (human-written) subtitles
+      if (url.includes('kind=asr')) return;
+      type = 'youtube_detected';
+    }
     else if (url.includes('.vtt')) type = 'vtt_detected';
     else return;
 
@@ -97,7 +102,7 @@ chrome.webRequest.onCompleted.addListener(
 
     chrome.tabs.sendMessage(tabId, { type, url }).catch(() => {});
   },
-  { urls: ['*://*/*.vtt*', '*://*/*.m3u8*'] }
+  { urls: ['*://*/*.vtt*', '*://*/*.m3u8*', '*://*.youtube.com/api/timedtext*'] }
 );
 
 chrome.tabs.onRemoved.addListener((tabId) => {
@@ -636,6 +641,27 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
       })
       .catch(() => sendResponse({ type: 'other' }));
+    return true;
+  }
+
+  if (msg.type === 'fetch_youtube_vtt') {
+    (async () => {
+      try {
+        let url = msg.url;
+        // Replace existing fmt param (e.g. fmt=srv3) instead of appending second one
+        if (/[?&]fmt=/.test(url)) {
+          url = url.replace(/([?&]fmt=)[^&]*/, '$1vtt');
+        } else {
+          url += (url.includes('?') ? '&' : '?') + 'fmt=vtt';
+        }
+        const resp = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        if (!resp.ok) { sendResponse({ error: `HTTP ${resp.status}` }); return; }
+        const text = await resp.text();
+        sendResponse({ vtt: text });
+      } catch (e) {
+        sendResponse({ error: e.message });
+      }
+    })();
     return true;
   }
 

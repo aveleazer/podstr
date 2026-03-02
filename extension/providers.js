@@ -168,6 +168,9 @@ function normalizeCacheKey(url) {
     prefix = 'playlist:';
     url = url.slice('playlist:'.length);
   }
+  if (url.startsWith('youtube:')) {
+    return prefix + url;
+  }
   try {
     const path = new URL(url).pathname;
     const subMatch = path.match(/\/subtitles\/.+/);
