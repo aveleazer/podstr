@@ -52,6 +52,8 @@ CLI_BATCH_SIZE = 200      # lines per CLI batch
 CLI_FIRST_BATCH_SIZE = 50 # smaller first batch for streaming (quick start)
 CONTEXT_OVERLAP = 20      # context lines from previous batch
 BATCH_TIMEOUT = 360       # 6 min per batch (Opus can be slow)
+JOB_MAX_RETRIES = 2       # retry timed-out jobs up to N times
+RETRY_TIMEOUT_MULTIPLIER = 1.5  # each retry gets more time
 GLOSSARY_TIMEOUT = 60     # 1 min for glossary extraction
 BATCH_DELAY = 10          # seconds between batches (rate limit avoidance)
 QUEUE_URL = os.environ.get("QUEUE_URL", "http://localhost:5001")
@@ -812,13 +814,25 @@ def report_error(job_id, error_msg):
 
 # ── Step 8: Translate a job ────────────────────────────────────────
 
-def translate_job(job):
+def translate_job(job, batch_timeout=None):
     """Translate a single job using CLI. Reports progress and uploads result."""
     job_id = job['job_id']
     vtt_text = job['vtt']
     target_lang = job['target_lang']
     model = job.get('model', MODEL)
     streaming = job.get('streaming', False)
+
+    # 0. Skip if already in cache
+    vtt_hash = hashlib.sha256(vtt_text.encode()).hexdigest()
+    cache_key = f"{vtt_hash}@auto@{target_lang}"
+    try:
+        cached = queue_request('GET', f'/cache/{cache_key}')
+        if cached and cached.get('vtt'):
+            log.info(f"  ⏭ Job {job_id}: already in cache, skipping")
+            report_result(job_id, cached['vtt'], model)
+            return
+    except Exception:
+        pass  # cache miss or error — proceed with translation
 
     # 1. Parse VTT
     lines = parse_vtt(vtt_text)
@@ -892,7 +906,7 @@ def translate_job(job):
             report_progress(job_id, translated_count[0], total, _batch_num, total_batches)
             log.info(f"  [heartbeat] {elapsed}s, {translated_count[0]}/{total} строк")
 
-        batch_translations = translate_cli_stream(prompt, model, on_line, on_heartbeat)
+        batch_translations = translate_cli_stream(prompt, model, on_line, on_heartbeat, timeout=batch_timeout)
 
         # Filter out context lines model may have re-translated
         batch_ids = {l['id'] for l in batch_lines}
@@ -1153,14 +1167,29 @@ def worker_loop():
             log.info(f"📦 Job {job['job_id']}: {job['target_lang']}, model={job['model']}")
             consecutive_errors = 0
 
-            try:
-                translate_job(job)
-            except RuntimeError as e:
-                log.error(f"  ✗ Job {job['job_id']} failed: {e}")
-                report_error(job['job_id'], str(e))
-            except Exception as e:
-                log.error(f"  ✗ Job {job['job_id']} unexpected error: {e}")
-                report_error(job['job_id'], str(e))
+            last_error = None
+            for attempt in range(1, JOB_MAX_RETRIES + 2):  # 1..MAX+1
+                try:
+                    timeout = int(BATCH_TIMEOUT * (RETRY_TIMEOUT_MULTIPLIER ** (attempt - 1)))
+                    translate_job(job, batch_timeout=timeout)
+                    last_error = None
+                    break
+                except RuntimeError as e:
+                    last_error = e
+                    if 'timed out' in str(e) and attempt <= JOB_MAX_RETRIES:
+                        wait = BATCH_DELAY * attempt
+                        next_timeout = int(BATCH_TIMEOUT * (RETRY_TIMEOUT_MULTIPLIER ** attempt))
+                        log.warning(f"  ⏳ Job {job['job_id']} timeout (attempt {attempt}/{JOB_MAX_RETRIES + 1}), retrying in {wait}s with timeout {next_timeout}s...")
+                        time.sleep(wait)
+                    else:
+                        break
+                except Exception as e:
+                    last_error = e
+                    break
+
+            if last_error:
+                log.error(f"  ✗ Job {job['job_id']} failed: {last_error}")
+                report_error(job['job_id'], str(last_error))
 
             _kill_active()
 
@@ -1192,7 +1221,24 @@ def main():
 
     import argparse
 
-    # Detect mode: "translate" subcommand or worker (default)
+    # Detect mode: "retry", "translate", or worker (default)
+    if len(sys.argv) > 1 and sys.argv[1] == 'retry':
+        QUEUE_URL = sys.argv[2] if len(sys.argv) > 2 else QUEUE_URL
+        if not QUEUE_API_KEY:
+            log.error('✗ AIS_API_KEY is required. Set it: export AIS_API_KEY=your-secret-key')
+            sys.exit(1)
+        try:
+            result = queue_request('POST', '/queue/retry') or {}
+            count = result.get('reset', 0)
+            if count:
+                log.info(f"↻ Reset {count} failed job(s) to pending — worker will pick them up")
+            else:
+                log.info("No failed jobs to retry")
+        except Exception as e:
+            log.error(f"✗ Retry failed: {e}")
+            sys.exit(1)
+        return
+
     if len(sys.argv) > 1 and sys.argv[1] == 'translate':
         parser = argparse.ArgumentParser(
             prog='server.py translate',

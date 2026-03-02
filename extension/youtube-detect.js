@@ -13,7 +13,8 @@
       var ct = pr.captions && pr.captions.playerCaptionsTracklistRenderer &&
                pr.captions.playerCaptionsTracklistRenderer.captionTracks;
       if (ct && ct.length > 0) {
-        window.postMessage({ type: '__ai_sub_yt_tracks', tracks: ct }, '*');
+        var channel = (pr.videoDetails && pr.videoDetails.author) || '';
+        window.postMessage({ type: '__ai_sub_yt_tracks', tracks: ct, channel: channel }, '*');
       }
     } catch(e) {}
   }

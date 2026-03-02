@@ -190,13 +190,16 @@ function sanitizePageUrl(url) {
   if (!url) return '';
   try {
     const parsed = new URL(url);
+    if (parsed.hostname.includes('youtube.com') && parsed.searchParams.has('v')) {
+      return parsed.origin + parsed.pathname + '?v=' + parsed.searchParams.get('v');
+    }
     return parsed.origin + parsed.pathname;
   } catch (e) {
     return '';
   }
 }
 
-async function submitToQueue(vtt, targetLang, model, tabId, playlistUrl, overrideTitle) {
+async function submitToQueue(vtt, targetLang, model, tabId, playlistUrl, overrideTitle, channel = '') {
   const sharedUrl = settings.sharedCacheUrl;
   if (!sharedUrl) throw new Error('Shared cache URL не настроен');
 
@@ -210,6 +213,7 @@ async function submitToQueue(vtt, targetLang, model, tabId, playlistUrl, overrid
       title: overrideTitle || tab?.title || '',
       page_url: sanitizePageUrl(tab?.url),
       normalized_url: playlistUrl ? normalizeCacheKey('playlist:' + playlistUrl).replace('playlist:', '') : '',
+      channel: channel || '',
       streaming: true,
     }),
     signal: AbortSignal.timeout(10000),
@@ -249,7 +253,7 @@ async function translateBatch(texts, targetLang, model, apiKey, signal, onRetryP
 // ── Translation orchestrator ──
 // ══════════════════════════════════════════════════
 
-async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiKey, pageTitle) {
+async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiKey, pageTitle, channel = '') {
   const abortController = new AbortController();
   const signal = abortController.signal;
 
@@ -266,7 +270,7 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
     // Backfill shared cache if not there yet (fire-and-forget)
     sha256(vtt).then(hash => {
       console.log('[AI Subtitler] Backfill: uploading to shared cache...');
-      return sharedCachePut(hash, 'auto', targetLang, cached, model, tabId, url, pageTitle);
+      return sharedCachePut(hash, 'auto', targetLang, cached, model, tabId, url, pageTitle, channel);
     }).catch(e => console.log('[AI Subtitler] Backfill failed:', e.message || e));
     delete activeTranslations[tabId];
     return;
@@ -285,7 +289,7 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
       type: 'translation_done', vtt: sharedVtt, fromCache: true,
     }).catch(() => {});
     // Backfill normalized_url for existing translations (fire-and-forget)
-    sharedCachePut(vttHash, 'auto', targetLang, sharedVtt, model, tabId, url, pageTitle).catch(() => {});
+    sharedCachePut(vttHash, 'auto', targetLang, sharedVtt, model, tabId, url, pageTitle, channel).catch(() => {});
     delete activeTranslations[tabId];
     return;
   }
@@ -315,7 +319,7 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
       // ── CLI: submit to queue → poll status ──
       console.log(`[AI Subtitler] CLI queue submit: ${total} cues, model: ${model}`);
 
-      const submitResult = await submitToQueue(vtt, targetLang, model, tabId, url, pageTitle);
+      const submitResult = await submitToQueue(vtt, targetLang, model, tabId, url, pageTitle, channel);
       const jobId = submitResult.job_id;
       console.log(`[AI Subtitler] Job submitted: ${jobId}, status: ${submitResult.status}, position: ${submitResult.position}`);
 
@@ -437,7 +441,7 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
     if (!hadErrors) {
       await cachePut(cacheKey, finalVtt, total);
       // Upload to shared cache (fire-and-forget)
-      sharedCachePut(vttHash, 'auto', targetLang, finalVtt, model, tabId, url, pageTitle).catch(() => {});
+      sharedCachePut(vttHash, 'auto', targetLang, finalVtt, model, tabId, url, pageTitle, channel).catch(() => {});
     } else {
       console.warn(`[AI Subtitler] Translation had errors — not caching`);
     }
@@ -491,7 +495,7 @@ async function sharedCacheGet(hash, srcLang, tgtLang) {
   }
 }
 
-async function sharedCachePut(hash, srcLang, tgtLang, vtt, model, tabId, playlistUrl, overrideTitle) {
+async function sharedCachePut(hash, srcLang, tgtLang, vtt, model, tabId, playlistUrl, overrideTitle, channel = '') {
   await settingsReady;
   if (!settings.sharedCacheEnabled || !settings.sharedCacheUrl) {
     console.log('[AI Subtitler] Shared cache PUT skipped: disabled or no URL');
@@ -523,6 +527,7 @@ async function sharedCachePut(hash, srcLang, tgtLang, vtt, model, tabId, playlis
         title: pageTitle,
         page_url: pageUrl,
         normalized_url: playlistUrl ? normalizeCacheKey('playlist:' + playlistUrl).replace('playlist:', '') : '',
+        channel: channel || '',
       }),
       signal: AbortSignal.timeout(10000),
     });
@@ -715,7 +720,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
 
     // Fire-and-forget; content.js sends keepalive pings to keep SW alive
-    runTranslation(tabId, msg.vtt, msg.url, targetLang, provider, model, settings.apiKey, msg.title);
+    runTranslation(tabId, msg.vtt, msg.url, targetLang, provider, model, settings.apiKey, msg.title, msg.channel);
     sendResponse({ ok: true });
     return true;
   }

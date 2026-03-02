@@ -305,6 +305,7 @@
         url: trackUrl,
         label: LANG_NAMES[lang] || lang.toUpperCase(),
         _ytTimedTextUrl: track.baseUrl,
+        _ytChannel: e.data.channel || '',
       });
     }
     if (detectedTracks.length > 0) showPicker();
@@ -984,6 +985,7 @@
           type: 'start_translation', vtt: result.vtt, url: track.url,
           target_lang: targetLang, provider: selectedProvider,
           model: selectedModel, title: getPageTitle(),
+          channel: track._ytChannel || '',
         }, (resp) => {
           if (chrome.runtime.lastError || resp?.error) {
             showBadge('error', resp?.error || 'Ошибка');

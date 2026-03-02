@@ -3,6 +3,15 @@
 Формат: [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/).
 Версионирование: [Semver](https://semver.org/lang/ru/). Source of truth — `extension/manifest.json`.
 
+## [Unreleased]
+
+### Added
+- Страницы YouTube-шоу на сайте — группировка по каналу + названию шоу из title (часть после `|`). Генерация `/ru/subtitles/{slug}/`
+- Извлечение и хранение YouTube channel name (`videoDetails.author`)
+
+### Fixed
+- YouTube: `page_url` теперь сохраняет `?v=videoId` (раньше отбрасывался query string)
+
 ## [0.5.1] — 2026-03-02
 
 ### Fixed

@@ -277,6 +277,10 @@ def init_db():
         conn.execute('ALTER TABLE translations ADD COLUMN target_lang TEXT DEFAULT ""')
     except sqlite3.OperationalError:
         pass
+    try:
+        conn.execute('ALTER TABLE translations ADD COLUMN channel TEXT DEFAULT ""')
+    except sqlite3.OperationalError:
+        pass
     conn.execute('CREATE INDEX IF NOT EXISTS idx_url_lang ON translations(normalized_url, target_lang)')
     try:
         conn.execute('ALTER TABLE jobs ADD COLUMN normalized_url TEXT DEFAULT ""')
@@ -284,6 +288,10 @@ def init_db():
         pass
     try:
         conn.execute('ALTER TABLE jobs ADD COLUMN vtt_partial TEXT')
+    except sqlite3.OperationalError:
+        pass
+    try:
+        conn.execute('ALTER TABLE jobs ADD COLUMN channel TEXT DEFAULT ""')
     except sqlite3.OperationalError:
         pass
     try:
@@ -310,7 +318,7 @@ def db_get(key):
     return None
 
 
-def db_put(key, vtt, model, model_rank, title='', page_url='', normalized_url='', target_lang=''):
+def db_put(key, vtt, model, model_rank, title='', page_url='', normalized_url='', target_lang='', channel=''):
     """Insert or update if new rank >= existing rank. Returns True if written."""
     model = normalize_model(model)
     conn = sqlite3.connect(DB_PATH)
@@ -326,13 +334,13 @@ def db_put(key, vtt, model, model_rank, title='', page_url='', normalized_url=''
     compressed = zlib.compress(vtt.encode(), level=9)
     if existing:
         conn.execute(
-            'UPDATE translations SET vtt=?, model=?, model_rank=?, title=?, page_url=?, normalized_url=?, target_lang=?, updated_at=? WHERE key=?',
-            (compressed, model, model_rank, title, page_url, normalized_url, target_lang, now, key)
+            'UPDATE translations SET vtt=?, model=?, model_rank=?, title=?, page_url=?, normalized_url=?, target_lang=?, channel=?, updated_at=? WHERE key=?',
+            (compressed, model, model_rank, title, page_url, normalized_url, target_lang, channel, now, key)
         )
     else:
         conn.execute(
-            'INSERT INTO translations (key, vtt, model, model_rank, title, page_url, normalized_url, target_lang, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            (key, compressed, model, model_rank, title, page_url, normalized_url, target_lang, now, now)
+            'INSERT INTO translations (key, vtt, model, model_rank, title, page_url, normalized_url, target_lang, channel, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            (key, compressed, model, model_rank, title, page_url, normalized_url, target_lang, channel, now, now)
         )
     # Remove fulfilled wishlist entries
     if normalized_url and target_lang:
@@ -355,7 +363,7 @@ def db_put(key, vtt, model, model_rank, title='', page_url='', normalized_url=''
 STALE_JOB_TIMEOUT = 15 * 60  # 15 min without heartbeat → reset to pending
 
 
-def job_submit(vtt, tgt_lang, model, title='', page_url='', normalized_url='', streaming=False):
+def job_submit(vtt, tgt_lang, model, title='', page_url='', normalized_url='', streaming=False, channel=''):
     """Create a new job or return existing pending/running job with same hash."""
     vtt_hash = hashlib.sha256(vtt.encode()).hexdigest()
     conn = sqlite3.connect(DB_PATH)
@@ -374,9 +382,9 @@ def job_submit(vtt, tgt_lang, model, title='', page_url='', normalized_url='', s
     now = int(time.time())
     compressed_vtt = zlib.compress(vtt.encode(), level=9)
     conn.execute(
-        '''INSERT INTO jobs (id, vtt_hash, tgt_lang, model, status, vtt_input, title, page_url, normalized_url, streaming, created_at)
-           VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?)''',
-        (job_id, vtt_hash, tgt_lang, model, compressed_vtt, title, page_url, normalized_url, int(streaming), now)
+        '''INSERT INTO jobs (id, vtt_hash, tgt_lang, model, status, vtt_input, title, page_url, normalized_url, streaming, channel, created_at)
+           VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?)''',
+        (job_id, vtt_hash, tgt_lang, model, compressed_vtt, title, page_url, normalized_url, int(streaming), channel, now)
     )
     conn.commit()
     position = _job_position(conn, job_id)
@@ -499,14 +507,14 @@ def job_result(job_id, vtt, model):
         (vtt, now, now, job_id)
     )
     # Save to shared cache (translations table)
-    row = conn.execute('SELECT vtt_hash, tgt_lang, title, page_url, normalized_url FROM jobs WHERE id = ?', (job_id,)).fetchone()
+    row = conn.execute('SELECT vtt_hash, tgt_lang, title, page_url, normalized_url, channel FROM jobs WHERE id = ?', (job_id,)).fetchone()
     conn.commit()
     conn.close()
 
     if row:
         cache_key = f"{row[0]}@auto@{row[1]}"
         rank = get_server_model_rank(model)
-        db_put(cache_key, vtt, model, rank, row[2] or '', row[3] or '', row[4] or '', row[1])
+        db_put(cache_key, vtt, model, rank, row[2] or '', row[3] or '', row[4] or '', row[1], row[5] or '')
         print(f'  ✓ Job {job_id}: done, saved to cache as {cache_key[:50]}')
 
 
@@ -520,6 +528,22 @@ def job_error(job_id, error_msg):
     conn.commit()
     conn.close()
     print(f'  ✗ Job {job_id}: error — {error_msg[:100]}')
+
+
+def job_retry_errors(max_age_hours=2):
+    """Reset recent error jobs to pending. Returns count of reset jobs."""
+    conn = sqlite3.connect(DB_PATH)
+    cutoff = int(time.time()) - max_age_hours * 3600
+    cursor = conn.execute(
+        'UPDATE jobs SET status = "pending", error_msg = NULL, finished_at = NULL '
+        'WHERE status = "error" AND created_at > ?', (cutoff,)
+    )
+    count = cursor.rowcount
+    conn.commit()
+    conn.close()
+    if count:
+        print(f'  ↻ Reset {count} error job(s) to pending')
+    return count
 
 
 # ── HTTP Handler ──
@@ -793,6 +817,15 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
+        # POST /queue/retry — reset error jobs to pending (auth required)
+        if self.path == '/queue/retry':
+            if self.headers.get('X-API-Key') != API_KEY:
+                self._json_response(401, {'error': 'Invalid API key'})
+                return
+            count = job_retry_errors()
+            self._json_response(200, {'reset': count})
+            return
+
         # POST /queue/submit — extension submits VTT for translation
         if self.path == '/queue/submit':
             ip = self.client_address[0]
@@ -811,6 +844,7 @@ class Handler(BaseHTTPRequestHandler):
                 title = data.get('title', '')
                 page_url = data.get('page_url', '')
                 normalized_url = data.get('normalized_url', '')
+                channel = data.get('channel', '')
 
                 if not vtt or not tgt_lang or not model:
                     self._json_response(400, {'error': 'Missing vtt, target_lang, or model'})
@@ -825,7 +859,7 @@ class Handler(BaseHTTPRequestHandler):
                     return
 
                 streaming = bool(data.get('streaming', False))
-                result = job_submit(vtt, tgt_lang, model, title, page_url, normalized_url, streaming=streaming)
+                result = job_submit(vtt, tgt_lang, model, title, page_url, normalized_url, streaming=streaming, channel=channel)
                 self._json_response(200, result)
             except Exception as e:
                 traceback.print_exc()
@@ -951,6 +985,7 @@ class Handler(BaseHTTPRequestHandler):
                 title = data.get('title', '')
                 page_url = data.get('page_url', '')
                 normalized_url = data.get('normalized_url', '')
+                channel = data.get('channel', '')
                 # Parse target_lang from key: "{hash}@{srcLang}@{targetLang}"
                 target_lang = ''
                 key_parts = key.split('@')
@@ -966,7 +1001,7 @@ class Handler(BaseHTTPRequestHandler):
                     return
 
                 raw_size = len(vtt.encode())
-                written = db_put(key, vtt, model, model_rank, title, page_url, normalized_url, target_lang)
+                written = db_put(key, vtt, model, model_rank, title, page_url, normalized_url, target_lang, channel)
                 if written:
                     label = title or key[:40]
                     compressed_size = len(zlib.compress(vtt.encode(), level=9))
