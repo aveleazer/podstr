@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
   <meta charset="UTF-8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -360,29 +360,30 @@
   <div class="header">
     <svg class="header__logo" id="headerLogo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#141414"/><rect x="7" y="12" width="12" height="1" rx="0.5" fill="#999"/><rect x="7" y="17" width="18" height="2" rx="1" fill="#e8a828"/></svg>
     <div>
-      <div class="header__title">Подстрочник</div>
-      <div class="header__sub">AI-перевод субтитров</div>
+      <div class="header__title" data-i18n="headerTitle"></div>
+      <div class="header__sub" data-i18n="headerSub"></div>
     </div>
-    <div class="header__version">v0.4</div>
+    <div class="header__version" id="ext-version"></div>
   </div>
 
   <!-- ── Tab bar ── -->
   <div class="tab-bar">
-    <button class="tab-btn active" data-tab="current">Плеер</button>
-    <button class="tab-btn" data-tab="translations">Переводы</button>
-    <button class="tab-btn dev-only" data-tab="wishlist">Запросы</button>
-    <button class="tab-btn dev-only" data-tab="settings">Настройки</button>
+    <button class="tab-btn active" data-tab="current" data-i18n="tabPlayer"></button>
+    <button class="tab-btn" data-tab="api" data-i18n="tabApi"></button>
+    <button class="tab-btn" data-tab="library" data-i18n="tabLibrary"></button>
+    <button class="tab-btn dev-only" data-tab="wishlist" data-i18n="tabWishlist"></button>
+    <button class="tab-btn dev-only" data-tab="settings" data-i18n="tabSettings"></button>
   </div>
 
   <!-- ═══ Tab 1: Player ═══ -->
   <div class="tab-pane active" id="tab-current">
     <div class="section" id="targetLangSection">
-        <div class="section__label">Язык перевода</div>
+        <div class="section__label" data-i18n="labelTargetLang"></div>
         <select id="targetLangSelect" class="lang-select"></select>
     </div>
 
     <div class="toggle-row">
-      <span class="toggle-row__label">Перевод включён</span>
+      <span class="toggle-row__label" data-i18n="labelTranslationEnabled"></span>
       <label class="switch">
         <input type="checkbox" id="toggleEnabled" checked>
         <span class="slider"></span>
@@ -390,106 +391,117 @@
     </div>
 
     <div class="section">
-      <div class="section__label">Вид субтитров</div>
+      <div class="section__label" data-i18n="labelSubtitleStyle"></div>
       <div class="style-row">
-        <div class="section__label">Размер</div>
+        <div class="section__label" data-i18n="labelSize"></div>
         <input type="range" id="styleFontSize" min="12" max="48" value="12" step="2">
-        <span class="style-value" id="styleFontSizeVal">авто</span>
+        <span class="style-value" id="styleFontSizeVal" data-i18n="fontSizeAuto"></span>
       </div>
       <div class="style-row">
-        <div class="section__label">Цвет</div>
+        <div class="section__label" data-i18n="labelColor"></div>
         <input type="color" id="styleColor" value="#ffffff">
-        <button class="style-reset" id="styleColorReset">сброс</button>
+        <button class="style-reset" id="styleColorReset" data-i18n="labelReset"></button>
       </div>
       <div class="style-row">
-        <div class="section__label">Фон</div>
+        <div class="section__label" data-i18n="labelBackground"></div>
         <input type="range" id="styleBgOpacity" min="0" max="100" value="85" step="5">
         <span class="style-value" id="styleBgOpacityVal">85%</span>
       </div>
       <div class="style-row">
-        <div class="section__label">Позиция</div>
+        <div class="section__label" data-i18n="labelPosition"></div>
         <select id="stylePosition">
-          <option value="">авто</option>
-          <option value="bottom">внизу</option>
-          <option value="top">вверху</option>
+          <option value="" data-i18n="labelAuto"></option>
+          <option value="bottom" data-i18n="labelBottom"></option>
+          <option value="top" data-i18n="labelTop"></option>
         </select>
       </div>
     </div>
 
-    <div class="hint">
-      Открой видео &#8212; если есть субтитры, появится выбор языка. Готовый перевод из библиотеки подтянется автоматически.
-    </div>
+    <div class="hint" data-i18n="hintOpenVideo"></div>
   </div>
 
-  <!-- ═══ Tab 2: Translations ═══ -->
-  <div class="tab-pane" id="tab-translations">
-    <div class="drop-zone dev-only" id="dropZone">Перетащи .srt или .vtt файл</div>
+  <!-- ═══ Tab 2: API ═══ -->
+  <div class="tab-pane" id="tab-api">
+    <div class="section" id="apiKeySection">
+      <div class="section__label" data-i18n="labelApiKey"></div>
+      <div class="key-row">
+        <input type="password" id="apiKeyInput" data-i18n-placeholder="placeholderApiKey" class="key-input">
+        <button id="toggleKey" class="key-toggle" data-i18n-title="tooltipToggleKey">&#128065;</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section__label" data-i18n="labelModel"></div>
+      <input id="modelInput" class="key-input" list="modelHints" data-i18n-placeholder="placeholderModel" autocomplete="off" style="width:100%">
+      <datalist id="modelHints"></datalist>
+      <select id="modelSelect" class="model-select" style="display:none"></select>
+    </div>
+
+    <a class="site-link" href="https://openrouter.ai/keys" target="_blank" data-i18n="apiGetKey"></a>
+    <a class="site-link" id="apiAltLink" href="https://polza.ai?referral=dxELJYpePd" target="_blank" style="display:none"></a>
+
+    <div class="hint" data-i18n="apiCostHint"></div>
+  </div>
+
+  <!-- ═══ Tab 3: Library ═══ -->
+  <div class="tab-pane" id="tab-library">
+    <div class="drop-zone dev-only" id="dropZone" data-i18n="dropZoneDefault"></div>
 
     <div class="dev-only">
       <div class="queue-section" id="queueSection" style="display:none">
-        <div class="section__label">Очередь переводов</div>
+        <div class="section__label" data-i18n="labelQueue"></div>
         <div id="queueList"></div>
       </div>
     </div>
 
-    <div id="translationsLoading" class="state-message" style="display:none">Загрузка...</div>
-    <div id="translationsEmpty" class="state-message" style="display:none">Переводов пока нет</div>
+    <div id="translationsLoading" class="state-message" style="display:none" data-i18n="stateLoading"></div>
+    <div id="translationsEmpty" class="state-message" style="display:none" data-i18n="stateNoTranslations"></div>
     <div id="translationsError" class="state-message error" style="display:none"></div>
     <div id="translationsList" class="translations-list"></div>
-    <a id="siteLink" class="site-link" href="#" target="_blank">Все переводы на сайте &#8594;</a>
+    <a id="siteLink" class="site-link" href="#" target="_blank" data-i18n="siteLinkAll"></a>
   </div>
 
-  <!-- ═══ Tab 3: Wishlist (dev only) ═══ -->
+  <!-- ═══ Tab 4: Wishlist (dev only) ═══ -->
   <div class="tab-pane" id="tab-wishlist">
-    <div id="wishlistLoading" class="state-message" style="display:none">Загрузка...</div>
-    <div id="wishlistEmpty" class="state-message" style="display:none">Запросов нет</div>
+    <div id="wishlistLoading" class="state-message" style="display:none" data-i18n="stateLoading"></div>
+    <div id="wishlistEmpty" class="state-message" style="display:none" data-i18n="stateNoRequests"></div>
     <div id="wishlistList" class="translations-list"></div>
   </div>
 
-  <!-- ═══ Tab 4: Settings (dev only — button hidden in viewer mode) ═══ -->
+  <!-- ═══ Tab 5: Settings (dev only) ═══ -->
   <div class="tab-pane" id="tab-settings">
     <div class="section">
-      <div class="section__label">Провайдер</div>
+      <div class="section__label" data-i18n="labelProvider"></div>
       <div class="provider-options">
         <label class="provider-option">
           <input type="radio" name="provider" value="openrouter" checked>
-          <span>OpenRouter <span class="hint-text">(нужен ключ)</span></span>
+          <span>OpenRouter <span class="hint-text" data-i18n="providerOpenRouterHint"></span></span>
         </label>
         <label class="provider-option">
           <input type="radio" name="provider" value="claude-cli">
-          <span>Claude CLI <span class="hint-text">(через очередь)</span></span>
+          <span>Claude CLI <span class="hint-text" data-i18n="providerClaudeCliHint"></span></span>
         </label>
       </div>
 
-      <div id="apiKeySection">
-        <div class="section__label" style="margin-top:8px">API Key</div>
-        <div class="key-row">
-          <input type="password" id="apiKeyInput" placeholder="sk-or-..." class="key-input">
-          <button id="toggleKey" class="key-toggle" title="Показать/скрыть">&#128065;</button>
-        </div>
-      </div>
-
-      <div class="section__label" style="margin-top:8px">Модель</div>
-      <select id="modelSelect" class="model-select"></select>
     </div>
 
     <div class="status-row" id="serverStatus" style="display:none">
       <div class="dot dot-red"></div>
-      <span>Проверяю сервер...</span>
+      <span data-i18n="statusCheckingServer"></span>
     </div>
 
     <div class="section">
-      <div class="section__label">Общий кеш переводов</div>
+      <div class="section__label" data-i18n="labelSharedCache"></div>
       <div class="toggle-row" style="margin-bottom:6px; padding:0; background:none; border:none;">
-        <span class="toggle-row__label">Включён</span>
+        <span class="toggle-row__label" data-i18n="labelEnabled"></span>
         <label class="switch">
           <input type="checkbox" id="toggleSharedCache" checked>
           <span class="slider"></span>
         </label>
       </div>
       <div id="sharedCacheUrlSection">
-        <div class="section__label">API-ключ</div>
-        <input type="password" id="sharedCacheApiKey" placeholder="ключ для записи в кеш" class="key-input" style="width:100%">
+        <div class="section__label" data-i18n="labelSharedCacheApiKey"></div>
+        <input type="password" id="sharedCacheApiKey" data-i18n-placeholder="placeholderCacheKey" class="key-input" style="width:100%">
       </div>
     </div>
   </div>

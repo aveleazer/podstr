@@ -1,0 +1,200 @@
+{
+  "extensionName": { "message": "podstr.cc" },
+  "extensionDescription": { "message": "AI subtitle translation — TV shows, movies, videos" },
+  "headerTitle": { "message": "podstr.cc" },
+  "headerSub": { "message": "AI subtitle translation" },
+  "tabPlayer": { "message": "Player" },
+  "tabApi": { "message": "API" },
+  "tabLibrary": { "message": "Library" },
+  "tabWishlist": { "message": "Requests" },
+  "tabSettings": { "message": "Settings" },
+  "labelTargetLang": { "message": "Translation language" },
+  "labelTranslationEnabled": { "message": "Translation enabled" },
+  "labelSubtitleStyle": { "message": "Subtitle style" },
+  "labelSize": { "message": "Size" },
+  "labelColor": { "message": "Color" },
+  "labelBackground": { "message": "Background" },
+  "labelPosition": { "message": "Position" },
+  "labelAuto": { "message": "auto" },
+  "labelBottom": { "message": "bottom" },
+  "labelTop": { "message": "top" },
+  "labelReset": { "message": "reset" },
+  "hintOpenVideo": { "message": "Open a video with subtitles and a language picker will appear. Existing translations from the library load automatically." },
+  "dropZoneDefault": { "message": "Drop .srt or .vtt file" },
+  "dropZoneOnlySrtVtt": { "message": "Only .srt and .vtt files" },
+  "dropZoneTooBig": { "message": "File too large (max 2 MB)" },
+  "dropZoneReading": { "message": "Reading file..." },
+  "dropZoneSubmitting": { "message": "Submitting to queue..." },
+  "dropZoneSent": { "message": "Submitted" },
+  "dropZonePosition": {
+    "message": "($1 in queue)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "dropZoneReadError": { "message": "Could not read file" },
+  "labelQueue": { "message": "Translation queue" },
+  "queuePending": { "message": "waiting" },
+  "queueRunning": { "message": "running" },
+  "stateLoading": { "message": "Loading..." },
+  "stateNoTranslations": { "message": "No translations yet" },
+  "stateNoRequests": { "message": "No requests" },
+  "stateNoTitle": { "message": "(untitled)" },
+  "stateCommError": { "message": "Extension communication error" },
+  "siteLinkAll": { "message": "All translations on website →" },
+  "apiGetKey": { "message": "Get an API key at openrouter.ai →" },
+  "apiGetKeyAlt": { "message": "" },
+  "apiCostHint": { "message": "≈ 3¢ per episode · 60+ episodes for 2 USD" },
+  "labelProvider": { "message": "Provider" },
+  "providerOpenRouterHint": { "message": "(needs API key)" },
+  "providerClaudeCliHint": { "message": "(via queue)" },
+  "labelApiKey": { "message": "API Key" },
+  "placeholderApiKey": { "message": "sk-or-..." },
+  "tooltipToggleKey": { "message": "Show/hide" },
+  "labelModel": { "message": "Model" },
+  "placeholderModel": { "message": "vendor/model-name" },
+  "statusCheckingServer": { "message": "Checking server..." },
+  "statusServerOk": { "message": "Queue server is running" },
+  "statusServerDown": { "message": "Queue server unavailable" },
+  "labelSharedCache": { "message": "Shared translation cache" },
+  "labelEnabled": { "message": "Enabled" },
+  "labelSharedCacheApiKey": { "message": "API key" },
+  "placeholderCacheKey": { "message": "key for writing to cache" },
+  "dateToday": { "message": "today" },
+  "dateYesterday": { "message": "yesterday" },
+  "dateDaysAgo": {
+    "message": "$1d ago",
+    "placeholders": { "days": { "content": "$1" } }
+  },
+  "monthJan": { "message": "Jan" },
+  "monthFeb": { "message": "Feb" },
+  "monthMar": { "message": "Mar" },
+  "monthApr": { "message": "Apr" },
+  "monthMay": { "message": "May" },
+  "monthJun": { "message": "Jun" },
+  "monthJul": { "message": "Jul" },
+  "monthAug": { "message": "Aug" },
+  "monthSep": { "message": "Sep" },
+  "monthOct": { "message": "Oct" },
+  "monthNov": { "message": "Nov" },
+  "monthDec": { "message": "Dec" },
+  "fontSizeAuto": { "message": "auto" },
+  "badgeLoading": { "message": "Loading subtitles..." },
+  "badgeTranslating": {
+    "message": "Translating: $PCT$% — batch $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "badgeQueueProgress": {
+    "message": "Loading: $1%",
+    "placeholders": { "pct": { "content": "$1" } }
+  },
+  "badgeFromCache": { "message": "From cache" },
+  "badgeDone": { "message": "Done" },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$ cues",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "count": { "content": "$2" }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "Subtitles ($COUNT$)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "badgeSubtitlesAvailable": { "message": "Subtitles available" },
+  "badgeWantSubtitles": {
+    "message": "I want subtitles in $LANG$",
+    "placeholders": { "lang": { "content": "$1" } }
+  },
+  "badgeWillTranslate": { "message": "We'll translate! ✓" },
+  "badgeSubtitlesSoon": { "message": "Subtitles coming soon" },
+  "badgeSubmitting": { "message": "Submitting..." },
+  "badgeTrackLoading": { "message": "Loading..." },
+  "tooltipSharedCache": {
+    "message": "Ready in shared cache ($MODEL$)",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "tooltipOffsetMinus": { "message": "Subtitles earlier (−0.5s)" },
+  "tooltipOffsetLabel": { "message": "Subtitle offset (click = reset)" },
+  "tooltipOffsetPlus": { "message": "Subtitles later (+0.5s)" },
+  "tooltipDownload": {
+    "message": "Download .$FMT$",
+    "placeholders": { "fmt": { "content": "$1" } }
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ ready ($MODEL$)",
+    "placeholders": {
+      "src": { "content": "$1" },
+      "tgt": { "content": "$2" },
+      "model": { "content": "$3" }
+    }
+  },
+  "badgeOffset": {
+    "message": "Offset: $OFFSET$s",
+    "placeholders": { "offset": { "content": "$1" } }
+  },
+  "badgeOffsetReset": { "message": "Offset reset" },
+  "badgePositionBottom": { "message": "Subtitles: bottom" },
+  "badgePositionTop": { "message": "Subtitles: top" },
+  "errorEnableCc": { "message": "Enable subtitles (CC) in the player" },
+  "errorYouTube": {
+    "message": "YouTube: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorNoSubtitles": { "message": "No subtitles" },
+  "errorNotSubtitles": { "message": "Not subtitles" },
+  "errorGeneric": { "message": "Error" },
+  "errorPrefix": {
+    "message": "Error: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorStartTranslation": { "message": "Translation start error" },
+  "errorInvalidApiKey": { "message": "Invalid OpenRouter API key" },
+  "errorInsufficientFunds": { "message": "Insufficient funds on OpenRouter" },
+  "errorTimeout": { "message": "OpenRouter request timeout (model didn't respond in 2 min)" },
+  "errorNeedApiKey": { "message": "Need OpenRouter API key" },
+  "errorUnknownModel": {
+    "message": "Unknown model: $MODEL$",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "errorNoModel": { "message": "No model selected (extension settings)" },
+  "errorNeedKey": { "message": "Need API key (extension settings)" },
+  "errorSharedCacheNotConfigured": { "message": "Shared cache URL not configured" },
+  "errorQueueServer": { "message": "Translation error on server" },
+  "errorQueueTimeout": { "message": "Translation wait timeout (1 hour)" },
+  "errorJsonParse": { "message": "Model returned invalid response — could not parse JSON" },
+  "errorHttpStatus": {
+    "message": "Error $STATUS$",
+    "placeholders": { "status": { "content": "$1" } }
+  },
+  "retryProgress": {
+    "message": "Retry $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": { "content": "$1" },
+      "max": { "content": "$2" },
+      "code": { "content": "$3" }
+    }
+  },
+  "queueStatusInQueue": { "message": "In queue" },
+  "queueStatusPosition": {
+    "message": "In queue ($POS$)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ saved, click again)",
+    "placeholders": {
+      "done": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "devDownloading": {
+    "message": "Downloading $LABEL$ subtitles...",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "devTranslating": {
+    "message": "Translating: $COUNT$ subtitles...",
+    "placeholders": { "count": { "content": "$1" } }
+  }
+}

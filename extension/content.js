@@ -160,15 +160,13 @@
       lastProgressTime = Date.now(); // reset watchdog
       if (msg.queue_status && msg.queue_status !== 'running') {
         // Queue mode: pending
-        showBadge('translating', devMode ? msg.queue_status : 'Загрузка субтитров...');
+        showBadge('translating', devMode ? msg.queue_status : chrome.i18n.getMessage('badgeLoading'));
       } else {
         const pct = msg.total > 0 ? Math.round(msg.progress / msg.total * 100) : 0;
         if (devMode) {
-          const batchInfo = msg.total_batches > 0
-            ? `батч ${msg.batch}/${msg.total_batches}` : `${msg.progress}/${msg.total}`;
-          showBadge('translating', `Перевод: ${pct}% — ${batchInfo}`);
+          showBadge('translating', chrome.i18n.getMessage('badgeTranslating', [String(pct), String(msg.batch || msg.progress), String(msg.total_batches || msg.total)]));
         } else {
-          showBadge('translating', `Загрузка: ${pct}%`);
+          showBadge('translating', chrome.i18n.getMessage('badgeQueueProgress', [String(pct)]));
         }
       }
       if (msg.partial_vtt) updateTranslatedCues(msg.partial_vtt);
@@ -180,15 +178,15 @@
       translationDone = true;
       if (keepaliveInterval) { clearInterval(keepaliveInterval); keepaliveInterval = null; }
       updatePicker();
-      const label = (devMode && msg.fromCache) ? 'Из кеша' : 'Готово';
-      showBadge('ready', `${label}! ${translatedCues.length} фраз`);
+      const label = (devMode && msg.fromCache) ? chrome.i18n.getMessage('badgeFromCache') : chrome.i18n.getMessage('badgeDone');
+      showBadge('ready', chrome.i18n.getMessage('badgeDoneCount', [label, String(translatedCues.length)]));
       setTimeout(() => hideBadge(), 8000);
     }
 
     if (msg.type === 'translation_error') {
       if (keepaliveInterval) { clearInterval(keepaliveInterval); keepaliveInterval = null; }
       const hint = msg.has_partial
-        ? ` (${msg.completed}/${msg.total} сохранено, нажми ещё раз)`
+        ? chrome.i18n.getMessage('errorPartialHint', [String(msg.completed), String(msg.total)])
         : '';
       showBadge('error', msg.error + hint);
       // Don't clear activeTrackUrl — allow re-click resume
@@ -207,7 +205,9 @@
       if (changes.provider && changes.provider.newValue) {
         selectedProvider = changes.provider.newValue;
         if (providersConfig?.[selectedProvider]) {
-          selectedModel = providersConfig[selectedProvider].models[0].code;
+          const p = providersConfig[selectedProvider];
+          const list = p.models || p.suggestions || [];
+          if (list.length) selectedModel = list[0].code;
         }
         needUpdate = true;
       }
@@ -475,7 +475,7 @@
       .replace(/^.*\//, '')
       .replace(/^claude-/, '')
       .replace(/-\d+$/, '');
-    cacheNotifyElement.textContent = `${hit.label} \u2192 ${targetLang.substring(0, 3)} \u0433\u043e\u0442\u043e\u0432\u044b (${modelShort})`;
+    cacheNotifyElement.textContent = chrome.i18n.getMessage('cacheNotifyReady', [hit.label, targetLang.substring(0, 3), modelShort]);
 
     // Click → start translation for this track
     cacheNotifyElement.onclick = () => {
@@ -582,7 +582,7 @@
       // Subtitles active — show label + offset controls
       const label = document.createElement('span');
       label.className = 'ai-sub-viewer-label';
-      label.textContent = 'Субтитры (' + translatedCues.length + ')';
+      label.textContent = chrome.i18n.getMessage('badgeSubtitlesCount', [String(translatedCues.length)]);
       pickerElement.appendChild(label);
 
       const minus = document.createElement('button');
@@ -610,7 +610,7 @@
       // Translation in progress
       const btn = document.createElement('button');
       btn.className = 'ai-sub-picker-btn loading';
-      btn.textContent = 'Загрузка...';
+      btn.textContent = chrome.i18n.getMessage('badgeTrackLoading');
       btn.disabled = true;
       pickerElement.appendChild(btn);
       return;
@@ -620,7 +620,7 @@
       // Translation available
       const btn = document.createElement('button');
       btn.className = 'ai-sub-picker-btn ai-sub-viewer-available';
-      btn.textContent = 'Субтитры доступны';
+      btn.textContent = chrome.i18n.getMessage('badgeSubtitlesAvailable');
       btn.addEventListener('click', () => {
         const track = detectedTracks.find(t => t._hasCached)
                    || detectedTracks.find(t => t._hasSharedCached);
@@ -642,24 +642,24 @@
     btn.className = 'ai-sub-picker-btn ai-sub-viewer-want';
 
     if (alreadySent) {
-      btn.textContent = 'Переведём! \u2713';
+      btn.textContent = chrome.i18n.getMessage('badgeWillTranslate');
       btn.disabled = true;
       btn.classList.add('sent');
       pickerElement.appendChild(btn);
       const hint = document.createElement('span');
       hint.className = 'ai-sub-viewer-hint';
-      hint.textContent = 'Субтитры скоро появятся';
+      hint.textContent = chrome.i18n.getMessage('badgeSubtitlesSoon');
       pickerElement.appendChild(hint);
     } else {
       const langLabel = TARGET_LANGS.find(l => l.code === targetLang)?.label || targetLang;
-      btn.textContent = 'Хочу субтитры на ' + langLabel.toLowerCase();
+      btn.textContent = chrome.i18n.getMessage('badgeWantSubtitles', [langLabel.toLowerCase()]);
       btn.addEventListener('click', () => {
         // Read normalizedUrl at click time (may have been set by checkSharedCache after render)
         const url = bestTrack._normalizedUrl || '';
         if (!url) return;
         const key = 'wishlist_sent:' + url + '@' + targetLang;
         btn.disabled = true;
-        btn.textContent = 'Отправляю...';
+        btn.textContent = chrome.i18n.getMessage('badgeSubmitting');
         chrome.runtime.sendMessage({
           type: 'submit_wishlist',
           normalized_url: url,
@@ -697,7 +697,7 @@
       if (track._hasSharedCached && !track._hasCached) {
         btn.classList.add('shared-cached');
         const m = track._hasSharedCached.model.replace(/^.*\//, '');
-        btn.title = `\u0413\u043e\u0442\u043e\u0432\u043e \u0432 shared cache (${m})`;
+        btn.title = chrome.i18n.getMessage('tooltipSharedCache', [m]);
       }
       btn.addEventListener('click', () => startTranslation(track));
       pickerElement.appendChild(btn);
@@ -727,9 +727,18 @@
 
     // Model dropdown
     if (providersConfig) {
-      const models = providersConfig[selectedProvider]?.models || [];
+      const pConf = providersConfig[selectedProvider] || {};
+      const models = pConf.models || pConf.suggestions || [];
       const modelSelect = document.createElement('select');
       modelSelect.className = 'ai-sub-picker-model';
+      // If current model is custom (not in list), add it as first option
+      if (selectedModel && !models.some(m => m.code === selectedModel)) {
+        const custom = document.createElement('option');
+        custom.value = selectedModel;
+        custom.textContent = selectedModel.split('/').pop();
+        custom.selected = true;
+        modelSelect.appendChild(custom);
+      }
       for (const m of models) {
         const opt = document.createElement('option');
         opt.value = m.code;
@@ -749,7 +758,7 @@
       const minus = document.createElement('button');
       minus.className = 'ai-sub-picker-btn ai-sub-offset-btn';
       minus.textContent = '−';
-      minus.title = 'Субтитры раньше (−0.5с)';
+      minus.title = chrome.i18n.getMessage('tooltipOffsetMinus');
       minus.addEventListener('click', () => { subtitleOffset -= 0.5; updateOffsetLabel(); });
       pickerElement.appendChild(minus);
 
@@ -757,14 +766,14 @@
       label.className = 'ai-sub-offset-label';
       label.id = 'ai-sub-offset-label';
       label.textContent = subtitleOffset === 0 ? '0' : (subtitleOffset > 0 ? '+' : '') + subtitleOffset.toFixed(1);
-      label.title = 'Сдвиг субтитров (клик = сброс)';
+      label.title = chrome.i18n.getMessage('tooltipOffsetLabel');
       label.addEventListener('click', () => { subtitleOffset = 0; updateOffsetLabel(); });
       pickerElement.appendChild(label);
 
       const plus = document.createElement('button');
       plus.className = 'ai-sub-picker-btn ai-sub-offset-btn';
       plus.textContent = '+';
-      plus.title = 'Субтитры позже (+0.5с)';
+      plus.title = chrome.i18n.getMessage('tooltipOffsetPlus');
       plus.addEventListener('click', () => { subtitleOffset += 0.5; updateOffsetLabel(); });
       pickerElement.appendChild(plus);
     }
@@ -775,7 +784,7 @@
         const dlBtn = document.createElement('button');
         dlBtn.className = 'ai-sub-picker-btn';
         dlBtn.textContent = '.' + fmt;
-        dlBtn.title = `Скачать .${fmt}`;
+        dlBtn.title = chrome.i18n.getMessage('tooltipDownload', [fmt]);
         dlBtn.style.fontSize = '10px';
         dlBtn.addEventListener('click', () => downloadSubs(fmt));
         pickerElement.appendChild(dlBtn);
@@ -941,7 +950,7 @@
 
     updatePicker();
     createOverlay();
-    showBadge('translating', devMode ? `Скачиваю ${track.label} субтитры...` : 'Загрузка субтитров...');
+    showBadge('translating', devMode ? chrome.i18n.getMessage('devDownloading', [track.label]) : chrome.i18n.getMessage('badgeLoading'));
 
     try {
       // ── YouTube: enable CC via player API, wait for webRequest URL, fetch VTT ──
@@ -963,7 +972,7 @@
 
         if (track.url !== activeTrackUrl) return; // cancelled while waiting
         if (!fetchUrl) {
-          showBadge('error', 'Включите субтитры (CC) в плеере');
+          showBadge('error', chrome.i18n.getMessage('errorEnableCc'));
           activeTrackUrl = null; updatePicker(); return;
         }
 
@@ -971,24 +980,25 @@
           chrome.runtime.sendMessage({ type: 'fetch_youtube_vtt', url: fetchUrl }, resolve)
         );
         if (result.error) {
-          showBadge('error', 'YouTube: ' + result.error);
+          showBadge('error', chrome.i18n.getMessage('errorYouTube', [result.error]));
           activeTrackUrl = null; updatePicker(); return;
         }
         if (track.url !== activeTrackUrl) return;
         const cueCount = (result.vtt.match(/-->/g) || []).length;
         if (!cueCount) {
-          showBadge('error', 'Нет субтитров'); activeTrackUrl = null; updatePicker(); return;
+          showBadge('error', chrome.i18n.getMessage('errorNoSubtitles')); activeTrackUrl = null; updatePicker(); return;
         }
         track._cachedVtt = result.vtt;
-        showBadge('translating', devMode ? `Перевожу ${cueCount} фраз...` : 'Загрузка субтитров...');
+        showBadge('translating', devMode ? chrome.i18n.getMessage('devTranslating', [String(cueCount)]) : chrome.i18n.getMessage('badgeLoading'));
         chrome.runtime.sendMessage({
           type: 'start_translation', vtt: result.vtt, url: track.url,
           target_lang: targetLang, provider: selectedProvider,
           model: selectedModel, title: getPageTitle(),
+          page_url: location.href,
           channel: track._ytChannel || '',
         }, (resp) => {
           if (chrome.runtime.lastError || resp?.error) {
-            showBadge('error', resp?.error || 'Ошибка');
+            showBadge('error', resp?.error || chrome.i18n.getMessage('errorGeneric'));
             activeTrackUrl = null; updatePicker();
           }
         });
@@ -1005,7 +1015,7 @@
 
       if (result.error) {
         showBadge('error', result.error === 'not_subtitle_playlist'
-          ? 'Не субтитры' : 'Ошибка: ' + result.error);
+          ? chrome.i18n.getMessage('errorNotSubtitles') : chrome.i18n.getMessage('errorPrefix', [result.error]));
         activeTrackUrl = null;
         updatePicker();
         return;
@@ -1018,7 +1028,7 @@
       // Combine segments into VTT
       const combined = combineSegments(result.texts);
       if (!combined.cueCount) {
-        showBadge('error', 'Нет субтитров в сегментах');
+        showBadge('error', chrome.i18n.getMessage('errorNoSubtitles'));
         activeTrackUrl = null;
         updatePicker();
         return;
@@ -1026,7 +1036,7 @@
 
       console.log(`[AI Subtitler] Combined: ${combined.cueCount} cues, ${combined.vtt.length} bytes`);
       track._cachedVtt = combined.vtt; // save for watchdog re-send
-      showBadge('translating', devMode ? `Перевожу ${combined.cueCount} фраз...` : 'Загрузка субтитров...');
+      showBadge('translating', devMode ? chrome.i18n.getMessage('devTranslating', [String(combined.cueCount)]) : chrome.i18n.getMessage('badgeLoading'));
 
       // Send to background for translation
       const translationKey = 'playlist:' + track.url;
@@ -1038,16 +1048,17 @@
         provider: selectedProvider,
         model: selectedModel,
         title: getPageTitle(),
+        page_url: location.href,
       }, (resp) => {
         if (chrome.runtime.lastError || resp?.error) {
-          showBadge('error', resp?.error || 'Ошибка запуска перевода');
+          showBadge('error', resp?.error || chrome.i18n.getMessage('errorStartTranslation'));
           activeTrackUrl = null;
           updatePicker();
         }
       });
 
     } catch (e) {
-      showBadge('error', 'Ошибка: ' + e.message);
+      showBadge('error', chrome.i18n.getMessage('errorPrefix', [e.message]));
       activeTrackUrl = null;
       updatePicker();
     }
@@ -1386,17 +1397,17 @@
     if (e.key === '[') {
       subtitleOffset -= 0.5;
       updateOffsetLabel();
-      showBadge('translating', `Сдвиг: ${subtitleOffset > 0 ? '+' : ''}${subtitleOffset.toFixed(1)}с`);
+      showBadge('translating', chrome.i18n.getMessage('badgeOffset', [(subtitleOffset > 0 ? '+' : '') + subtitleOffset.toFixed(1)]));
       setTimeout(hideBadge, 2000);
     } else if (e.key === ']') {
       subtitleOffset += 0.5;
       updateOffsetLabel();
-      showBadge('translating', `Сдвиг: ${subtitleOffset > 0 ? '+' : ''}${subtitleOffset.toFixed(1)}с`);
+      showBadge('translating', chrome.i18n.getMessage('badgeOffset', [(subtitleOffset > 0 ? '+' : '') + subtitleOffset.toFixed(1)]));
       setTimeout(hideBadge, 2000);
     } else if (e.key === '\\') {
       subtitleOffset = 0;
       updateOffsetLabel();
-      showBadge('ready', 'Сдвиг сброшен');
+      showBadge('ready', chrome.i18n.getMessage('badgeOffsetReset'));
       setTimeout(hideBadge, 2000);
     } else if (e.key === 'v' || e.key === 'м') {
       // Toggle subtitle position: bottom → top → auto → bottom
@@ -1405,11 +1416,11 @@
       if (manualPosition === 'top' || (!manualPosition && isTop)) {
         manualPosition = 'bottom';
         overlay.classList.remove('ai-sub-position-top');
-        showBadge('ready', 'Субтитры: внизу');
+        showBadge('ready', chrome.i18n.getMessage('badgePositionBottom'));
       } else if (manualPosition === 'bottom' || (!manualPosition && !isTop)) {
         manualPosition = 'top';
         overlay.classList.add('ai-sub-position-top');
-        showBadge('ready', 'Субтитры: вверху');
+        showBadge('ready', chrome.i18n.getMessage('badgePositionTop'));
       }
       setTimeout(hideBadge, 2000);
     }

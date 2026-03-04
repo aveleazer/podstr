@@ -1,0 +1,200 @@
+{
+  "extensionName": { "message": "podstr.cc" },
+  "extensionDescription": { "message": "Tradução de legendas com IA — séries, filmes, vídeos" },
+  "headerTitle": { "message": "podstr.cc" },
+  "headerSub": { "message": "Tradução de legendas com IA" },
+  "tabPlayer": { "message": "Player" },
+  "tabApi": { "message": "API" },
+  "tabLibrary": { "message": "Biblioteca" },
+  "tabWishlist": { "message": "Pedidos" },
+  "tabSettings": { "message": "Configurações" },
+  "labelTargetLang": { "message": "Idioma da tradução" },
+  "labelTranslationEnabled": { "message": "Tradução ativada" },
+  "labelSubtitleStyle": { "message": "Estilo das legendas" },
+  "labelSize": { "message": "Tamanho" },
+  "labelColor": { "message": "Cor" },
+  "labelBackground": { "message": "Fundo" },
+  "labelPosition": { "message": "Posição" },
+  "labelAuto": { "message": "auto" },
+  "labelBottom": { "message": "embaixo" },
+  "labelTop": { "message": "em cima" },
+  "labelReset": { "message": "redefinir" },
+  "hintOpenVideo": { "message": "Abra um vídeo com legendas e um seletor de idioma aparecerá. Traduções existentes da biblioteca são carregadas automaticamente." },
+  "dropZoneDefault": { "message": "Arraste um arquivo .srt ou .vtt" },
+  "dropZoneOnlySrtVtt": { "message": "Apenas arquivos .srt e .vtt" },
+  "dropZoneTooBig": { "message": "Arquivo muito grande (máx. 2 MB)" },
+  "dropZoneReading": { "message": "Lendo arquivo..." },
+  "dropZoneSubmitting": { "message": "Enviando para a fila..." },
+  "dropZoneSent": { "message": "Enviado" },
+  "dropZonePosition": {
+    "message": "($1 na fila)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "dropZoneReadError": { "message": "Não foi possível ler o arquivo" },
+  "labelQueue": { "message": "Fila de tradução" },
+  "queuePending": { "message": "aguardando" },
+  "queueRunning": { "message": "em andamento" },
+  "stateLoading": { "message": "Carregando..." },
+  "stateNoTranslations": { "message": "Ainda não há traduções" },
+  "stateNoRequests": { "message": "Sem pedidos" },
+  "stateNoTitle": { "message": "(sem título)" },
+  "stateCommError": { "message": "Erro de comunicação com a extensão" },
+  "siteLinkAll": { "message": "Todas as traduções no site →" },
+  "apiGetKey": { "message": "Obter chave API em openrouter.ai →" },
+  "apiGetKeyAlt": { "message": "" },
+  "apiCostHint": { "message": "≈ 3¢ por episódio · 60+ episódios por 2 USD" },
+  "labelProvider": { "message": "Provedor" },
+  "providerOpenRouterHint": { "message": "(precisa de chave API)" },
+  "providerClaudeCliHint": { "message": "(pela fila)" },
+  "labelApiKey": { "message": "Chave API" },
+  "placeholderApiKey": { "message": "sk-or-..." },
+  "tooltipToggleKey": { "message": "Mostrar/ocultar" },
+  "labelModel": { "message": "Modelo" },
+  "placeholderModel": { "message": "vendor/model-name" },
+  "statusCheckingServer": { "message": "Verificando servidor..." },
+  "statusServerOk": { "message": "Servidor de fila ativo" },
+  "statusServerDown": { "message": "Servidor de fila indisponível" },
+  "labelSharedCache": { "message": "Cache compartilhado de traduções" },
+  "labelEnabled": { "message": "Ativado" },
+  "labelSharedCacheApiKey": { "message": "Chave API" },
+  "placeholderCacheKey": { "message": "chave para gravar no cache" },
+  "dateToday": { "message": "hoje" },
+  "dateYesterday": { "message": "ontem" },
+  "dateDaysAgo": {
+    "message": "$1 d. atrás",
+    "placeholders": { "days": { "content": "$1" } }
+  },
+  "monthJan": { "message": "Jan" },
+  "monthFeb": { "message": "Fev" },
+  "monthMar": { "message": "Mar" },
+  "monthApr": { "message": "Abr" },
+  "monthMay": { "message": "Mai" },
+  "monthJun": { "message": "Jun" },
+  "monthJul": { "message": "Jul" },
+  "monthAug": { "message": "Ago" },
+  "monthSep": { "message": "Set" },
+  "monthOct": { "message": "Out" },
+  "monthNov": { "message": "Nov" },
+  "monthDec": { "message": "Dez" },
+  "fontSizeAuto": { "message": "auto" },
+  "badgeLoading": { "message": "Carregando legendas..." },
+  "badgeTranslating": {
+    "message": "Traduzindo: $PCT$% — lote $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "badgeQueueProgress": {
+    "message": "Carregando: $1%",
+    "placeholders": { "pct": { "content": "$1" } }
+  },
+  "badgeFromCache": { "message": "Do cache" },
+  "badgeDone": { "message": "Pronto" },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$ legendas",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "count": { "content": "$2" }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "Legendas ($COUNT$)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "badgeSubtitlesAvailable": { "message": "Legendas disponíveis" },
+  "badgeWantSubtitles": {
+    "message": "Quero legendas em $LANG$",
+    "placeholders": { "lang": { "content": "$1" } }
+  },
+  "badgeWillTranslate": { "message": "Vamos traduzir! ✓" },
+  "badgeSubtitlesSoon": { "message": "Legendas em breve" },
+  "badgeSubmitting": { "message": "Enviando..." },
+  "badgeTrackLoading": { "message": "Carregando..." },
+  "tooltipSharedCache": {
+    "message": "Pronto no cache compartilhado ($MODEL$)",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "tooltipOffsetMinus": { "message": "Legendas antes (−0.5s)" },
+  "tooltipOffsetLabel": { "message": "Deslocamento das legendas (clique = redefinir)" },
+  "tooltipOffsetPlus": { "message": "Legendas depois (+0.5s)" },
+  "tooltipDownload": {
+    "message": "Baixar .$FMT$",
+    "placeholders": { "fmt": { "content": "$1" } }
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ pronto ($MODEL$)",
+    "placeholders": {
+      "src": { "content": "$1" },
+      "tgt": { "content": "$2" },
+      "model": { "content": "$3" }
+    }
+  },
+  "badgeOffset": {
+    "message": "Deslocamento: $OFFSET$s",
+    "placeholders": { "offset": { "content": "$1" } }
+  },
+  "badgeOffsetReset": { "message": "Deslocamento redefinido" },
+  "badgePositionBottom": { "message": "Legendas: embaixo" },
+  "badgePositionTop": { "message": "Legendas: em cima" },
+  "errorEnableCc": { "message": "Ative as legendas (CC) no player" },
+  "errorYouTube": {
+    "message": "YouTube: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorNoSubtitles": { "message": "Sem legendas" },
+  "errorNotSubtitles": { "message": "Não são legendas" },
+  "errorGeneric": { "message": "Erro" },
+  "errorPrefix": {
+    "message": "Erro: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorStartTranslation": { "message": "Erro ao iniciar a tradução" },
+  "errorInvalidApiKey": { "message": "Chave API do OpenRouter inválida" },
+  "errorInsufficientFunds": { "message": "Saldo insuficiente no OpenRouter" },
+  "errorTimeout": { "message": "Tempo esgotado no OpenRouter (modelo não respondeu em 2 min)" },
+  "errorNeedApiKey": { "message": "Chave API do OpenRouter necessária" },
+  "errorUnknownModel": {
+    "message": "Modelo desconhecido: $MODEL$",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "errorNoModel": { "message": "Nenhum modelo selecionado (configurações da extensão)" },
+  "errorNeedKey": { "message": "Chave API necessária (configurações da extensão)" },
+  "errorSharedCacheNotConfigured": { "message": "URL do cache compartilhado não configurada" },
+  "errorQueueServer": { "message": "Erro de tradução no servidor" },
+  "errorQueueTimeout": { "message": "Tempo de espera da tradução esgotado (1 hora)" },
+  "errorJsonParse": { "message": "O modelo retornou uma resposta inválida — não foi possível analisar o JSON" },
+  "errorHttpStatus": {
+    "message": "Erro $STATUS$",
+    "placeholders": { "status": { "content": "$1" } }
+  },
+  "retryProgress": {
+    "message": "Tentativa $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": { "content": "$1" },
+      "max": { "content": "$2" },
+      "code": { "content": "$3" }
+    }
+  },
+  "queueStatusInQueue": { "message": "Na fila" },
+  "queueStatusPosition": {
+    "message": "Na fila ($POS$)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ salvos, clique novamente)",
+    "placeholders": {
+      "done": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "devDownloading": {
+    "message": "Baixando legendas $LABEL$...",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "devTranslating": {
+    "message": "Traduzindo: $COUNT$ legendas...",
+    "placeholders": { "count": { "content": "$1" } }
+  }
+}

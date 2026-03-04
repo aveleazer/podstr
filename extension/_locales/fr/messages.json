@@ -1,0 +1,200 @@
+{
+  "extensionName": { "message": "podstr.cc" },
+  "extensionDescription": { "message": "Traduction de sous-titres par IA — séries, films, vidéos" },
+  "headerTitle": { "message": "podstr.cc" },
+  "headerSub": { "message": "Traduction de sous-titres par IA" },
+  "tabPlayer": { "message": "Lecteur" },
+  "tabApi": { "message": "API" },
+  "tabLibrary": { "message": "Bibliothèque" },
+  "tabWishlist": { "message": "Demandes" },
+  "tabSettings": { "message": "Paramètres" },
+  "labelTargetLang": { "message": "Langue de traduction" },
+  "labelTranslationEnabled": { "message": "Traduction activée" },
+  "labelSubtitleStyle": { "message": "Style des sous-titres" },
+  "labelSize": { "message": "Taille" },
+  "labelColor": { "message": "Couleur" },
+  "labelBackground": { "message": "Fond" },
+  "labelPosition": { "message": "Position" },
+  "labelAuto": { "message": "auto" },
+  "labelBottom": { "message": "bas" },
+  "labelTop": { "message": "haut" },
+  "labelReset": { "message": "réinitialiser" },
+  "hintOpenVideo": { "message": "Ouvrez une vidéo avec des sous-titres et un sélecteur de langue apparaîtra. Les traductions existantes de la bibliothèque se chargent automatiquement." },
+  "dropZoneDefault": { "message": "Déposez un fichier .srt ou .vtt" },
+  "dropZoneOnlySrtVtt": { "message": "Uniquement les fichiers .srt et .vtt" },
+  "dropZoneTooBig": { "message": "Fichier trop volumineux (max 2 Mo)" },
+  "dropZoneReading": { "message": "Lecture du fichier..." },
+  "dropZoneSubmitting": { "message": "Envoi dans la file d'attente..." },
+  "dropZoneSent": { "message": "Envoyé" },
+  "dropZonePosition": {
+    "message": "($1 dans la file)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "dropZoneReadError": { "message": "Impossible de lire le fichier" },
+  "labelQueue": { "message": "File d'attente de traduction" },
+  "queuePending": { "message": "en attente" },
+  "queueRunning": { "message": "en cours" },
+  "stateLoading": { "message": "Chargement..." },
+  "stateNoTranslations": { "message": "Pas encore de traductions" },
+  "stateNoRequests": { "message": "Aucune demande" },
+  "stateNoTitle": { "message": "(sans titre)" },
+  "stateCommError": { "message": "Erreur de communication avec l'extension" },
+  "siteLinkAll": { "message": "Toutes les traductions sur le site →" },
+  "apiGetKey": { "message": "Obtenir une clé API sur openrouter.ai →" },
+  "apiGetKeyAlt": { "message": "" },
+  "apiCostHint": { "message": "≈ 3¢ par épisode · 60+ épisodes pour 2 USD" },
+  "labelProvider": { "message": "Fournisseur" },
+  "providerOpenRouterHint": { "message": "(clé API requise)" },
+  "providerClaudeCliHint": { "message": "(via la file d'attente)" },
+  "labelApiKey": { "message": "Clé API" },
+  "placeholderApiKey": { "message": "sk-or-..." },
+  "tooltipToggleKey": { "message": "Afficher/masquer" },
+  "labelModel": { "message": "Modèle" },
+  "placeholderModel": { "message": "vendor/model-name" },
+  "statusCheckingServer": { "message": "Vérification du serveur..." },
+  "statusServerOk": { "message": "Serveur de file d'attente actif" },
+  "statusServerDown": { "message": "Serveur de file d'attente indisponible" },
+  "labelSharedCache": { "message": "Cache partagé des traductions" },
+  "labelEnabled": { "message": "Activé" },
+  "labelSharedCacheApiKey": { "message": "Clé API" },
+  "placeholderCacheKey": { "message": "clé pour écrire dans le cache" },
+  "dateToday": { "message": "aujourd'hui" },
+  "dateYesterday": { "message": "hier" },
+  "dateDaysAgo": {
+    "message": "il y a $1 j.",
+    "placeholders": { "days": { "content": "$1" } }
+  },
+  "monthJan": { "message": "Jan" },
+  "monthFeb": { "message": "Fév" },
+  "monthMar": { "message": "Mar" },
+  "monthApr": { "message": "Avr" },
+  "monthMay": { "message": "Mai" },
+  "monthJun": { "message": "Jui" },
+  "monthJul": { "message": "Jul" },
+  "monthAug": { "message": "Aoû" },
+  "monthSep": { "message": "Sep" },
+  "monthOct": { "message": "Oct" },
+  "monthNov": { "message": "Nov" },
+  "monthDec": { "message": "Déc" },
+  "fontSizeAuto": { "message": "auto" },
+  "badgeLoading": { "message": "Chargement des sous-titres..." },
+  "badgeTranslating": {
+    "message": "Traduction : $PCT$% — lot $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "badgeQueueProgress": {
+    "message": "Chargement : $1%",
+    "placeholders": { "pct": { "content": "$1" } }
+  },
+  "badgeFromCache": { "message": "Depuis le cache" },
+  "badgeDone": { "message": "Terminé" },
+  "badgeDoneCount": {
+    "message": "$LABEL$ ! $COUNT$ répliques",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "count": { "content": "$2" }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "Sous-titres ($COUNT$)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "badgeSubtitlesAvailable": { "message": "Sous-titres disponibles" },
+  "badgeWantSubtitles": {
+    "message": "Je veux des sous-titres en $LANG$",
+    "placeholders": { "lang": { "content": "$1" } }
+  },
+  "badgeWillTranslate": { "message": "On va traduire ! ✓" },
+  "badgeSubtitlesSoon": { "message": "Sous-titres bientôt disponibles" },
+  "badgeSubmitting": { "message": "Envoi..." },
+  "badgeTrackLoading": { "message": "Chargement..." },
+  "tooltipSharedCache": {
+    "message": "Prêt dans le cache partagé ($MODEL$)",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "tooltipOffsetMinus": { "message": "Sous-titres en avance (−0.5s)" },
+  "tooltipOffsetLabel": { "message": "Décalage des sous-titres (clic = réinitialiser)" },
+  "tooltipOffsetPlus": { "message": "Sous-titres en retard (+0.5s)" },
+  "tooltipDownload": {
+    "message": "Télécharger .$FMT$",
+    "placeholders": { "fmt": { "content": "$1" } }
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ prêt ($MODEL$)",
+    "placeholders": {
+      "src": { "content": "$1" },
+      "tgt": { "content": "$2" },
+      "model": { "content": "$3" }
+    }
+  },
+  "badgeOffset": {
+    "message": "Décalage : $OFFSET$s",
+    "placeholders": { "offset": { "content": "$1" } }
+  },
+  "badgeOffsetReset": { "message": "Décalage réinitialisé" },
+  "badgePositionBottom": { "message": "Sous-titres : bas" },
+  "badgePositionTop": { "message": "Sous-titres : haut" },
+  "errorEnableCc": { "message": "Activez les sous-titres (CC) dans le lecteur" },
+  "errorYouTube": {
+    "message": "YouTube : $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorNoSubtitles": { "message": "Pas de sous-titres" },
+  "errorNotSubtitles": { "message": "Ce ne sont pas des sous-titres" },
+  "errorGeneric": { "message": "Erreur" },
+  "errorPrefix": {
+    "message": "Erreur : $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorStartTranslation": { "message": "Erreur au lancement de la traduction" },
+  "errorInvalidApiKey": { "message": "Clé API OpenRouter invalide" },
+  "errorInsufficientFunds": { "message": "Fonds insuffisants sur OpenRouter" },
+  "errorTimeout": { "message": "Délai d'attente OpenRouter dépassé (le modèle n'a pas répondu en 2 min)" },
+  "errorNeedApiKey": { "message": "Clé API OpenRouter requise" },
+  "errorUnknownModel": {
+    "message": "Modèle inconnu : $MODEL$",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "errorNoModel": { "message": "Aucun modèle sélectionné (paramètres de l'extension)" },
+  "errorNeedKey": { "message": "Clé API requise (paramètres de l'extension)" },
+  "errorSharedCacheNotConfigured": { "message": "URL du cache partagé non configurée" },
+  "errorQueueServer": { "message": "Erreur de traduction sur le serveur" },
+  "errorQueueTimeout": { "message": "Délai d'attente de traduction dépassé (1 heure)" },
+  "errorJsonParse": { "message": "Le modèle a renvoyé une réponse invalide — impossible d'analyser le JSON" },
+  "errorHttpStatus": {
+    "message": "Erreur $STATUS$",
+    "placeholders": { "status": { "content": "$1" } }
+  },
+  "retryProgress": {
+    "message": "Tentative $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": { "content": "$1" },
+      "max": { "content": "$2" },
+      "code": { "content": "$3" }
+    }
+  },
+  "queueStatusInQueue": { "message": "En file d'attente" },
+  "queueStatusPosition": {
+    "message": "En file d'attente ($POS$)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ sauvegardés, cliquez à nouveau)",
+    "placeholders": {
+      "done": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "devDownloading": {
+    "message": "Téléchargement des sous-titres $LABEL$...",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "devTranslating": {
+    "message": "Traduction : $COUNT$ sous-titres...",
+    "placeholders": { "count": { "content": "$1" } }
+  }
+}

@@ -7,11 +7,11 @@ const PROVIDERS = {
     label: 'OpenRouter',
     needsKey: true,
     needsServer: false,
-    models: [
-      { code: 'anthropic/claude-sonnet-4.6', label: 'Claude Sonnet 4.6' },
-      { code: 'anthropic/claude-opus-4.6', label: 'Claude Opus 4.6' },
-      { code: 'google/gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-      { code: 'meta-llama/llama-4-maverick', label: 'Llama 4 Maverick' },
+    freeformModel: true,
+    suggestions: [
+      { code: 'deepseek/deepseek-v3.2', label: 'DeepSeek V3.2 — $0.25/$0.40' },
+      { code: 'google/gemini-3-flash-preview', label: 'Gemini 3 Flash — $0.50/$3' },
+      { code: 'anthropic/claude-sonnet-4.6', label: 'Claude Sonnet 4.6 — $3/$15' },
     ]
   },
   'claude-cli': {
@@ -27,11 +27,11 @@ const PROVIDERS = {
 };
 
 const DEFAULT_PROVIDER = 'openrouter';
-const DEFAULT_MODEL = 'anthropic/claude-sonnet-4.6';
+const DEFAULT_MODEL = 'google/gemini-3-flash-preview';
 
 const FIRST_BATCH_SIZE = 50;
-const BATCH_SIZE = 200;
-const PARALLEL_WORKERS = 2;
+const BATCH_SIZE = 100;
+const PARALLEL_WORKERS = 1;
 const MAX_LINE_LENGTH = 500;
 
 // ── Model quality ranks (higher = better translation) ──
@@ -42,10 +42,11 @@ const MODEL_RANKS = {
   // Rank 4: Strong
   'anthropic/claude-sonnet-4.6': 4,
   'sonnet': 4,
+  'google/gemini-3-flash-preview': 4,
   // Rank 3: Good
+  'deepseek/deepseek-v3.2': 3,
   'google/gemini-2.5-flash': 3,
-  // Rank 2: Mid
-  'meta-llama/llama-4-maverick': 2,
+  // Rank 2: Mid (default for unknown models)
   // Rank 1: Basic
   'haiku': 1,
 };
@@ -148,7 +149,7 @@ function parseJsonTranslations(output, originalTexts) {
   }
 
   // 4. Fail visibly
-  throw new Error('\u041c\u043e\u0434\u0435\u043b\u044c \u0432\u0435\u0440\u043d\u0443\u043b\u0430 \u043d\u0435\u043a\u043e\u0440\u0440\u0435\u043a\u0442\u043d\u044b\u0439 \u043e\u0442\u0432\u0435\u0442 \u2014 \u043d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u0430\u0440\u0441\u0438\u0442\u044c JSON');
+  throw new Error(chrome.i18n.getMessage('errorJsonParse'));
 }
 
 function _mapJsonResults(jsonArr, originalTexts) {
@@ -221,8 +222,30 @@ function parseVtt(vttText) {
   return entries;
 }
 
+// ── Credit text by target language (shown at end of translated subtitles) ──
+const CREDIT_BY_LANG = {
+  Russian: 'Переведено через Подстрочник — умные ИИ-субтитры\npodstr.cc',
+  English: 'Translated via Podstročnik — AI subtitles\npodstr.cc',
+  Ukrainian: 'Перекладено через Подстрочник — ІІ-субтитри\npodstr.cc',
+  Belarusian: 'Перакладзена праз Подстрочник — ІІ-субтытры\npodstr.cc',
+  Serbian: 'Преведено преко Подстрочник — АИ титлови\npodstr.cc',
+  Spanish: 'Traducido con Podstročnik — subtítulos con IA\npodstr.cc',
+  French: 'Traduit via Podstročnik — sous-titres IA\npodstr.cc',
+  German: 'Übersetzt mit Podstročnik — KI-Untertitel\npodstr.cc',
+  Portuguese: 'Traduzido via Podstročnik — legendas com IA\npodstr.cc',
+  Chinese: '由 Podstročnik 翻译 — AI 字幕\npodstr.cc',
+  Japanese: 'Podstročnik による翻訳 — AI字幕\npodstr.cc',
+  Korean: 'Podstročnik으로 번역됨 — AI 자막\npodstr.cc',
+  Turkish: 'Podstročnik ile çevrildi — yapay zeka altyazıları\npodstr.cc',
+  Italian: 'Tradotto con Podstročnik — sottotitoli IA\npodstr.cc',
+};
+
+function getCreditText(targetLang) {
+  return CREDIT_BY_LANG[targetLang] || CREDIT_BY_LANG['English'];
+}
+
 // ── VTT builder ──
-function buildVtt(entries) {
+function buildVtt(entries, targetLang) {
   let vtt = 'WEBVTT\n\n';
   for (let i = 0; i < entries.length; i++) {
     vtt += `${i + 1}\n${entries[i].timing}\n${entries[i].text}\n\n`;
@@ -234,7 +257,7 @@ function buildVtt(entries) {
     const endSecs = _parseVttTime(endPart);
     const creditStart = _fmtVttTime(endSecs + 2);
     const creditEnd = _fmtVttTime(endSecs + 6);
-    vtt += `${entries.length + 1}\n${creditStart} --> ${creditEnd}\nПереведено через Подстрочник — умные ИИ-субтитры\npodstr.cc\n\n`;
+    vtt += `${entries.length + 1}\n${creditStart} --> ${creditEnd}\n${getCreditText(targetLang)}\n\n`;
   }
   return vtt;
 }

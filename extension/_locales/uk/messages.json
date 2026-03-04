@@ -1,0 +1,200 @@
+{
+  "extensionName": { "message": "Підрядник" },
+  "extensionDescription": { "message": "AI-переклад субтитрів — серіали, фільми, відео" },
+  "headerTitle": { "message": "Підрядник" },
+  "headerSub": { "message": "AI-переклад субтитрів" },
+  "tabPlayer": { "message": "Плеєр" },
+  "tabApi": { "message": "API" },
+  "tabLibrary": { "message": "Бібліотека" },
+  "tabWishlist": { "message": "Запити" },
+  "tabSettings": { "message": "Налаштування" },
+  "labelTargetLang": { "message": "Мова перекладу" },
+  "labelTranslationEnabled": { "message": "Переклад увімкнено" },
+  "labelSubtitleStyle": { "message": "Стиль субтитрів" },
+  "labelSize": { "message": "Розмір" },
+  "labelColor": { "message": "Колір" },
+  "labelBackground": { "message": "Фон" },
+  "labelPosition": { "message": "Позиція" },
+  "labelAuto": { "message": "авто" },
+  "labelBottom": { "message": "внизу" },
+  "labelTop": { "message": "вгорі" },
+  "labelReset": { "message": "скинути" },
+  "hintOpenVideo": { "message": "Відкрийте відео з субтитрами — з'явиться вибір мови. Наявні переклади з бібліотеки завантажуються автоматично." },
+  "dropZoneDefault": { "message": "Перетягніть .srt або .vtt файл" },
+  "dropZoneOnlySrtVtt": { "message": "Лише .srt та .vtt файли" },
+  "dropZoneTooBig": { "message": "Файл завеликий (макс. 2 МБ)" },
+  "dropZoneReading": { "message": "Читання файлу..." },
+  "dropZoneSubmitting": { "message": "Надсилання до черги..." },
+  "dropZoneSent": { "message": "Надіслано" },
+  "dropZonePosition": {
+    "message": "($1 у черзі)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "dropZoneReadError": { "message": "Не вдалося прочитати файл" },
+  "labelQueue": { "message": "Черга перекладу" },
+  "queuePending": { "message": "очікує" },
+  "queueRunning": { "message": "виконується" },
+  "stateLoading": { "message": "Завантаження..." },
+  "stateNoTranslations": { "message": "Перекладів ще немає" },
+  "stateNoRequests": { "message": "Немає запитів" },
+  "stateNoTitle": { "message": "(без назви)" },
+  "stateCommError": { "message": "Помилка зв'язку з розширенням" },
+  "siteLinkAll": { "message": "Усі переклади на сайті →" },
+  "apiGetKey": { "message": "Отримати API-ключ на openrouter.ai →" },
+  "apiGetKeyAlt": { "message": "" },
+  "apiCostHint": { "message": "≈ 3¢ за епізод · 60+ епізодів за 2 USD" },
+  "labelProvider": { "message": "Провайдер" },
+  "providerOpenRouterHint": { "message": "(потрібен API-ключ)" },
+  "providerClaudeCliHint": { "message": "(через чергу)" },
+  "labelApiKey": { "message": "API-ключ" },
+  "placeholderApiKey": { "message": "sk-or-..." },
+  "tooltipToggleKey": { "message": "Показати/сховати" },
+  "labelModel": { "message": "Модель" },
+  "placeholderModel": { "message": "vendor/model-name" },
+  "statusCheckingServer": { "message": "Перевірка сервера..." },
+  "statusServerOk": { "message": "Сервер черги працює" },
+  "statusServerDown": { "message": "Сервер черги недоступний" },
+  "labelSharedCache": { "message": "Спільний кеш перекладів" },
+  "labelEnabled": { "message": "Увімкнено" },
+  "labelSharedCacheApiKey": { "message": "API-ключ" },
+  "placeholderCacheKey": { "message": "ключ для запису в кеш" },
+  "dateToday": { "message": "сьогодні" },
+  "dateYesterday": { "message": "вчора" },
+  "dateDaysAgo": {
+    "message": "$1 дн. тому",
+    "placeholders": { "days": { "content": "$1" } }
+  },
+  "monthJan": { "message": "Січ" },
+  "monthFeb": { "message": "Лют" },
+  "monthMar": { "message": "Бер" },
+  "monthApr": { "message": "Кві" },
+  "monthMay": { "message": "Тра" },
+  "monthJun": { "message": "Чер" },
+  "monthJul": { "message": "Лип" },
+  "monthAug": { "message": "Сер" },
+  "monthSep": { "message": "Вер" },
+  "monthOct": { "message": "Жов" },
+  "monthNov": { "message": "Лис" },
+  "monthDec": { "message": "Гру" },
+  "fontSizeAuto": { "message": "авто" },
+  "badgeLoading": { "message": "Завантаження субтитрів..." },
+  "badgeTranslating": {
+    "message": "Переклад: $PCT$% — пакет $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "badgeQueueProgress": {
+    "message": "Завантаження: $1%",
+    "placeholders": { "pct": { "content": "$1" } }
+  },
+  "badgeFromCache": { "message": "З кешу" },
+  "badgeDone": { "message": "Готово" },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$ реплік",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "count": { "content": "$2" }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "Субтитри ($COUNT$)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "badgeSubtitlesAvailable": { "message": "Субтитри доступні" },
+  "badgeWantSubtitles": {
+    "message": "Хочу субтитри мовою: $LANG$",
+    "placeholders": { "lang": { "content": "$1" } }
+  },
+  "badgeWillTranslate": { "message": "Перекладемо! ✓" },
+  "badgeSubtitlesSoon": { "message": "Субтитри скоро будуть" },
+  "badgeSubmitting": { "message": "Надсилання..." },
+  "badgeTrackLoading": { "message": "Завантаження..." },
+  "tooltipSharedCache": {
+    "message": "Готово у спільному кеші ($MODEL$)",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "tooltipOffsetMinus": { "message": "Субтитри раніше (−0.5с)" },
+  "tooltipOffsetLabel": { "message": "Зсув субтитрів (клік = скинути)" },
+  "tooltipOffsetPlus": { "message": "Субтитри пізніше (+0.5с)" },
+  "tooltipDownload": {
+    "message": "Завантажити .$FMT$",
+    "placeholders": { "fmt": { "content": "$1" } }
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ готово ($MODEL$)",
+    "placeholders": {
+      "src": { "content": "$1" },
+      "tgt": { "content": "$2" },
+      "model": { "content": "$3" }
+    }
+  },
+  "badgeOffset": {
+    "message": "Зсув: $OFFSET$с",
+    "placeholders": { "offset": { "content": "$1" } }
+  },
+  "badgeOffsetReset": { "message": "Зсув скинуто" },
+  "badgePositionBottom": { "message": "Субтитри: внизу" },
+  "badgePositionTop": { "message": "Субтитри: вгорі" },
+  "errorEnableCc": { "message": "Увімкніть субтитри (CC) у плеєрі" },
+  "errorYouTube": {
+    "message": "YouTube: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorNoSubtitles": { "message": "Субтитрів немає" },
+  "errorNotSubtitles": { "message": "Це не субтитри" },
+  "errorGeneric": { "message": "Помилка" },
+  "errorPrefix": {
+    "message": "Помилка: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorStartTranslation": { "message": "Помилка запуску перекладу" },
+  "errorInvalidApiKey": { "message": "Невірний API-ключ OpenRouter" },
+  "errorInsufficientFunds": { "message": "Недостатньо коштів на OpenRouter" },
+  "errorTimeout": { "message": "Тайм-аут запиту OpenRouter (модель не відповіла за 2 хв)" },
+  "errorNeedApiKey": { "message": "Потрібен API-ключ OpenRouter" },
+  "errorUnknownModel": {
+    "message": "Невідома модель: $MODEL$",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "errorNoModel": { "message": "Модель не обрано (налаштування розширення)" },
+  "errorNeedKey": { "message": "Потрібен API-ключ (налаштування розширення)" },
+  "errorSharedCacheNotConfigured": { "message": "URL спільного кешу не налаштовано" },
+  "errorQueueServer": { "message": "Помилка перекладу на сервері" },
+  "errorQueueTimeout": { "message": "Тайм-аут очікування перекладу (1 година)" },
+  "errorJsonParse": { "message": "Модель повернула невалідну відповідь — не вдалося розібрати JSON" },
+  "errorHttpStatus": {
+    "message": "Помилка $STATUS$",
+    "placeholders": { "status": { "content": "$1" } }
+  },
+  "retryProgress": {
+    "message": "Спроба $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": { "content": "$1" },
+      "max": { "content": "$2" },
+      "code": { "content": "$3" }
+    }
+  },
+  "queueStatusInQueue": { "message": "У черзі" },
+  "queueStatusPosition": {
+    "message": "У черзі ($POS$)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ збережено, натисніть ще раз)",
+    "placeholders": {
+      "done": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "devDownloading": {
+    "message": "Завантаження субтитрів $LABEL$...",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "devTranslating": {
+    "message": "Переклад: $COUNT$ субтитрів...",
+    "placeholders": { "count": { "content": "$1" } }
+  }
+}

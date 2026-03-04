@@ -133,12 +133,18 @@ const RETRY_CODES = new Set([429, 500, 502, 503, 504]);
 const MAX_RETRIES = 3;
 const RETRY_DELAYS = [2000, 5000, 15000];
 
+function getApiBaseUrl(apiKey) {
+  if (apiKey && apiKey.startsWith('pza_')) return 'https://polza.ai/api/v1';
+  return 'https://openrouter.ai/api/v1';
+}
+
 async function callOpenRouter(prompt, model, apiKey, signal, onRetry) {
+  const baseUrl = getApiBaseUrl(apiKey);
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const timeout = AbortSignal.timeout(120000);
       const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
-      const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const resp = await fetch(`${baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
@@ -154,8 +160,8 @@ async function callOpenRouter(prompt, model, apiKey, signal, onRetry) {
       });
 
       if (!resp.ok) {
-        if (resp.status === 401) throw new Error('Невалидный API-ключ OpenRouter');
-        if (resp.status === 402) throw new Error('Недостаточно средств на OpenRouter');
+        if (resp.status === 401) throw new Error(chrome.i18n.getMessage('errorInvalidApiKey'));
+        if (resp.status === 402) throw new Error(chrome.i18n.getMessage('errorInsufficientFunds'));
         if (RETRY_CODES.has(resp.status) && attempt < MAX_RETRIES) {
           console.log(`[AI Subtitler] OpenRouter ${resp.status}, retry ${attempt + 1}/${MAX_RETRIES} in ${RETRY_DELAYS[attempt]}ms`);
           if (onRetry) onRetry(attempt + 1, MAX_RETRIES, resp.status);
@@ -169,8 +175,10 @@ async function callOpenRouter(prompt, model, apiKey, signal, onRetry) {
       const data = await resp.json();
       return data.choices[0].message.content.trim();
     } catch (e) {
-      if (e.name === 'AbortError') throw e;
-      if (e.message.startsWith('Невалидный') || e.message.startsWith('Недостаточно')) throw e;
+      if (e.name === 'AbortError' || e.name === 'TimeoutError') {
+        throw new Error(chrome.i18n.getMessage('errorTimeout'));
+      }
+      if (e.message === chrome.i18n.getMessage('errorInvalidApiKey') || e.message === chrome.i18n.getMessage('errorInsufficientFunds')) throw e;
       if (attempt < MAX_RETRIES) {
         console.log(`[AI Subtitler] OpenRouter error: ${e.message}, retry ${attempt + 1}/${MAX_RETRIES}`);
         if (onRetry) onRetry(attempt + 1, MAX_RETRIES, 'network');
@@ -199,19 +207,25 @@ function sanitizePageUrl(url) {
   }
 }
 
-async function submitToQueue(vtt, targetLang, model, tabId, playlistUrl, overrideTitle, channel = '') {
+async function submitToQueue(vtt, targetLang, model, tabId, playlistUrl, overrideTitle, channel = '', earlyPageUrl = '') {
   const sharedUrl = settings.sharedCacheUrl;
-  if (!sharedUrl) throw new Error('Shared cache URL не настроен');
+  if (!sharedUrl) throw new Error(chrome.i18n.getMessage('errorSharedCacheNotConfigured'));
 
-  const tab = tabId ? await chrome.tabs.get(tabId).catch(() => null) : null;
+  let pageUrl = earlyPageUrl ? sanitizePageUrl(earlyPageUrl) : '';
+  let pageTitle = overrideTitle || '';
+  if (tabId && (!pageUrl || !pageTitle)) {
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    if (!pageUrl) pageUrl = sanitizePageUrl(tab?.url);
+    if (!pageTitle) pageTitle = tab?.title || '';
+  }
 
   const resp = await fetch(`${sharedUrl}/queue/submit`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       vtt, target_lang: targetLang, model,
-      title: overrideTitle || tab?.title || '',
-      page_url: sanitizePageUrl(tab?.url),
+      title: pageTitle,
+      page_url: pageUrl,
       normalized_url: playlistUrl ? normalizeCacheKey('playlist:' + playlistUrl).replace('playlist:', '') : '',
       channel: channel || '',
       streaming: true,
@@ -240,10 +254,10 @@ async function pollJobStatus(jobId) {
 // ══════════════════════════════════════════════════
 
 async function translateBatch(texts, targetLang, model, apiKey, signal, onRetryProgress) {
-  if (!apiKey) throw new Error('Нужен API-ключ OpenRouter');
+  if (!apiKey) throw new Error(chrome.i18n.getMessage('errorNeedApiKey'));
   const prompt = buildJsonTranslationPrompt(texts, targetLang);
   const onRetry = onRetryProgress
-    ? (attempt, max, code) => onRetryProgress(`Retry ${attempt}/${max} (${code})...`)
+    ? (attempt, max, code) => onRetryProgress(chrome.i18n.getMessage('retryProgress', [String(attempt), String(max), String(code)]))
     : null;
   const output = await callOpenRouter(prompt, model, apiKey, signal, onRetry);
   return parseJsonTranslations(output, texts);
@@ -253,7 +267,7 @@ async function translateBatch(texts, targetLang, model, apiKey, signal, onRetryP
 // ── Translation orchestrator ──
 // ══════════════════════════════════════════════════
 
-async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiKey, pageTitle, channel = '') {
+async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiKey, pageTitle, channel = '', pageUrl = '') {
   const abortController = new AbortController();
   const signal = abortController.signal;
 
@@ -270,7 +284,7 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
     // Backfill shared cache if not there yet (fire-and-forget)
     sha256(vtt).then(hash => {
       console.log('[AI Subtitler] Backfill: uploading to shared cache...');
-      return sharedCachePut(hash, 'auto', targetLang, cached, model, tabId, url, pageTitle, channel);
+      return sharedCachePut(hash, 'auto', targetLang, cached, model, tabId, url, pageTitle, channel, pageUrl);
     }).catch(e => console.log('[AI Subtitler] Backfill failed:', e.message || e));
     delete activeTranslations[tabId];
     return;
@@ -289,7 +303,7 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
       type: 'translation_done', vtt: sharedVtt, fromCache: true,
     }).catch(() => {});
     // Backfill normalized_url for existing translations (fire-and-forget)
-    sharedCachePut(vttHash, 'auto', targetLang, sharedVtt, model, tabId, url, pageTitle, channel).catch(() => {});
+    sharedCachePut(vttHash, 'auto', targetLang, sharedVtt, model, tabId, url, pageTitle, channel, pageUrl).catch(() => {});
     delete activeTranslations[tabId];
     return;
   }
@@ -319,13 +333,13 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
       // ── CLI: submit to queue → poll status ──
       console.log(`[AI Subtitler] CLI queue submit: ${total} cues, model: ${model}`);
 
-      const submitResult = await submitToQueue(vtt, targetLang, model, tabId, url, pageTitle, channel);
+      const submitResult = await submitToQueue(vtt, targetLang, model, tabId, url, pageTitle, channel, pageUrl);
       const jobId = submitResult.job_id;
       console.log(`[AI Subtitler] Job submitted: ${jobId}, status: ${submitResult.status}, position: ${submitResult.position}`);
 
       // Send initial progress to content.js
-      const posLabel = submitResult.position > 0 ? ` (${submitResult.position}-я)` : '';
-      sendProgress({ queue_status: `В очереди${posLabel}` });
+      const posLabel = submitResult.position > 0 ? ' ' + chrome.i18n.getMessage('queueStatusPosition', [String(submitResult.position)]) : '';
+      sendProgress({ queue_status: chrome.i18n.getMessage('queueStatusInQueue') + posLabel });
 
       // Poll until done or error
       const POLL_INTERVAL = 5000; // 5 seconds
@@ -341,7 +355,7 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
 
         if (status.status === 'pending') {
           const pos = status.position || '?';
-          sendProgress({ queue_status: `В очереди (${pos}-я)` });
+          sendProgress({ queue_status: chrome.i18n.getMessage('queueStatusInQueue') + ' ' + chrome.i18n.getMessage('queueStatusPosition', [String(pos)]) });
         } else if (status.status === 'running') {
           completedCues = status.progress_done || 0;
           sendProgress({
@@ -356,12 +370,12 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
           console.log(`[AI Subtitler] Job ${jobId} done!`);
           break;
         } else if (status.status === 'error') {
-          throw new Error(status.error || 'Ошибка перевода на сервере');
+          throw new Error(status.error || chrome.i18n.getMessage('errorQueueServer'));
         }
       }
 
       if (signal.aborted) return;
-      if (!finalVtt) throw new Error('Таймаут ожидания перевода (1 час)');
+      if (!finalVtt) throw new Error(chrome.i18n.getMessage('errorQueueTimeout'));
 
     } else {
       // ── OpenRouter: batched parallel translation ──
@@ -378,7 +392,7 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
         sendProgress({
           batch: Math.min(batches.findIndex(b => b.end > completedCues) + 1, batches.length),
           total_batches: batches.length,
-          partial_vtt: buildVtt(entries.slice(0, completedCues)),
+          partial_vtt: buildVtt(entries.slice(0, completedCues), targetLang),
           ...extra,
         });
       };
@@ -434,14 +448,14 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
         }
       }
 
-      finalVtt = buildVtt(entries);
+      finalVtt = buildVtt(entries, targetLang);
     }
 
     // ── Done ──
     if (!hadErrors) {
       await cachePut(cacheKey, finalVtt, total);
       // Upload to shared cache (fire-and-forget)
-      sharedCachePut(vttHash, 'auto', targetLang, finalVtt, model, tabId, url, pageTitle, channel).catch(() => {});
+      sharedCachePut(vttHash, 'auto', targetLang, finalVtt, model, tabId, url, pageTitle, channel, pageUrl).catch(() => {});
     } else {
       console.warn(`[AI Subtitler] Translation had errors — not caching`);
     }
@@ -495,7 +509,7 @@ async function sharedCacheGet(hash, srcLang, tgtLang) {
   }
 }
 
-async function sharedCachePut(hash, srcLang, tgtLang, vtt, model, tabId, playlistUrl, overrideTitle, channel = '') {
+async function sharedCachePut(hash, srcLang, tgtLang, vtt, model, tabId, playlistUrl, overrideTitle, channel = '', earlyPageUrl = '') {
   await settingsReady;
   if (!settings.sharedCacheEnabled || !settings.sharedCacheUrl) {
     console.log('[AI Subtitler] Shared cache PUT skipped: disabled or no URL');
@@ -503,12 +517,12 @@ async function sharedCachePut(hash, srcLang, tgtLang, vtt, model, tabId, playlis
   }
   try {
     let pageTitle = overrideTitle || '';
-    let pageUrl = '';
-    if (tabId) {
+    let pageUrl = earlyPageUrl ? sanitizePageUrl(earlyPageUrl) : '';
+    if (tabId && (!pageTitle || !pageUrl)) {
       try {
         const tab = await chrome.tabs.get(tabId);
         if (!pageTitle) pageTitle = tab.title || '';
-        pageUrl = sanitizePageUrl(tab.url);
+        if (!pageUrl) pageUrl = sanitizePageUrl(tab.url);
       } catch (e) { /* tab may be closed */ }
     }
 
@@ -709,18 +723,24 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       sendResponse({ error: `Unknown provider: ${provider}` });
       return true;
     }
-    const validModels = PROVIDERS[provider].models.map(m => m.code);
-    if (!validModels.includes(model)) {
-      sendResponse({ error: `Неизвестная модель: ${model}` });
+    if (!PROVIDERS[provider].freeformModel) {
+      const validModels = PROVIDERS[provider].models.map(m => m.code);
+      if (!validModels.includes(model)) {
+        sendResponse({ error: chrome.i18n.getMessage('errorUnknownModel', [model]) });
+        return true;
+      }
+    }
+    if (!model) {
+      sendResponse({ error: chrome.i18n.getMessage('errorNoModel') });
       return true;
     }
     if (PROVIDERS[provider].needsKey && !settings.apiKey) {
-      sendResponse({ error: 'Нужен API-ключ (настройки расширения)' });
+      sendResponse({ error: chrome.i18n.getMessage('errorNeedKey') });
       return true;
     }
 
     // Fire-and-forget; content.js sends keepalive pings to keep SW alive
-    runTranslation(tabId, msg.vtt, msg.url, targetLang, provider, model, settings.apiKey, msg.title, msg.channel);
+    runTranslation(tabId, msg.vtt, msg.url, targetLang, provider, model, settings.apiKey, msg.title, msg.channel, msg.page_url);
     sendResponse({ ok: true });
     return true;
   }
@@ -751,7 +771,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         await settingsReady;
         const cacheUrl = settings.sharedCacheUrl;
         if (!cacheUrl) {
-          sendResponse({ error: 'Shared cache URL не настроен' });
+          sendResponse({ error: chrome.i18n.getMessage('errorSharedCacheNotConfigured') });
           return;
         }
         const resp = await fetch(`${cacheUrl}/wishlist`, {
@@ -765,7 +785,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           }),
         });
         if (!resp.ok) {
-          sendResponse({ error: `Ошибка ${resp.status}` });
+          sendResponse({ error: chrome.i18n.getMessage('errorHttpStatus', [String(resp.status)]) });
           return;
         }
         const data = await resp.json();
@@ -858,7 +878,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   if (msg.type === 'get_translations_list') {
     const url = settings.sharedCacheUrl;
-    if (!url) { sendResponse({ error: 'Shared cache URL не настроен' }); return true; }
+    if (!url) { sendResponse({ error: chrome.i18n.getMessage('errorSharedCacheNotConfigured') }); return true; }
     const limit = msg.limit || 50;
     const offset = msg.offset || 0;
     fetch(`${url}/translations/recent?limit=${limit}&offset=${offset}`, {
@@ -874,7 +894,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   if (msg.type === 'get_queue_list') {
     const url = settings.sharedCacheUrl;
-    if (!url) { sendResponse({ error: 'Shared cache URL не настроен' }); return true; }
+    if (!url) { sendResponse({ error: chrome.i18n.getMessage('errorSharedCacheNotConfigured') }); return true; }
     const limit = msg.limit || 20;
     fetch(`${url}/queue/list?limit=${limit}`, {
       signal: AbortSignal.timeout(10000),

@@ -1,0 +1,200 @@
+{
+  "extensionName": { "message": "podstr.cc" },
+  "extensionDescription": { "message": "AI 字幕翻译 — 剧集、电影、视频" },
+  "headerTitle": { "message": "podstr.cc" },
+  "headerSub": { "message": "AI 字幕翻译" },
+  "tabPlayer": { "message": "播放器" },
+  "tabApi": { "message": "API" },
+  "tabLibrary": { "message": "翻译库" },
+  "tabWishlist": { "message": "请求" },
+  "tabSettings": { "message": "设置" },
+  "labelTargetLang": { "message": "翻译语言" },
+  "labelTranslationEnabled": { "message": "启用翻译" },
+  "labelSubtitleStyle": { "message": "字幕样式" },
+  "labelSize": { "message": "大小" },
+  "labelColor": { "message": "颜色" },
+  "labelBackground": { "message": "背景" },
+  "labelPosition": { "message": "位置" },
+  "labelAuto": { "message": "自动" },
+  "labelBottom": { "message": "底部" },
+  "labelTop": { "message": "顶部" },
+  "labelReset": { "message": "重置" },
+  "hintOpenVideo": { "message": "打开带字幕的视频，语言选择器会自动出现。库中已有的翻译会自动加载。" },
+  "dropZoneDefault": { "message": "拖放 .srt 或 .vtt 文件" },
+  "dropZoneOnlySrtVtt": { "message": "仅支持 .srt 和 .vtt 文件" },
+  "dropZoneTooBig": { "message": "文件过大（最大 2 MB）" },
+  "dropZoneReading": { "message": "正在读取文件..." },
+  "dropZoneSubmitting": { "message": "正在提交到队列..." },
+  "dropZoneSent": { "message": "已提交" },
+  "dropZonePosition": {
+    "message": "（队列第 $1 位）",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "dropZoneReadError": { "message": "无法读取文件" },
+  "labelQueue": { "message": "翻译队列" },
+  "queuePending": { "message": "等待中" },
+  "queueRunning": { "message": "进行中" },
+  "stateLoading": { "message": "加载中..." },
+  "stateNoTranslations": { "message": "暂无翻译" },
+  "stateNoRequests": { "message": "暂无请求" },
+  "stateNoTitle": { "message": "（无标题）" },
+  "stateCommError": { "message": "扩展通信错误" },
+  "siteLinkAll": { "message": "网站上的所有翻译 →" },
+  "apiGetKey": { "message": "在 openrouter.ai 获取 API 密钥 →" },
+  "apiGetKeyAlt": { "message": "" },
+  "apiCostHint": { "message": "≈ 3¢/集 · 2 USD ≈ 60+ 集" },
+  "labelProvider": { "message": "服务商" },
+  "providerOpenRouterHint": { "message": "（需要 API 密钥）" },
+  "providerClaudeCliHint": { "message": "（通过队列）" },
+  "labelApiKey": { "message": "API 密钥" },
+  "placeholderApiKey": { "message": "sk-or-..." },
+  "tooltipToggleKey": { "message": "显示/隐藏" },
+  "labelModel": { "message": "模型" },
+  "placeholderModel": { "message": "vendor/model-name" },
+  "statusCheckingServer": { "message": "正在检查服务器..." },
+  "statusServerOk": { "message": "队列服务器运行正常" },
+  "statusServerDown": { "message": "队列服务器不可用" },
+  "labelSharedCache": { "message": "共享翻译缓存" },
+  "labelEnabled": { "message": "已启用" },
+  "labelSharedCacheApiKey": { "message": "API 密钥" },
+  "placeholderCacheKey": { "message": "用于写入缓存的密钥" },
+  "dateToday": { "message": "今天" },
+  "dateYesterday": { "message": "昨天" },
+  "dateDaysAgo": {
+    "message": "$1 天前",
+    "placeholders": { "days": { "content": "$1" } }
+  },
+  "monthJan": { "message": "1月" },
+  "monthFeb": { "message": "2月" },
+  "monthMar": { "message": "3月" },
+  "monthApr": { "message": "4月" },
+  "monthMay": { "message": "5月" },
+  "monthJun": { "message": "6月" },
+  "monthJul": { "message": "7月" },
+  "monthAug": { "message": "8月" },
+  "monthSep": { "message": "9月" },
+  "monthOct": { "message": "10月" },
+  "monthNov": { "message": "11月" },
+  "monthDec": { "message": "12月" },
+  "fontSizeAuto": { "message": "自动" },
+  "badgeLoading": { "message": "正在加载字幕..." },
+  "badgeTranslating": {
+    "message": "翻译中：$PCT$% — 第 $CURRENT$/$TOTAL$ 批",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "badgeQueueProgress": {
+    "message": "加载中：$1%",
+    "placeholders": { "pct": { "content": "$1" } }
+  },
+  "badgeFromCache": { "message": "来自缓存" },
+  "badgeDone": { "message": "完成" },
+  "badgeDoneCount": {
+    "message": "$LABEL$！共 $COUNT$ 条字幕",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "count": { "content": "$2" }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "字幕（$COUNT$）",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "badgeSubtitlesAvailable": { "message": "字幕可用" },
+  "badgeWantSubtitles": {
+    "message": "我想要 $LANG$ 字幕",
+    "placeholders": { "lang": { "content": "$1" } }
+  },
+  "badgeWillTranslate": { "message": "即将翻译！✓" },
+  "badgeSubtitlesSoon": { "message": "字幕即将上线" },
+  "badgeSubmitting": { "message": "提交中..." },
+  "badgeTrackLoading": { "message": "加载中..." },
+  "tooltipSharedCache": {
+    "message": "已在共享缓存中就绪（$MODEL$）",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "tooltipOffsetMinus": { "message": "字幕提前（−0.5秒）" },
+  "tooltipOffsetLabel": { "message": "字幕偏移（点击 = 重置）" },
+  "tooltipOffsetPlus": { "message": "字幕延后（+0.5秒）" },
+  "tooltipDownload": {
+    "message": "下载 .$FMT$",
+    "placeholders": { "fmt": { "content": "$1" } }
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ 已就绪（$MODEL$）",
+    "placeholders": {
+      "src": { "content": "$1" },
+      "tgt": { "content": "$2" },
+      "model": { "content": "$3" }
+    }
+  },
+  "badgeOffset": {
+    "message": "偏移：$OFFSET$秒",
+    "placeholders": { "offset": { "content": "$1" } }
+  },
+  "badgeOffsetReset": { "message": "偏移已重置" },
+  "badgePositionBottom": { "message": "字幕：底部" },
+  "badgePositionTop": { "message": "字幕：顶部" },
+  "errorEnableCc": { "message": "请在播放器中启用字幕（CC）" },
+  "errorYouTube": {
+    "message": "YouTube：$ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorNoSubtitles": { "message": "无字幕" },
+  "errorNotSubtitles": { "message": "非字幕文件" },
+  "errorGeneric": { "message": "错误" },
+  "errorPrefix": {
+    "message": "错误：$ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorStartTranslation": { "message": "启动翻译时出错" },
+  "errorInvalidApiKey": { "message": "OpenRouter API 密钥无效" },
+  "errorInsufficientFunds": { "message": "OpenRouter 余额不足" },
+  "errorTimeout": { "message": "OpenRouter 请求超时（模型 2 分钟内未响应）" },
+  "errorNeedApiKey": { "message": "需要 OpenRouter API 密钥" },
+  "errorUnknownModel": {
+    "message": "未知模型：$MODEL$",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "errorNoModel": { "message": "未选择模型（扩展设置）" },
+  "errorNeedKey": { "message": "需要 API 密钥（扩展设置）" },
+  "errorSharedCacheNotConfigured": { "message": "共享缓存 URL 未配置" },
+  "errorQueueServer": { "message": "服务器翻译错误" },
+  "errorQueueTimeout": { "message": "等待翻译超时（1 小时）" },
+  "errorJsonParse": { "message": "模型返回无效响应 — 无法解析 JSON" },
+  "errorHttpStatus": {
+    "message": "错误 $STATUS$",
+    "placeholders": { "status": { "content": "$1" } }
+  },
+  "retryProgress": {
+    "message": "重试 $ATTEMPT$/$MAX$（$CODE$）...",
+    "placeholders": {
+      "attempt": { "content": "$1" },
+      "max": { "content": "$2" },
+      "code": { "content": "$3" }
+    }
+  },
+  "queueStatusInQueue": { "message": "排队中" },
+  "queueStatusPosition": {
+    "message": "排队中（第 $POS$ 位）",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "errorPartialHint": {
+    "message": "（已保存 $DONE$/$TOTAL$，请再次点击）",
+    "placeholders": {
+      "done": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "devDownloading": {
+    "message": "正在下载 $LABEL$ 字幕...",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "devTranslating": {
+    "message": "翻译中：$COUNT$ 条字幕...",
+    "placeholders": { "count": { "content": "$1" } }
+  }
+}

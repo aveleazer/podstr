@@ -1,0 +1,200 @@
+{
+  "extensionName": { "message": "podstr.cc" },
+  "extensionDescription": { "message": "AI 자막 번역 — 드라마, 영화, 동영상" },
+  "headerTitle": { "message": "podstr.cc" },
+  "headerSub": { "message": "AI 자막 번역" },
+  "tabPlayer": { "message": "플레이어" },
+  "tabApi": { "message": "API" },
+  "tabLibrary": { "message": "라이브러리" },
+  "tabWishlist": { "message": "요청" },
+  "tabSettings": { "message": "설정" },
+  "labelTargetLang": { "message": "번역 언어" },
+  "labelTranslationEnabled": { "message": "번역 활성화" },
+  "labelSubtitleStyle": { "message": "자막 스타일" },
+  "labelSize": { "message": "크기" },
+  "labelColor": { "message": "색상" },
+  "labelBackground": { "message": "배경" },
+  "labelPosition": { "message": "위치" },
+  "labelAuto": { "message": "자동" },
+  "labelBottom": { "message": "하단" },
+  "labelTop": { "message": "상단" },
+  "labelReset": { "message": "초기화" },
+  "hintOpenVideo": { "message": "자막이 있는 동영상을 열면 언어 선택기가 나타납니다. 라이브러리의 기존 번역은 자동으로 로드됩니다." },
+  "dropZoneDefault": { "message": ".srt 또는 .vtt 파일을 드롭하세요" },
+  "dropZoneOnlySrtVtt": { "message": ".srt 및 .vtt 파일만 가능" },
+  "dropZoneTooBig": { "message": "파일이 너무 큽니다 (최대 2 MB)" },
+  "dropZoneReading": { "message": "파일 읽는 중..." },
+  "dropZoneSubmitting": { "message": "대기열에 제출 중..." },
+  "dropZoneSent": { "message": "제출됨" },
+  "dropZonePosition": {
+    "message": "(대기열 $1번째)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "dropZoneReadError": { "message": "파일을 읽을 수 없습니다" },
+  "labelQueue": { "message": "번역 대기열" },
+  "queuePending": { "message": "대기 중" },
+  "queueRunning": { "message": "진행 중" },
+  "stateLoading": { "message": "로딩 중..." },
+  "stateNoTranslations": { "message": "아직 번역이 없습니다" },
+  "stateNoRequests": { "message": "요청 없음" },
+  "stateNoTitle": { "message": "(제목 없음)" },
+  "stateCommError": { "message": "확장 프로그램 통신 오류" },
+  "siteLinkAll": { "message": "사이트의 모든 번역 →" },
+  "apiGetKey": { "message": "openrouter.ai에서 API 키 받기 →" },
+  "apiGetKeyAlt": { "message": "" },
+  "apiCostHint": { "message": "≈ 3¢/에피소드 · 2 USD ≈ 60+ 에피소드" },
+  "labelProvider": { "message": "제공업체" },
+  "providerOpenRouterHint": { "message": "(API 키 필요)" },
+  "providerClaudeCliHint": { "message": "(대기열 경유)" },
+  "labelApiKey": { "message": "API 키" },
+  "placeholderApiKey": { "message": "sk-or-..." },
+  "tooltipToggleKey": { "message": "표시/숨기기" },
+  "labelModel": { "message": "모델" },
+  "placeholderModel": { "message": "vendor/model-name" },
+  "statusCheckingServer": { "message": "서버 확인 중..." },
+  "statusServerOk": { "message": "대기열 서버 가동 중" },
+  "statusServerDown": { "message": "대기열 서버 사용 불가" },
+  "labelSharedCache": { "message": "공유 번역 캐시" },
+  "labelEnabled": { "message": "활성화됨" },
+  "labelSharedCacheApiKey": { "message": "API 키" },
+  "placeholderCacheKey": { "message": "캐시 쓰기용 키" },
+  "dateToday": { "message": "오늘" },
+  "dateYesterday": { "message": "어제" },
+  "dateDaysAgo": {
+    "message": "$1일 전",
+    "placeholders": { "days": { "content": "$1" } }
+  },
+  "monthJan": { "message": "1월" },
+  "monthFeb": { "message": "2월" },
+  "monthMar": { "message": "3월" },
+  "monthApr": { "message": "4월" },
+  "monthMay": { "message": "5월" },
+  "monthJun": { "message": "6월" },
+  "monthJul": { "message": "7월" },
+  "monthAug": { "message": "8월" },
+  "monthSep": { "message": "9월" },
+  "monthOct": { "message": "10월" },
+  "monthNov": { "message": "11월" },
+  "monthDec": { "message": "12월" },
+  "fontSizeAuto": { "message": "자동" },
+  "badgeLoading": { "message": "자막 로딩 중..." },
+  "badgeTranslating": {
+    "message": "번역 중: $PCT$% — 배치 $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "badgeQueueProgress": {
+    "message": "로딩 중: $1%",
+    "placeholders": { "pct": { "content": "$1" } }
+  },
+  "badgeFromCache": { "message": "캐시에서 로드" },
+  "badgeDone": { "message": "완료" },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$개 자막",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "count": { "content": "$2" }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "자막 ($COUNT$)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "badgeSubtitlesAvailable": { "message": "자막 사용 가능" },
+  "badgeWantSubtitles": {
+    "message": "$LANG$ 자막을 원합니다",
+    "placeholders": { "lang": { "content": "$1" } }
+  },
+  "badgeWillTranslate": { "message": "번역하겠습니다! ✓" },
+  "badgeSubtitlesSoon": { "message": "자막 곧 제공 예정" },
+  "badgeSubmitting": { "message": "제출 중..." },
+  "badgeTrackLoading": { "message": "로딩 중..." },
+  "tooltipSharedCache": {
+    "message": "공유 캐시에 준비됨 ($MODEL$)",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "tooltipOffsetMinus": { "message": "자막 앞으로 (−0.5초)" },
+  "tooltipOffsetLabel": { "message": "자막 오프셋 (클릭 = 초기화)" },
+  "tooltipOffsetPlus": { "message": "자막 뒤로 (+0.5초)" },
+  "tooltipDownload": {
+    "message": ".$FMT$ 다운로드",
+    "placeholders": { "fmt": { "content": "$1" } }
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ 준비 완료 ($MODEL$)",
+    "placeholders": {
+      "src": { "content": "$1" },
+      "tgt": { "content": "$2" },
+      "model": { "content": "$3" }
+    }
+  },
+  "badgeOffset": {
+    "message": "오프셋: $OFFSET$초",
+    "placeholders": { "offset": { "content": "$1" } }
+  },
+  "badgeOffsetReset": { "message": "오프셋 초기화됨" },
+  "badgePositionBottom": { "message": "자막: 하단" },
+  "badgePositionTop": { "message": "자막: 상단" },
+  "errorEnableCc": { "message": "플레이어에서 자막(CC)을 활성화하세요" },
+  "errorYouTube": {
+    "message": "YouTube: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorNoSubtitles": { "message": "자막 없음" },
+  "errorNotSubtitles": { "message": "자막이 아닙니다" },
+  "errorGeneric": { "message": "오류" },
+  "errorPrefix": {
+    "message": "오류: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorStartTranslation": { "message": "번역 시작 오류" },
+  "errorInvalidApiKey": { "message": "잘못된 OpenRouter API 키" },
+  "errorInsufficientFunds": { "message": "OpenRouter 잔액 부족" },
+  "errorTimeout": { "message": "OpenRouter 요청 시간 초과 (모델이 2분 내에 응답하지 않음)" },
+  "errorNeedApiKey": { "message": "OpenRouter API 키가 필요합니다" },
+  "errorUnknownModel": {
+    "message": "알 수 없는 모델: $MODEL$",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "errorNoModel": { "message": "모델이 선택되지 않았습니다 (확장 프로그램 설정)" },
+  "errorNeedKey": { "message": "API 키가 필요합니다 (확장 프로그램 설정)" },
+  "errorSharedCacheNotConfigured": { "message": "공유 캐시 URL이 설정되지 않았습니다" },
+  "errorQueueServer": { "message": "서버 번역 오류" },
+  "errorQueueTimeout": { "message": "번역 대기 시간 초과 (1시간)" },
+  "errorJsonParse": { "message": "모델이 잘못된 응답을 반환했습니다 — JSON을 파싱할 수 없음" },
+  "errorHttpStatus": {
+    "message": "오류 $STATUS$",
+    "placeholders": { "status": { "content": "$1" } }
+  },
+  "retryProgress": {
+    "message": "재시도 $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": { "content": "$1" },
+      "max": { "content": "$2" },
+      "code": { "content": "$3" }
+    }
+  },
+  "queueStatusInQueue": { "message": "대기열에 있음" },
+  "queueStatusPosition": {
+    "message": "대기열에 있음 ($POS$번째)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ 저장됨, 다시 클릭하세요)",
+    "placeholders": {
+      "done": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "devDownloading": {
+    "message": "$LABEL$ 자막 다운로드 중...",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "devTranslating": {
+    "message": "번역 중: $COUNT$개 자막...",
+    "placeholders": { "count": { "content": "$1" } }
+  }
+}

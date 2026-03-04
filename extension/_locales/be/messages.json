@@ -1,0 +1,200 @@
+{
+  "extensionName": { "message": "Падрадкоўнік" },
+  "extensionDescription": { "message": "AI-пераклад субтытраў — серыялы, фільмы, відэа" },
+  "headerTitle": { "message": "Падрадкоўнік" },
+  "headerSub": { "message": "AI-пераклад субтытраў" },
+  "tabPlayer": { "message": "Плэер" },
+  "tabApi": { "message": "API" },
+  "tabLibrary": { "message": "Бібліятэка" },
+  "tabWishlist": { "message": "Запыты" },
+  "tabSettings": { "message": "Наладкі" },
+  "labelTargetLang": { "message": "Мова перакладу" },
+  "labelTranslationEnabled": { "message": "Пераклад уключаны" },
+  "labelSubtitleStyle": { "message": "Стыль субтытраў" },
+  "labelSize": { "message": "Памер" },
+  "labelColor": { "message": "Колер" },
+  "labelBackground": { "message": "Фон" },
+  "labelPosition": { "message": "Пазіцыя" },
+  "labelAuto": { "message": "аўта" },
+  "labelBottom": { "message": "унізе" },
+  "labelTop": { "message": "уверсе" },
+  "labelReset": { "message": "скінуць" },
+  "hintOpenVideo": { "message": "Адкрыйце відэа з субтытрамі — з'явіцца выбар мовы. Наяўныя пераклады з бібліятэкі загружаюцца аўтаматычна." },
+  "dropZoneDefault": { "message": "Перацягніце .srt або .vtt файл" },
+  "dropZoneOnlySrtVtt": { "message": "Толькі .srt і .vtt файлы" },
+  "dropZoneTooBig": { "message": "Файл занадта вялікі (макс. 2 МБ)" },
+  "dropZoneReading": { "message": "Чытанне файла..." },
+  "dropZoneSubmitting": { "message": "Адпраўка ў чаргу..." },
+  "dropZoneSent": { "message": "Адпраўлена" },
+  "dropZonePosition": {
+    "message": "($1 у чарзе)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "dropZoneReadError": { "message": "Не атрымалася прачытаць файл" },
+  "labelQueue": { "message": "Чарга перакладу" },
+  "queuePending": { "message": "чакае" },
+  "queueRunning": { "message": "выконваецца" },
+  "stateLoading": { "message": "Загрузка..." },
+  "stateNoTranslations": { "message": "Перакладаў яшчэ няма" },
+  "stateNoRequests": { "message": "Няма запытаў" },
+  "stateNoTitle": { "message": "(без назвы)" },
+  "stateCommError": { "message": "Памылка сувязі з пашырэннем" },
+  "siteLinkAll": { "message": "Усе пераклады на сайце →" },
+  "apiGetKey": { "message": "Атрымаць API-ключ на openrouter.ai →" },
+  "apiGetKeyAlt": { "message": "polza.ai — працуе з расійскімі картамі →" },
+  "apiCostHint": { "message": "≈ 3¢ за эпізод · 60+ эпізодаў за 2 USD" },
+  "labelProvider": { "message": "Правайдар" },
+  "providerOpenRouterHint": { "message": "(патрэбен API-ключ)" },
+  "providerClaudeCliHint": { "message": "(праз чаргу)" },
+  "labelApiKey": { "message": "API-ключ" },
+  "placeholderApiKey": { "message": "sk-or-..." },
+  "tooltipToggleKey": { "message": "Паказаць/схаваць" },
+  "labelModel": { "message": "Мадэль" },
+  "placeholderModel": { "message": "vendor/model-name" },
+  "statusCheckingServer": { "message": "Праверка сервера..." },
+  "statusServerOk": { "message": "Сервер чаргі працуе" },
+  "statusServerDown": { "message": "Сервер чаргі недаступны" },
+  "labelSharedCache": { "message": "Агульны кэш перакладаў" },
+  "labelEnabled": { "message": "Уключана" },
+  "labelSharedCacheApiKey": { "message": "API-ключ" },
+  "placeholderCacheKey": { "message": "ключ для запісу ў кэш" },
+  "dateToday": { "message": "сёння" },
+  "dateYesterday": { "message": "учора" },
+  "dateDaysAgo": {
+    "message": "$1 дз. таму",
+    "placeholders": { "days": { "content": "$1" } }
+  },
+  "monthJan": { "message": "Сту" },
+  "monthFeb": { "message": "Лют" },
+  "monthMar": { "message": "Сак" },
+  "monthApr": { "message": "Кра" },
+  "monthMay": { "message": "Мая" },
+  "monthJun": { "message": "Чэр" },
+  "monthJul": { "message": "Ліп" },
+  "monthAug": { "message": "Жні" },
+  "monthSep": { "message": "Вер" },
+  "monthOct": { "message": "Кас" },
+  "monthNov": { "message": "Ліс" },
+  "monthDec": { "message": "Сне" },
+  "fontSizeAuto": { "message": "аўта" },
+  "badgeLoading": { "message": "Загрузка субтытраў..." },
+  "badgeTranslating": {
+    "message": "Пераклад: $PCT$% — пакет $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "badgeQueueProgress": {
+    "message": "Загрузка: $1%",
+    "placeholders": { "pct": { "content": "$1" } }
+  },
+  "badgeFromCache": { "message": "З кэшу" },
+  "badgeDone": { "message": "Гатова" },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$ рэплік",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "count": { "content": "$2" }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "Субтытры ($COUNT$)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "badgeSubtitlesAvailable": { "message": "Субтытры даступныя" },
+  "badgeWantSubtitles": {
+    "message": "Хачу субтытры на мове: $LANG$",
+    "placeholders": { "lang": { "content": "$1" } }
+  },
+  "badgeWillTranslate": { "message": "Пераклдзем! ✓" },
+  "badgeSubtitlesSoon": { "message": "Субтытры хутка будуць" },
+  "badgeSubmitting": { "message": "Адпраўка..." },
+  "badgeTrackLoading": { "message": "Загрузка..." },
+  "tooltipSharedCache": {
+    "message": "Гатова ў агульным кэшы ($MODEL$)",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "tooltipOffsetMinus": { "message": "Субтытры раней (−0.5с)" },
+  "tooltipOffsetLabel": { "message": "Зрух субтытраў (клік = скінуць)" },
+  "tooltipOffsetPlus": { "message": "Субтытры пазней (+0.5с)" },
+  "tooltipDownload": {
+    "message": "Спампаваць .$FMT$",
+    "placeholders": { "fmt": { "content": "$1" } }
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ гатова ($MODEL$)",
+    "placeholders": {
+      "src": { "content": "$1" },
+      "tgt": { "content": "$2" },
+      "model": { "content": "$3" }
+    }
+  },
+  "badgeOffset": {
+    "message": "Зрух: $OFFSET$с",
+    "placeholders": { "offset": { "content": "$1" } }
+  },
+  "badgeOffsetReset": { "message": "Зрух скінуты" },
+  "badgePositionBottom": { "message": "Субтытры: унізе" },
+  "badgePositionTop": { "message": "Субтытры: уверсе" },
+  "errorEnableCc": { "message": "Уключыце субтытры (CC) у плэеры" },
+  "errorYouTube": {
+    "message": "YouTube: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorNoSubtitles": { "message": "Субтытраў няма" },
+  "errorNotSubtitles": { "message": "Гэта не субтытры" },
+  "errorGeneric": { "message": "Памылка" },
+  "errorPrefix": {
+    "message": "Памылка: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorStartTranslation": { "message": "Памылка запуску перакладу" },
+  "errorInvalidApiKey": { "message": "Няправільны API-ключ OpenRouter" },
+  "errorInsufficientFunds": { "message": "Недастаткова сродкаў на OpenRouter" },
+  "errorTimeout": { "message": "Тайм-аўт запыту OpenRouter (мадэль не адказала за 2 хв)" },
+  "errorNeedApiKey": { "message": "Патрэбен API-ключ OpenRouter" },
+  "errorUnknownModel": {
+    "message": "Невядомая мадэль: $MODEL$",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "errorNoModel": { "message": "Мадэль не абрана (наладкі пашырэння)" },
+  "errorNeedKey": { "message": "Патрэбен API-ключ (наладкі пашырэння)" },
+  "errorSharedCacheNotConfigured": { "message": "URL агульнага кэшу не наладжаны" },
+  "errorQueueServer": { "message": "Памылка перакладу на серверы" },
+  "errorQueueTimeout": { "message": "Тайм-аўт чакання перакладу (1 гадзіна)" },
+  "errorJsonParse": { "message": "Мадэль вярнула няправільны адказ — не атрымалася разабраць JSON" },
+  "errorHttpStatus": {
+    "message": "Памылка $STATUS$",
+    "placeholders": { "status": { "content": "$1" } }
+  },
+  "retryProgress": {
+    "message": "Спроба $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": { "content": "$1" },
+      "max": { "content": "$2" },
+      "code": { "content": "$3" }
+    }
+  },
+  "queueStatusInQueue": { "message": "У чарзе" },
+  "queueStatusPosition": {
+    "message": "У чарзе ($POS$)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ захавана, націсніце яшчэ раз)",
+    "placeholders": {
+      "done": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "devDownloading": {
+    "message": "Спампоўванне субтытраў $LABEL$...",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "devTranslating": {
+    "message": "Пераклад: $COUNT$ субтытраў...",
+    "placeholders": { "count": { "content": "$1" } }
+  }
+}

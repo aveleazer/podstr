@@ -59,7 +59,9 @@ BATCH_DELAY = 10          # seconds between batches (rate limit avoidance)
 QUEUE_URL = os.environ.get("QUEUE_URL", "http://localhost:5001")
 QUEUE_API_KEY = os.environ.get("AIS_API_KEY")  # Required for worker/upload modes
 POLL_INTERVAL = 30        # seconds between queue polls when idle
-VERSION = "3.0"
+ENRICH_IDLE_POLLS = 3     # 3 × 30s = 90s idle before enrichment
+TMDB_API_KEY = os.environ.get('TMDB_API_KEY', '')
+VERSION = "3.1"
 LOCAL_BACKUP_DB = os.environ.get('LOCAL_BACKUP_DB', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'local_cache.db'))
 
 # Active CLI process (for cleanup on error)
@@ -1148,12 +1150,129 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
     return out_path
 
 
+# ── Idle Enrichment ──────────────────────────────────────────────────
+
+SITE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'site')
+ENRICH_SCRIPT = os.path.join(SITE_DIR, 'enrich.py')
+TMDB_CACHE_PATH = os.path.join(SITE_DIR, 'tmdb_cache.json')
+TRANSLATIONS_TMP = os.path.join(SITE_DIR, '.translations_tmp.json')
+
+
+def run_idle_enrichment():
+    """Download tmdb_cache + translations from VPS, run enrich.py, upload results."""
+    if not os.path.isfile(ENRICH_SCRIPT):
+        log.warning("  ⚠ enrich.py not found, skipping idle enrichment")
+        return
+
+    log.info("🔬 Idle enrichment: starting...")
+    t0 = time.time()
+
+    # 1. Download tmdb_cache.json from VPS
+    try:
+        log.info("  ↓ Downloading tmdb_cache.json...")
+        req = urllib.request.Request(
+            f"{QUEUE_URL}/site/tmdb-cache",
+            headers={'X-API-Key': QUEUE_API_KEY},
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = resp.read()
+        with open(TMDB_CACHE_PATH, 'wb') as f:
+            f.write(data)
+        log.info(f"  ↓ tmdb_cache.json: {len(data)} bytes")
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            log.info("  ↓ tmdb_cache.json not found on VPS, starting fresh")
+        else:
+            log.warning(f"  ⚠ Failed to download tmdb_cache.json: {e}")
+            return
+    except Exception as e:
+        log.warning(f"  ⚠ Failed to download tmdb_cache.json: {e}")
+        return
+
+    # 2. Download translations list from VPS
+    try:
+        log.info("  ↓ Downloading translations list...")
+        req = urllib.request.Request(
+            f"{QUEUE_URL}/site/translations",
+            headers={'X-API-Key': QUEUE_API_KEY},
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = resp.read()
+        with open(TRANSLATIONS_TMP, 'wb') as f:
+            f.write(data)
+        tr_data = json.loads(data)
+        count = len(tr_data.get('translations', []))
+        log.info(f"  ↓ translations: {count} entries")
+    except Exception as e:
+        log.warning(f"  ⚠ Failed to download translations: {e}")
+        return
+
+    # 3. Run enrich.py
+    try:
+        env = {**os.environ, 'TMDB_API_KEY': TMDB_API_KEY}
+        cmd = ['python3', ENRICH_SCRIPT, '--translations-json', TRANSLATIONS_TMP]
+        log.info(f"  ▶ Running enrich.py (TMDB: {'yes' if TMDB_API_KEY else 'no'})...")
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=600,
+            cwd=SITE_DIR, env=env,
+        )
+        if result.stdout:
+            for line in result.stdout.strip().splitlines():
+                log.info(f"  [enrich] {line}")
+        if result.returncode != 0:
+            log.warning(f"  ⚠ enrich.py exited with code {result.returncode}")
+            if result.stderr:
+                log.warning(f"  [enrich stderr] {result.stderr[:500]}")
+            return
+    except subprocess.TimeoutExpired:
+        log.warning("  ⚠ enrich.py timed out (600s)")
+        return
+    except Exception as e:
+        log.warning(f"  ⚠ enrich.py failed: {e}")
+        return
+
+    # 4. Upload updated tmdb_cache.json back to VPS
+    try:
+        if not os.path.isfile(TMDB_CACHE_PATH):
+            log.warning("  ⚠ tmdb_cache.json not found after enrich.py")
+            return
+        with open(TMDB_CACHE_PATH, 'rb') as f:
+            cache_data = f.read()
+        log.info(f"  ↑ Uploading tmdb_cache.json ({len(cache_data)} bytes)...")
+        req = urllib.request.Request(
+            f"{QUEUE_URL}/site/tmdb-cache",
+            data=cache_data,
+            method='PUT',
+            headers={
+                'X-API-Key': QUEUE_API_KEY,
+                'Content-Type': 'application/json',
+            },
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            resp_data = json.loads(resp.read())
+            log.info(f"  ↑ tmdb_cache.json uploaded ({resp_data.get('entries', '?')} entries)")
+    except Exception as e:
+        log.warning(f"  ⚠ Failed to upload tmdb_cache.json: {e}")
+        return
+
+    # 5. Cleanup
+    try:
+        os.remove(TRANSLATIONS_TMP)
+    except OSError:
+        pass
+
+    elapsed = int(time.time() - t0)
+    log.info(f"✅ Idle enrichment done in {elapsed}s")
+
+
 # ── Worker Loop ──────────────────────────────────────────────────────
 
 def worker_loop():
     """Main worker loop: poll queue, translate, repeat."""
     log.info(f"🔄 Worker loop started (poll every {POLL_INTERVAL}s)")
     consecutive_errors = 0
+    idle_polls = 0
+    did_work_since_enrich = False
 
     while True:
         try:
@@ -1161,11 +1280,23 @@ def worker_loop():
 
             if not job:
                 consecutive_errors = 0
+                idle_polls += 1
+
+                # Idle enrichment: after work + N empty polls
+                if did_work_since_enrich and idle_polls >= ENRICH_IDLE_POLLS:
+                    try:
+                        run_idle_enrichment()
+                    except Exception as e:
+                        log.warning(f"  ⚠ Idle enrichment error: {e}")
+                    did_work_since_enrich = False
+                    idle_polls = 0
+
                 time.sleep(POLL_INTERVAL)
                 continue
 
             log.info(f"📦 Job {job['job_id']}: {job['target_lang']}, model={job['model']}")
             consecutive_errors = 0
+            idle_polls = 0
 
             last_error = None
             for attempt in range(1, JOB_MAX_RETRIES + 2):  # 1..MAX+1
@@ -1191,6 +1322,8 @@ def worker_loop():
                 log.error(f"  ✗ Job {job['job_id']} failed: {last_error}")
                 report_error(job['job_id'], str(last_error))
 
+            did_work_since_enrich = True
+            idle_polls = 0
             _kill_active()
 
         except KeyboardInterrupt:
@@ -1300,6 +1433,8 @@ def main():
         log.info(f"   Queue: {QUEUE_URL}")
         log.info(f"   Model: {MODEL}")
         log.info(f"   Poll interval: {POLL_INTERVAL}s")
+        log.info(f"   TMDB API key: {'set' if TMDB_API_KEY else 'not set'}")
+        log.info(f"   Idle enrichment: after {ENRICH_IDLE_POLLS * POLL_INTERVAL}s idle")
         log.info(f"   Log file: {LOG_FILE}")
         log.info(f"   Ctrl+C to stop")
 

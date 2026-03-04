@@ -1,0 +1,200 @@
+{
+  "extensionName": { "message": "Подстрочник" },
+  "extensionDescription": { "message": "AI превод титлова — серије, филмови, видео" },
+  "headerTitle": { "message": "Подстрочник" },
+  "headerSub": { "message": "AI превод титлова" },
+  "tabPlayer": { "message": "Плејер" },
+  "tabApi": { "message": "API" },
+  "tabLibrary": { "message": "Библиотека" },
+  "tabWishlist": { "message": "Захтеви" },
+  "tabSettings": { "message": "Подешавања" },
+  "labelTargetLang": { "message": "Језик превода" },
+  "labelTranslationEnabled": { "message": "Превод укључен" },
+  "labelSubtitleStyle": { "message": "Стил титлова" },
+  "labelSize": { "message": "Величина" },
+  "labelColor": { "message": "Боја" },
+  "labelBackground": { "message": "Позадина" },
+  "labelPosition": { "message": "Позиција" },
+  "labelAuto": { "message": "ауто" },
+  "labelBottom": { "message": "доле" },
+  "labelTop": { "message": "горе" },
+  "labelReset": { "message": "ресетуј" },
+  "hintOpenVideo": { "message": "Отворите видео са титловима и појавиће се избор језика. Постојећи преводи из библиотеке се учитавају аутоматски." },
+  "dropZoneDefault": { "message": "Превуците .srt или .vtt фајл" },
+  "dropZoneOnlySrtVtt": { "message": "Само .srt и .vtt фајлови" },
+  "dropZoneTooBig": { "message": "Фајл је превелик (макс. 2 MB)" },
+  "dropZoneReading": { "message": "Читање фајла..." },
+  "dropZoneSubmitting": { "message": "Слање у ред..." },
+  "dropZoneSent": { "message": "Послато" },
+  "dropZonePosition": {
+    "message": "($1 у реду)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "dropZoneReadError": { "message": "Није могуће прочитати фајл" },
+  "labelQueue": { "message": "Ред за превод" },
+  "queuePending": { "message": "чека" },
+  "queueRunning": { "message": "у току" },
+  "stateLoading": { "message": "Учитавање..." },
+  "stateNoTranslations": { "message": "Још нема превода" },
+  "stateNoRequests": { "message": "Нема захтева" },
+  "stateNoTitle": { "message": "(без наслова)" },
+  "stateCommError": { "message": "Грешка у комуникацији са додатком" },
+  "siteLinkAll": { "message": "Сви преводи на сајту →" },
+  "apiGetKey": { "message": "Набавите API кључ на openrouter.ai →" },
+  "apiGetKeyAlt": { "message": "" },
+  "apiCostHint": { "message": "≈ 3¢ по епизоди · 60+ епизода за 2 USD" },
+  "labelProvider": { "message": "Провајдер" },
+  "providerOpenRouterHint": { "message": "(потребан API кључ)" },
+  "providerClaudeCliHint": { "message": "(преко реда)" },
+  "labelApiKey": { "message": "API кључ" },
+  "placeholderApiKey": { "message": "sk-or-..." },
+  "tooltipToggleKey": { "message": "Прикажи/сакриј" },
+  "labelModel": { "message": "Модел" },
+  "placeholderModel": { "message": "vendor/model-name" },
+  "statusCheckingServer": { "message": "Провера сервера..." },
+  "statusServerOk": { "message": "Сервер реда ради" },
+  "statusServerDown": { "message": "Сервер реда недоступан" },
+  "labelSharedCache": { "message": "Дељени кеш превода" },
+  "labelEnabled": { "message": "Укључено" },
+  "labelSharedCacheApiKey": { "message": "API кључ" },
+  "placeholderCacheKey": { "message": "кључ за писање у кеш" },
+  "dateToday": { "message": "данас" },
+  "dateYesterday": { "message": "јуче" },
+  "dateDaysAgo": {
+    "message": "пре $1 д.",
+    "placeholders": { "days": { "content": "$1" } }
+  },
+  "monthJan": { "message": "Јан" },
+  "monthFeb": { "message": "Феб" },
+  "monthMar": { "message": "Мар" },
+  "monthApr": { "message": "Апр" },
+  "monthMay": { "message": "Мај" },
+  "monthJun": { "message": "Јун" },
+  "monthJul": { "message": "Јул" },
+  "monthAug": { "message": "Авг" },
+  "monthSep": { "message": "Сеп" },
+  "monthOct": { "message": "Окт" },
+  "monthNov": { "message": "Нов" },
+  "monthDec": { "message": "Дец" },
+  "fontSizeAuto": { "message": "ауто" },
+  "badgeLoading": { "message": "Учитавање титлова..." },
+  "badgeTranslating": {
+    "message": "Превод: $PCT$% — пакет $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "badgeQueueProgress": {
+    "message": "Учитавање: $1%",
+    "placeholders": { "pct": { "content": "$1" } }
+  },
+  "badgeFromCache": { "message": "Из кеша" },
+  "badgeDone": { "message": "Готово" },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$ реплика",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "count": { "content": "$2" }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "Титлови ($COUNT$)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "badgeSubtitlesAvailable": { "message": "Титлови доступни" },
+  "badgeWantSubtitles": {
+    "message": "Желим титлове на: $LANG$",
+    "placeholders": { "lang": { "content": "$1" } }
+  },
+  "badgeWillTranslate": { "message": "Преводимо! ✓" },
+  "badgeSubtitlesSoon": { "message": "Титлови ускоро" },
+  "badgeSubmitting": { "message": "Слање..." },
+  "badgeTrackLoading": { "message": "Учитавање..." },
+  "tooltipSharedCache": {
+    "message": "Спремно у дељеном кешу ($MODEL$)",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "tooltipOffsetMinus": { "message": "Титлови раније (−0.5с)" },
+  "tooltipOffsetLabel": { "message": "Помак титлова (клик = ресетуј)" },
+  "tooltipOffsetPlus": { "message": "Титлови касније (+0.5с)" },
+  "tooltipDownload": {
+    "message": "Преузми .$FMT$",
+    "placeholders": { "fmt": { "content": "$1" } }
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ спремно ($MODEL$)",
+    "placeholders": {
+      "src": { "content": "$1" },
+      "tgt": { "content": "$2" },
+      "model": { "content": "$3" }
+    }
+  },
+  "badgeOffset": {
+    "message": "Помак: $OFFSET$с",
+    "placeholders": { "offset": { "content": "$1" } }
+  },
+  "badgeOffsetReset": { "message": "Помак ресетован" },
+  "badgePositionBottom": { "message": "Титлови: доле" },
+  "badgePositionTop": { "message": "Титлови: горе" },
+  "errorEnableCc": { "message": "Укључите титлове (CC) у плејеру" },
+  "errorYouTube": {
+    "message": "YouTube: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorNoSubtitles": { "message": "Нема титлова" },
+  "errorNotSubtitles": { "message": "Ово нису титлови" },
+  "errorGeneric": { "message": "Грешка" },
+  "errorPrefix": {
+    "message": "Грешка: $ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorStartTranslation": { "message": "Грешка при покретању превода" },
+  "errorInvalidApiKey": { "message": "Неважећи API кључ за OpenRouter" },
+  "errorInsufficientFunds": { "message": "Недовољно средстава на OpenRouter" },
+  "errorTimeout": { "message": "Истекло време за OpenRouter захтев (модел није одговорио за 2 мин)" },
+  "errorNeedApiKey": { "message": "Потребан API кључ за OpenRouter" },
+  "errorUnknownModel": {
+    "message": "Непознат модел: $MODEL$",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "errorNoModel": { "message": "Модел није изабран (подешавања додатка)" },
+  "errorNeedKey": { "message": "Потребан API кључ (подешавања додатка)" },
+  "errorSharedCacheNotConfigured": { "message": "URL дељеног кеша није подешен" },
+  "errorQueueServer": { "message": "Грешка превода на серверу" },
+  "errorQueueTimeout": { "message": "Истекло време чекања превода (1 сат)" },
+  "errorJsonParse": { "message": "Модел вратио неважећи одговор — није могуће рашчланити JSON" },
+  "errorHttpStatus": {
+    "message": "Грешка $STATUS$",
+    "placeholders": { "status": { "content": "$1" } }
+  },
+  "retryProgress": {
+    "message": "Покушај $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": { "content": "$1" },
+      "max": { "content": "$2" },
+      "code": { "content": "$3" }
+    }
+  },
+  "queueStatusInQueue": { "message": "У реду" },
+  "queueStatusPosition": {
+    "message": "У реду ($POS$)",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ сачувано, кликните поново)",
+    "placeholders": {
+      "done": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "devDownloading": {
+    "message": "Преузимање титлова $LABEL$...",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "devTranslating": {
+    "message": "Превод: $COUNT$ титлова...",
+    "placeholders": { "count": { "content": "$1" } }
+  }
+}

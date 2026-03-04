@@ -1,0 +1,200 @@
+{
+  "extensionName": { "message": "podstr.cc" },
+  "extensionDescription": { "message": "AI字幕翻訳 — ドラマ、映画、動画" },
+  "headerTitle": { "message": "podstr.cc" },
+  "headerSub": { "message": "AI字幕翻訳" },
+  "tabPlayer": { "message": "プレーヤー" },
+  "tabApi": { "message": "API" },
+  "tabLibrary": { "message": "ライブラリ" },
+  "tabWishlist": { "message": "リクエスト" },
+  "tabSettings": { "message": "設定" },
+  "labelTargetLang": { "message": "翻訳言語" },
+  "labelTranslationEnabled": { "message": "翻訳を有効化" },
+  "labelSubtitleStyle": { "message": "字幕スタイル" },
+  "labelSize": { "message": "サイズ" },
+  "labelColor": { "message": "色" },
+  "labelBackground": { "message": "背景" },
+  "labelPosition": { "message": "位置" },
+  "labelAuto": { "message": "自動" },
+  "labelBottom": { "message": "下" },
+  "labelTop": { "message": "上" },
+  "labelReset": { "message": "リセット" },
+  "hintOpenVideo": { "message": "字幕付きの動画を開くと言語選択が表示されます。ライブラリの既存の翻訳は自動的に読み込まれます。" },
+  "dropZoneDefault": { "message": ".srt または .vtt ファイルをドロップ" },
+  "dropZoneOnlySrtVtt": { "message": ".srt と .vtt ファイルのみ" },
+  "dropZoneTooBig": { "message": "ファイルが大きすぎます（最大 2 MB）" },
+  "dropZoneReading": { "message": "ファイルを読み込み中..." },
+  "dropZoneSubmitting": { "message": "キューに送信中..." },
+  "dropZoneSent": { "message": "送信済み" },
+  "dropZonePosition": {
+    "message": "（キュー内 $1 番目）",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "dropZoneReadError": { "message": "ファイルを読み込めませんでした" },
+  "labelQueue": { "message": "翻訳キュー" },
+  "queuePending": { "message": "待機中" },
+  "queueRunning": { "message": "実行中" },
+  "stateLoading": { "message": "読み込み中..." },
+  "stateNoTranslations": { "message": "翻訳はまだありません" },
+  "stateNoRequests": { "message": "リクエストなし" },
+  "stateNoTitle": { "message": "（タイトルなし）" },
+  "stateCommError": { "message": "拡張機能との通信エラー" },
+  "siteLinkAll": { "message": "サイトのすべての翻訳 →" },
+  "apiGetKey": { "message": "openrouter.ai で API キーを取得 →" },
+  "apiGetKeyAlt": { "message": "" },
+  "apiCostHint": { "message": "≈ 3¢/エピソード · 2 USD ≈ 60+ エピソード" },
+  "labelProvider": { "message": "プロバイダー" },
+  "providerOpenRouterHint": { "message": "（APIキーが必要）" },
+  "providerClaudeCliHint": { "message": "（キュー経由）" },
+  "labelApiKey": { "message": "APIキー" },
+  "placeholderApiKey": { "message": "sk-or-..." },
+  "tooltipToggleKey": { "message": "表示/非表示" },
+  "labelModel": { "message": "モデル" },
+  "placeholderModel": { "message": "vendor/model-name" },
+  "statusCheckingServer": { "message": "サーバーを確認中..." },
+  "statusServerOk": { "message": "キューサーバーは稼働中" },
+  "statusServerDown": { "message": "キューサーバーに接続できません" },
+  "labelSharedCache": { "message": "共有翻訳キャッシュ" },
+  "labelEnabled": { "message": "有効" },
+  "labelSharedCacheApiKey": { "message": "APIキー" },
+  "placeholderCacheKey": { "message": "キャッシュ書き込み用キー" },
+  "dateToday": { "message": "今日" },
+  "dateYesterday": { "message": "昨日" },
+  "dateDaysAgo": {
+    "message": "$1日前",
+    "placeholders": { "days": { "content": "$1" } }
+  },
+  "monthJan": { "message": "1月" },
+  "monthFeb": { "message": "2月" },
+  "monthMar": { "message": "3月" },
+  "monthApr": { "message": "4月" },
+  "monthMay": { "message": "5月" },
+  "monthJun": { "message": "6月" },
+  "monthJul": { "message": "7月" },
+  "monthAug": { "message": "8月" },
+  "monthSep": { "message": "9月" },
+  "monthOct": { "message": "10月" },
+  "monthNov": { "message": "11月" },
+  "monthDec": { "message": "12月" },
+  "fontSizeAuto": { "message": "自動" },
+  "badgeLoading": { "message": "字幕を読み込み中..." },
+  "badgeTranslating": {
+    "message": "翻訳中：$PCT$% — バッチ $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "badgeQueueProgress": {
+    "message": "読み込み中：$1%",
+    "placeholders": { "pct": { "content": "$1" } }
+  },
+  "badgeFromCache": { "message": "キャッシュから" },
+  "badgeDone": { "message": "完了" },
+  "badgeDoneCount": {
+    "message": "$LABEL$！$COUNT$ 件の字幕",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "count": { "content": "$2" }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "字幕（$COUNT$）",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "badgeSubtitlesAvailable": { "message": "字幕あり" },
+  "badgeWantSubtitles": {
+    "message": "$LANG$の字幕が欲しい",
+    "placeholders": { "lang": { "content": "$1" } }
+  },
+  "badgeWillTranslate": { "message": "翻訳します！✓" },
+  "badgeSubtitlesSoon": { "message": "字幕は近日公開" },
+  "badgeSubmitting": { "message": "送信中..." },
+  "badgeTrackLoading": { "message": "読み込み中..." },
+  "tooltipSharedCache": {
+    "message": "共有キャッシュで準備完了（$MODEL$）",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "tooltipOffsetMinus": { "message": "字幕を早める（−0.5秒）" },
+  "tooltipOffsetLabel": { "message": "字幕オフセット（クリック = リセット）" },
+  "tooltipOffsetPlus": { "message": "字幕を遅らせる（+0.5秒）" },
+  "tooltipDownload": {
+    "message": ".$FMT$ をダウンロード",
+    "placeholders": { "fmt": { "content": "$1" } }
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ 準備完了（$MODEL$）",
+    "placeholders": {
+      "src": { "content": "$1" },
+      "tgt": { "content": "$2" },
+      "model": { "content": "$3" }
+    }
+  },
+  "badgeOffset": {
+    "message": "オフセット：$OFFSET$秒",
+    "placeholders": { "offset": { "content": "$1" } }
+  },
+  "badgeOffsetReset": { "message": "オフセットをリセット" },
+  "badgePositionBottom": { "message": "字幕：下" },
+  "badgePositionTop": { "message": "字幕：上" },
+  "errorEnableCc": { "message": "プレーヤーで字幕（CC）を有効にしてください" },
+  "errorYouTube": {
+    "message": "YouTube：$ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorNoSubtitles": { "message": "字幕がありません" },
+  "errorNotSubtitles": { "message": "字幕ではありません" },
+  "errorGeneric": { "message": "エラー" },
+  "errorPrefix": {
+    "message": "エラー：$ERR$",
+    "placeholders": { "err": { "content": "$1" } }
+  },
+  "errorStartTranslation": { "message": "翻訳開始エラー" },
+  "errorInvalidApiKey": { "message": "OpenRouter APIキーが無効です" },
+  "errorInsufficientFunds": { "message": "OpenRouterの残高が不足しています" },
+  "errorTimeout": { "message": "OpenRouterリクエストがタイムアウト（モデルが2分以内に応答しませんでした）" },
+  "errorNeedApiKey": { "message": "OpenRouter APIキーが必要です" },
+  "errorUnknownModel": {
+    "message": "不明なモデル：$MODEL$",
+    "placeholders": { "model": { "content": "$1" } }
+  },
+  "errorNoModel": { "message": "モデルが選択されていません（拡張機能の設定）" },
+  "errorNeedKey": { "message": "APIキーが必要です（拡張機能の設定）" },
+  "errorSharedCacheNotConfigured": { "message": "共有キャッシュのURLが設定されていません" },
+  "errorQueueServer": { "message": "サーバーでの翻訳エラー" },
+  "errorQueueTimeout": { "message": "翻訳待ちがタイムアウト（1時間）" },
+  "errorJsonParse": { "message": "モデルが無効な応答を返しました — JSONを解析できませんでした" },
+  "errorHttpStatus": {
+    "message": "エラー $STATUS$",
+    "placeholders": { "status": { "content": "$1" } }
+  },
+  "retryProgress": {
+    "message": "リトライ $ATTEMPT$/$MAX$（$CODE$）...",
+    "placeholders": {
+      "attempt": { "content": "$1" },
+      "max": { "content": "$2" },
+      "code": { "content": "$3" }
+    }
+  },
+  "queueStatusInQueue": { "message": "キュー内" },
+  "queueStatusPosition": {
+    "message": "キュー内（$POS$番目）",
+    "placeholders": { "pos": { "content": "$1" } }
+  },
+  "errorPartialHint": {
+    "message": "（$DONE$/$TOTAL$ 保存済み、もう一度クリック）",
+    "placeholders": {
+      "done": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "devDownloading": {
+    "message": "$LABEL$ の字幕をダウンロード中...",
+    "placeholders": { "label": { "content": "$1" } }
+  },
+  "devTranslating": {
+    "message": "翻訳中：$COUNT$ 件の字幕...",
+    "placeholders": { "count": { "content": "$1" } }
+  }
+}

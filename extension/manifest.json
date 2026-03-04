@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Подстрочник",
-  "version": "0.5.1",
-  "description": "AI-перевод субтитров — сериалы, фильмы, шоу",
+  "default_locale": "en",
+  "name": "__MSG_extensionName__",
+  "version": "0.5.2",
+  "description": "__MSG_extensionDescription__",
   "permissions": ["storage", "webRequest", "webNavigation", "sidePanel"],
   "host_permissions": [
     "http://localhost:5000/*",

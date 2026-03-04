@@ -1,5 +1,30 @@
 const $ = id => document.getElementById(id);
 
+// ── i18n: localize static HTML elements ──
+function localize() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = chrome.i18n.getMessage(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = chrome.i18n.getMessage(el.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = chrome.i18n.getMessage(el.dataset.i18nTitle);
+  });
+}
+localize();
+document.getElementById('ext-version').textContent = 'v' + chrome.runtime.getManifest().version;
+
+// Show alt API link (polza.ai) only for locales that define it
+{
+  const altText = chrome.i18n.getMessage('apiGetKeyAlt');
+  if (altText) {
+    const altLink = $('apiAltLink');
+    altLink.textContent = altText;
+    altLink.style.display = 'block';
+  }
+}
+
 // ══════════════════════════════════════════════════
 // ── Dev mode toggle (double-click on logo) ──
 // ══════════════════════════════════════════════════
@@ -10,10 +35,10 @@ function applyDevMode(enabled) {
   devMode = enabled;
   document.body.classList.toggle('dev-mode', enabled);
 
-  // If leaving dev mode while on Settings tab, switch to first tab
+  // If leaving dev mode while on a dev-only tab, switch to first tab
   if (!enabled) {
     const activeTab = document.querySelector('.tab-btn.active');
-    if (activeTab && activeTab.dataset.tab === 'settings') {
+    if (activeTab && (activeTab.dataset.tab === 'settings' || activeTab.dataset.tab === 'wishlist')) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
       document.querySelector('.tab-btn[data-tab="current"]').classList.add('active');
@@ -50,7 +75,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.add('active');
     $('tab-' + btn.dataset.tab).classList.add('active');
 
-    if (btn.dataset.tab === 'translations' && !translationsLoaded) {
+    if (btn.dataset.tab === 'library' && !translationsLoaded) {
       loadTranslations();
     }
     if (btn.dataset.tab === 'wishlist') {
@@ -80,26 +105,48 @@ chrome.storage.local.get(['apiKey'], (data) => {
 
 document.querySelectorAll('input[name="provider"]').forEach(r => {
   r.addEventListener('change', (e) => {
-    const firstModel = PROVIDERS[e.target.value].models[0].code;
+    const p = PROVIDERS[e.target.value];
+    const firstModel = p.freeformModel
+      ? (p.suggestions[0]?.code || '')
+      : p.models[0].code;
     chrome.storage.sync.set({ provider: e.target.value, model: firstModel });
     onProviderChange(e.target.value, firstModel);
   });
 });
 
 function onProviderChange(provider, selectedModel) {
-  $('apiKeySection').style.display = PROVIDERS[provider].needsKey ? 'block' : 'none';
+  const p = PROVIDERS[provider];
+  $('apiKeySection').style.display = p.needsKey ? 'block' : 'none';
 
-  $('serverStatus').style.display = PROVIDERS[provider].needsServer ? 'flex' : 'none';
-  if (PROVIDERS[provider].needsServer) checkServer();
+  $('serverStatus').style.display = p.needsServer ? 'flex' : 'none';
+  if (p.needsServer) checkServer();
 
-  const sel = $('modelSelect');
-  sel.replaceChildren();
-  for (const m of PROVIDERS[provider].models) {
-    const opt = document.createElement('option');
-    opt.value = m.code;
-    opt.textContent = m.label;
-    if (m.code === selectedModel) opt.selected = true;
-    sel.appendChild(opt);
+  if (p.freeformModel) {
+    // Free-form input with datalist hints
+    $('modelInput').style.display = 'block';
+    $('modelSelect').style.display = 'none';
+    $('modelInput').value = selectedModel || '';
+    const dl = $('modelHints');
+    dl.replaceChildren();
+    for (const s of (p.suggestions || [])) {
+      const opt = document.createElement('option');
+      opt.value = s.code;
+      opt.label = s.label;
+      dl.appendChild(opt);
+    }
+  } else {
+    // Fixed select for providers with strict model list
+    $('modelInput').style.display = 'none';
+    $('modelSelect').style.display = 'block';
+    const sel = $('modelSelect');
+    sel.replaceChildren();
+    for (const m of p.models) {
+      const opt = document.createElement('option');
+      opt.value = m.code;
+      opt.textContent = m.label;
+      if (m.code === selectedModel) opt.selected = true;
+      sel.appendChild(opt);
+    }
   }
 }
 
@@ -125,6 +172,15 @@ $('modelSelect').addEventListener('change', (e) => {
   chrome.storage.sync.set({ model: e.target.value });
 });
 
+let modelTimer;
+$('modelInput').addEventListener('input', (e) => {
+  clearTimeout(modelTimer);
+  modelTimer = setTimeout(() => {
+    const val = e.target.value.trim();
+    if (val) chrome.storage.sync.set({ model: val });
+  }, 500);
+});
+
 function checkServer() {
   const row = $('serverStatus');
   const dot = row.querySelector('.dot');
@@ -133,11 +189,11 @@ function checkServer() {
     if (chrome.runtime.lastError || !resp?.ok) {
       row.className = 'status-row status-err';
       dot.className = 'dot dot-red';
-      label.textContent = 'Сервер очередей недоступен';
+      label.textContent = chrome.i18n.getMessage('statusServerDown');
     } else {
       row.className = 'status-row status-ok';
       dot.className = 'dot dot-green';
-      label.textContent = 'Сервер очередей работает';
+      label.textContent = chrome.i18n.getMessage('statusServerOk');
     }
   });
 }
@@ -194,7 +250,7 @@ chrome.storage.sync.get('subtitleStyle', (data) => {
 
 $('styleFontSize').addEventListener('input', (e) => {
   const v = parseInt(e.target.value);
-  $('styleFontSizeVal').textContent = v < 14 ? 'авто' : v + 'px';
+  $('styleFontSizeVal').textContent = v < 14 ? chrome.i18n.getMessage('fontSizeAuto') : v + 'px';
   saveSubtitleStyle();
 });
 
@@ -240,7 +296,7 @@ $('sharedCacheApiKey').addEventListener('input', (e) => {
 });
 
 // ══════════════════════════════════════════════════
-// ── Drop zone (Translations tab, dev only) ──
+// ── Drop zone (Library tab, dev only) ──
 // ══════════════════════════════════════════════════
 
 {
@@ -280,15 +336,15 @@ $('sharedCacheApiKey').addEventListener('input', (e) => {
   function handleFile(file) {
     const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
     if (!VALID_EXT.includes(ext)) {
-      showDropStatus('error', 'Только .srt и .vtt файлы');
+      showDropStatus('error', chrome.i18n.getMessage('dropZoneOnlySrtVtt'));
       return;
     }
     if (file.size > MAX_FILE_SIZE) {
-      showDropStatus('error', 'Файл слишком большой (макс. 2 МБ)');
+      showDropStatus('error', chrome.i18n.getMessage('dropZoneTooBig'));
       return;
     }
 
-    showDropStatus('loading', 'Читаю файл...');
+    showDropStatus('loading', chrome.i18n.getMessage('dropZoneReading'));
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -299,7 +355,7 @@ $('sharedCacheApiKey').addEventListener('input', (e) => {
         text = 'WEBVTT\n\n' + text.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
       }
 
-      showDropStatus('loading', 'Отправляю в очередь...');
+      showDropStatus('loading', chrome.i18n.getMessage('dropZoneSubmitting'));
 
       chrome.runtime.sendMessage({
         type: 'submit_file',
@@ -307,17 +363,17 @@ $('sharedCacheApiKey').addEventListener('input', (e) => {
         title: file.name.replace(/\.[^.]+$/, ''),
       }, (resp) => {
         if (chrome.runtime.lastError || !resp?.ok) {
-          const err = resp?.error || chrome.runtime.lastError?.message || 'Ошибка';
+          const err = resp?.error || chrome.runtime.lastError?.message || chrome.i18n.getMessage('errorGeneric');
           showDropStatus('error', err);
           return;
         }
-        const pos = resp.position > 0 ? ` (${resp.position}-я в очереди)` : '';
-        showDropStatus('success', `Отправлено${pos}`);
+        const pos = resp.position > 0 ? ' ' + chrome.i18n.getMessage('dropZonePosition', [String(resp.position)]) : '';
+        showDropStatus('success', chrome.i18n.getMessage('dropZoneSent') + pos);
         loadQueue();
       });
     };
 
-    reader.onerror = () => showDropStatus('error', 'Не удалось прочитать файл');
+    reader.onerror = () => showDropStatus('error', chrome.i18n.getMessage('dropZoneReadError'));
     reader.readAsText(file);
   }
 
@@ -328,14 +384,14 @@ $('sharedCacheApiKey').addEventListener('input', (e) => {
     if (state === 'success' || state === 'error') {
       resetTimer = setTimeout(() => {
         zone.className = 'drop-zone dev-only';
-        zone.textContent = 'Перетащи .srt или .vtt файл';
+        zone.textContent = chrome.i18n.getMessage('dropZoneDefault');
       }, 3000);
     }
   }
 }
 
 // ══════════════════════════════════════════════════
-// ── Queue (Translations tab, dev only) ──
+// ── Queue (Library tab, dev only) ──
 // ══════════════════════════════════════════════════
 
 function loadQueue() {
@@ -361,7 +417,7 @@ function loadQueue() {
 
       const status = document.createElement('span');
       status.className = 'queue-status ' + job.status;
-      status.textContent = job.status === 'pending' ? 'ждёт' : 'идёт';
+      status.textContent = job.status === 'pending' ? chrome.i18n.getMessage('queuePending') : chrome.i18n.getMessage('queueRunning');
 
       const title = document.createElement('span');
       title.className = 'queue-title';
@@ -386,7 +442,7 @@ function loadQueue() {
 loadQueue();
 
 // ══════════════════════════════════════════════════
-// ── Wishlist (Translations tab, dev only) ──
+// ── Wishlist (dev only) ──
 // ══════════════════════════════════════════════════
 
 function loadWishlist() {
@@ -415,7 +471,7 @@ function loadWishlist() {
 
       const title = document.createElement('a');
       title.className = 'translation-title translation-link';
-      title.textContent = entry.title || entry.page_url || '(без названия)';
+      title.textContent = entry.title || entry.page_url || chrome.i18n.getMessage('stateNoTitle');
       title.href = '#';
       title.addEventListener('click', (e) => {
         e.preventDefault();
@@ -437,7 +493,7 @@ function loadWishlist() {
 }
 
 // ══════════════════════════════════════════════════
-// ── Translations list (Translations tab) ──
+// ── Translations list (Library tab) ──
 // ══════════════════════════════════════════════════
 
 function loadTranslations() {
@@ -458,7 +514,7 @@ function loadTranslations() {
     translationsLoaded = true;
 
     if (chrome.runtime.lastError) {
-      showTranslationsError('Ошибка связи с расширением');
+      showTranslationsError(chrome.i18n.getMessage('stateCommError'));
       return;
     }
     if (resp?.error) {
@@ -487,7 +543,7 @@ function loadTranslations() {
         title = document.createElement('span');
         title.className = 'translation-title';
       }
-      title.textContent = t.title || '(без названия)';
+      title.textContent = t.title || chrome.i18n.getMessage('stateNoTitle');
 
       const model = document.createElement('span');
       model.className = 'translation-model';
@@ -532,10 +588,10 @@ function formatDate(ts) {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const diffDays = Math.round((today - day) / 86400000);
-  if (diffDays === 0) return 'сегодня';
-  if (diffDays === 1) return 'вчера';
-  if (diffDays < 7) return diffDays + 'д назад';
-  const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+  if (diffDays === 0) return chrome.i18n.getMessage('dateToday');
+  if (diffDays === 1) return chrome.i18n.getMessage('dateYesterday');
+  if (diffDays < 7) return chrome.i18n.getMessage('dateDaysAgo', [String(diffDays)]);
+  const months = ['monthJan','monthFeb','monthMar','monthApr','monthMay','monthJun','monthJul','monthAug','monthSep','monthOct','monthNov','monthDec'].map(k => chrome.i18n.getMessage(k));
   return d.getDate() + ' ' + months[d.getMonth()];
 }
 
@@ -578,5 +634,5 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
   const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
   if (activeTab === 'wishlist') loadWishlist();
-  if (activeTab === 'translations') { translationsLoaded = false; loadTranslations(); }
+  if (activeTab === 'library') { translationsLoaded = false; loadTranslations(); }
 });

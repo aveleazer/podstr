@@ -76,12 +76,24 @@ def trigger_generate():
     if not os.path.isfile(GENERATE_SCRIPT):
         return
 
+    enrich_script = os.path.join(os.path.dirname(GENERATE_SCRIPT), 'enrich.py')
+    script_dir = os.path.dirname(GENERATE_SCRIPT)
+
     try:
+        # Enrich episodes from TMDB (--episodes-only: no Claude CLI on auto-trigger)
+        if os.path.isfile(enrich_script):
+            subprocess.Popen(
+                ['python3', enrich_script, '--episodes-only'],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                cwd=script_dir,
+            ).wait(timeout=60)
+
         subprocess.Popen(
             ['python3', GENERATE_SCRIPT],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            cwd=os.path.dirname(GENERATE_SCRIPT),
+            cwd=script_dir,
         )
         print(f'  \U0001f4c4 Site generation triggered')
     except Exception as e:
@@ -566,7 +578,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def _cors(self):
         origin = self.headers.get('Origin', '')
-        is_write = self.command in ('POST', 'PUT')
+        is_write = self.command in ('POST', 'PUT', 'DELETE')
         if is_write and origin:
             # Mutable endpoints: only allow browser extensions (not random websites)
             if origin.startswith('chrome-extension://') or origin.startswith('moz-extension://'):
@@ -577,21 +589,21 @@ class Handler(BaseHTTPRequestHandler):
                 return
         else:
             self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key')
 
     def do_OPTIONS(self):
         self.send_response(200)
         origin = self.headers.get('Origin', '')
         req_method = self.headers.get('Access-Control-Request-Method', 'GET')
-        if req_method in ('POST', 'PUT') and origin:
+        if req_method in ('POST', 'PUT', 'DELETE') and origin:
             if origin.startswith('chrome-extension://') or origin.startswith('moz-extension://'):
                 self.send_header('Access-Control-Allow-Origin', origin)
                 self.send_header('Vary', 'Origin')
             # else: no CORS header = browser blocks the preflight
         else:
             self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key')
         self.end_headers()
 
@@ -791,6 +803,45 @@ class Handler(BaseHTTPRequestHandler):
                 self._json_response(404, {'error': 'Job not found'})
             return
 
+        # GET /site/tmdb-cache — worker downloads tmdb_cache.json (auth required)
+        if self.path == '/site/tmdb-cache':
+            if self.headers.get('X-API-Key') != API_KEY:
+                self._json_response(401, {'error': 'Invalid API key'})
+                return
+            cache_path = os.path.join(os.path.dirname(GENERATE_SCRIPT), 'tmdb_cache.json')
+            if os.path.isfile(cache_path):
+                with open(cache_path, 'rb') as f:
+                    data = f.read()
+                self.send_response(200)
+                self._cors()
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(data)
+            else:
+                self._json_response(404, {'error': 'tmdb_cache.json not found'})
+            return
+
+        # GET /site/translations — all translations with channel field (auth required)
+        if self.path == '/site/translations':
+            if self.headers.get('X-API-Key') != API_KEY:
+                self._json_response(401, {'error': 'Invalid API key'})
+                return
+            conn = sqlite3.connect(DB_PATH)
+            rows = conn.execute(
+                "SELECT key, model, model_rank, title, page_url, created_at, channel "
+                "FROM translations WHERE title != '' AND title IS NOT NULL "
+                "ORDER BY updated_at DESC"
+            ).fetchall()
+            conn.close()
+            translations = [
+                {'key': r[0], 'model': r[1], 'model_rank': r[2],
+                 'title': r[3], 'page_url': r[4] or '', 'created_at': r[5],
+                 'channel': r[6] or ''}
+                for r in rows
+            ]
+            self._json_response(200, {'translations': translations})
+            return
+
         if self.path.startswith('/wishlist'):
             ip = self.client_address[0]
             if is_rate_limited(ip, limit=LIST_RATE_LIMIT, prefix='wlist'):
@@ -916,6 +967,31 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_PUT(self):
+        # PUT /site/tmdb-cache — worker uploads updated tmdb_cache.json
+        if self.path == '/site/tmdb-cache':
+            if self.headers.get('X-API-Key') != API_KEY:
+                self._json_response(401, {'error': 'Invalid API key'})
+                return
+            body = self._read_body()
+            if body is None:
+                return
+            try:
+                data = json.loads(body)
+                cache_path = os.path.join(os.path.dirname(GENERATE_SCRIPT), 'tmdb_cache.json')
+                tmp_path = cache_path + '.tmp'
+                with open(tmp_path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+                os.replace(tmp_path, cache_path)
+                print(f'  📝 tmdb_cache.json updated ({len(data)} entries)')
+                trigger_generate()
+                self._json_response(200, {'ok': True, 'entries': len(data)})
+            except json.JSONDecodeError:
+                self._json_response(400, {'error': 'Invalid JSON'})
+            except Exception as e:
+                traceback.print_exc()
+                self._json_response(500, {'error': 'Internal server error'})
+            return
+
         # PUT /queue/{id}/progress — worker reports progress
         # PUT /queue/{id}/result — worker uploads result
         # PUT /queue/{id}/error — worker reports error
@@ -1020,6 +1096,40 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(404)
         self.end_headers()
 
+    def do_DELETE(self):
+        if self.path == '/wishlist':
+            if self.headers.get('X-API-Key') != API_KEY:
+                self._json_response(401, {'error': 'Invalid API key'})
+                return
+            body = self._read_body()
+            if body is None:
+                return
+            try:
+                data = json.loads(body)
+                normalized_url = data.get('normalized_url', '')
+                target_lang = data.get('target_lang', '')
+                if not normalized_url or not target_lang:
+                    self._json_response(400, {'error': 'Missing normalized_url or target_lang'})
+                    return
+                conn = sqlite3.connect(DB_PATH)
+                cursor = conn.execute(
+                    'DELETE FROM wishlist WHERE normalized_url = ? AND target_lang = ?',
+                    (normalized_url, target_lang)
+                )
+                conn.commit()
+                deleted = cursor.rowcount
+                conn.close()
+                if deleted:
+                    print(f'  \u2717 Wishlist deleted: {normalized_url[:40]} \u2192 {target_lang}')
+                self._json_response(200, {'ok': True, 'deleted': deleted})
+            except Exception:
+                traceback.print_exc()
+                self._json_response(500, {'error': 'Internal server error'})
+            return
+
+        self.send_response(404)
+        self.end_headers()
+
     def _json_response(self, code, data):
         self.send_response(code)
         self._cors()
@@ -1063,6 +1173,10 @@ def main():
     print(f'   PUT  /queue/{{id}}/error    — worker: report error')
     print(f'   POST /wishlist            — submit wish')
     print(f'   GET  /wishlist            — list wishes')
+    print(f'   DELETE /wishlist          — delete wish (auth)')
+    print(f'   GET  /site/tmdb-cache     — download tmdb_cache.json (auth)')
+    print(f'   PUT  /site/tmdb-cache     — upload tmdb_cache.json (auth)')
+    print(f'   GET  /site/translations   — all translations with channel (auth)')
     print(f'   Ctrl+C to stop\n')
 
     try:
