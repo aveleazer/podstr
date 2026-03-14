@@ -1,0 +1,637 @@
+{
+  "extensionName": {
+    "message": "podstr.cc"
+  },
+  "extensionDescription": {
+    "message": "Yapay zeka ile altyazı çevirisi — diziler, filmler, videolar"
+  },
+  "headerTitle": {
+    "message": "podstr.cc"
+  },
+  "headerSub": {
+    "message": "Yapay zeka ile altyazı çevirisi"
+  },
+  "tabApi": {
+    "message": "API"
+  },
+  "labelTargetLang": {
+    "message": "Çeviri dili"
+  },
+  "labelTranslationEnabled": {
+    "message": "Çeviri etkin"
+  },
+  "labelSubtitleStyle": {
+    "message": "Altyazı stili"
+  },
+  "labelSize": {
+    "message": "Boyut"
+  },
+  "labelColor": {
+    "message": "Renk"
+  },
+  "labelBackground": {
+    "message": "Arka plan"
+  },
+  "labelPosition": {
+    "message": "Konum"
+  },
+  "labelAuto": {
+    "message": "otomatik"
+  },
+  "labelBottom": {
+    "message": "alt"
+  },
+  "labelTop": {
+    "message": "üst"
+  },
+  "labelReset": {
+    "message": "sıfırla"
+  },
+  "hintOpenVideo": {
+    "message": "Altyazılı bir video açın — dil seçici görünecektir. İstediğiniz dile tıklayın — çeviri otomatik başlar."
+  },
+  "stateLoading": {
+    "message": "Yükleniyor..."
+  },
+  "stateNoTitle": {
+    "message": "(başlıksız)"
+  },
+  "stateCommError": {
+    "message": "Eklenti iletişim hatası"
+  },
+  "apiGetKey": {
+    "message": "openrouter.ai'dan API anahtarı alın →"
+  },
+  "labelApiKey": {
+    "message": "API Anahtarı"
+  },
+  "labelApiKeyPrefix": {
+    "message": "API Anahtarı"
+  },
+  "polzaPaymentHint": {
+    "message": "₽ ile ödeme"
+  },
+  "placeholderApiKey": {
+    "message": "sk-or-..."
+  },
+  "tooltipToggleKey": {
+    "message": "Göster/gizle"
+  },
+  "labelModel": {
+    "message": "Model"
+  },
+  "placeholderModel": {
+    "message": "vendor/model-name"
+  },
+  "fontSizeAuto": {
+    "message": "otomatik"
+  },
+  "badgeLoading": {
+    "message": "Altyazılar yükleniyor..."
+  },
+  "badgeTranslatingSimple": {
+    "message": "Çevriliyor..."
+  },
+  "badgeTranslatingCanWatch": {
+    "message": "Çevriliyor... $PCT$% · izleyebilirsiniz",
+    "placeholders": {
+      "PCT": { "content": "$1" }
+    }
+  },
+  "badgeTranslating": {
+    "message": "Çevriliyor: $PCT$% — grup $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeFromCache": {
+    "message": "Önbellekten"
+  },
+  "badgeDone": {
+    "message": "Tamamlandı"
+  },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$ altyazı",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "Altyazılar ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeSubtitlesAvailable": {
+    "message": "Altyazılar mevcut"
+  },
+  "viewerTranslate": {
+    "message": "Çevir ($1)",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerTranslateBtn": {
+    "message": "Çevir"
+  },
+  "viewerShow": {
+    "message": "Göster ($1)",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerShowBtn": {
+    "message": "Göster"
+  },
+  "viewerSetupHint": {
+    "message": "Çeviriyi ayarla ↗"
+  },
+  "viewerTranslateAnyway": {
+    "message": "Yine de çevir"
+  },
+  "viewerCachedByModel": {
+    "message": "$1 ile çevrildi",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerRetranslate": {
+    "message": "$1 ile çevir",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerSameLangHint": {
+    "message": "Bu video zaten $1 altyazılara sahip. Oynatıcı ayarlarından etkinleştirin",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerSignIn": {
+    "message": "Ücretsiz çeviriler için giriş yapın"
+  },
+  "viewerSignInForCache": {
+    "message": "Çeviriyi görmek için giriş yapın"
+  },
+  "viewerSetupApi": {
+    "message": "veya API anahtarı ayarlayın"
+  },
+  "viewerQuotaExhausted": {
+    "message": "Limite ulaşıldı · $1/$2",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "viewerUpgradePro": {
+    "message": "Pro'ya yükselt"
+  },
+  "viewerRenewSub": {
+    "message": "Aboneliği yenile"
+  },
+  "viewerUseApiKey": {
+    "message": "veya kendi API anahtarınızı kullanın"
+  },
+  "badgeCacheHitFree": {
+    "message": "Önbellekten · $1 · −$2 / $3 (Pro'da ücretsiz)",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "badgeTrackLoading": {
+    "message": "Yükleniyor..."
+  },
+  "tooltipSharedCache": {
+    "message": "Paylaşılan önbellekte hazır ($MODEL$)",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "tooltipOffsetMinus": {
+    "message": "Altyazılar erken (−0.5s)"
+  },
+  "tooltipOffsetLabel": {
+    "message": "Altyazı kaydırma (tıkla = sıfırla)"
+  },
+  "tooltipOffsetPlus": {
+    "message": "Altyazılar geç (+0.5s)"
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ hazır ($MODEL$)",
+    "placeholders": {
+      "src": {
+        "content": "$1"
+      },
+      "tgt": {
+        "content": "$2"
+      },
+      "model": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeOffset": {
+    "message": "Kaydırma: $OFFSET$s",
+    "placeholders": {
+      "offset": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeOffsetReset": {
+    "message": "Kaydırma sıfırlandı"
+  },
+  "badgePositionBottom": {
+    "message": "Altyazılar: alt"
+  },
+  "badgePositionTop": {
+    "message": "Altyazılar: üst"
+  },
+  "errorEnableCc": {
+    "message": "Oynatıcıda altyazıları (CC) etkinleştirin"
+  },
+  "errorYouTube": {
+    "message": "YouTube: $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoSubtitles": {
+    "message": "Altyazı yok"
+  },
+  "errorNoSubsFound": {
+    "message": "Altyazı bulunamadı"
+  },
+  "errorNotSubtitles": {
+    "message": "Altyazı değil"
+  },
+  "errorGeneric": {
+    "message": "Hata"
+  },
+  "errorPrefix": {
+    "message": "Hata: $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorStartTranslation": {
+    "message": "Çeviri başlatma hatası"
+  },
+  "errorInvalidApiKey": {
+    "message": "Geçersiz OpenRouter API anahtarı"
+  },
+  "errorInsufficientFunds": {
+    "message": "OpenRouter'da yetersiz bakiye"
+  },
+  "errorTimeout": {
+    "message": "OpenRouter istek zaman aşımı (model 2 dk içinde yanıt vermedi)"
+  },
+  "errorNeedApiKey": {
+    "message": "OpenRouter API anahtarı gerekli"
+  },
+  "errorUnknownModel": {
+    "message": "Bilinmeyen model: $MODEL$",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoModel": {
+    "message": "Model seçilmedi (eklenti ayarları)"
+  },
+  "errorNeedKey": {
+    "message": "API anahtarı gerekli (eklenti ayarları)"
+  },
+  "errorJsonParse": {
+    "message": "Model geçersiz yanıt döndürdü — JSON ayrıştırılamadı"
+  },
+  "errorHttpStatus": {
+    "message": "Hata $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "retryProgress": {
+    "message": "Yeniden deneme $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": {
+        "content": "$1"
+      },
+      "max": {
+        "content": "$2"
+      },
+      "code": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ kaydedildi, tekrar tıklayın)",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "devDownloading": {
+    "message": "$LABEL$ altyazıları indiriliyor...",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      }
+    }
+  },
+  "devTranslating": {
+    "message": "Çevriliyor: $COUNT$ altyazı...",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteNotActivated": {
+    "message": "etkin değil"
+  },
+  "siteActivate": {
+    "message": "Etkinleştir"
+  },
+  "labelHideSDH": {
+    "message": "Ses açıklamalarını gizle [SDH]"
+  },
+  "tooltipHideSDH": {
+    "message": "SDH = İşitme engelliler için altyazı. [güler], [kapı kapanır], [gerilim müziği] gibi ses efektlerini gizler"
+  },
+  "footerTerms": {
+    "message": "Koşullar"
+  },
+  "footerPrivacy": {
+    "message": "Gizlilik"
+  },
+  "dropZoneDefault": {
+    "message": ".srt veya .vtt dosyasını sürükleyin"
+  },
+  "dropZoneOnlySrtVtt": {
+    "message": "Yalnızca .srt ve .vtt dosyaları"
+  },
+  "dropZoneTooBig": {
+    "message": "Dosya çok büyük (maks. 2 MB)"
+  },
+  "dropZoneReading": {
+    "message": "Dosya okunuyor..."
+  },
+  "dropZoneSubmitting": {
+    "message": "Sıraya gönderiliyor..."
+  },
+  "dropZoneSent": {
+    "message": "Gönderildi"
+  },
+  "dropZonePosition": {
+    "message": "(sırada $1.)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "dropZoneReadError": {
+    "message": "Dosya okunamadı"
+  },
+  "labelQueue": {
+    "message": "Çeviri sırası"
+  },
+  "queuePending": {
+    "message": "bekliyor"
+  },
+  "queueRunning": {
+    "message": "çalışıyor"
+  },
+  "labelProvider": {
+    "message": "Sağlayıcı"
+  },
+  "providerApiKey": {
+    "message": "API anahtarı (API sekmesinden)"
+  },
+  "providerOpenRouterHint": {
+    "message": "(API anahtarı gerekli)"
+  },
+  "providerClaudeCliHint": {
+    "message": "(sıra üzerinden)"
+  },
+  "statusCheckingServer": {
+    "message": "Sunucu kontrol ediliyor..."
+  },
+  "statusServerOk": {
+    "message": "Sıra sunucusu çalışıyor"
+  },
+  "statusServerDown": {
+    "message": "Sıra sunucusu kullanılamıyor"
+  },
+  "labelEnabled": {
+    "message": "Etkin"
+  },
+  "badgeQueueProgress": {
+    "message": "Yükleniyor: $1%",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorQueueServer": {
+    "message": "Sunucuda çeviri hatası"
+  },
+  "errorQueueTimeout": {
+    "message": "Çeviri bekleme zaman aşımı (1 saat)"
+  },
+  "queueStatusInQueue": {
+    "message": "Sırada"
+  },
+  "queueStatusPosition": {
+    "message": "Sırada ($POS$.)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "placeholderModelCustom": {
+    "message": "veya model adını girin..."
+  },
+  "modelCustomOption": {
+    "message": "Başka model..."
+  },
+  "modelHelpLink": {
+    "message": "Hangi modeli seçmeli? →"
+  },
+  "costFree": {
+    "message": "🆓 Ücretsiz — kalite değişebilir"
+  },
+  "costPerEpisode": {
+    "message": "bölüm başına"
+  },
+  "costUnknown": {
+    "message": "💰 Fiyat bilinmiyor — sağlayıcı fiyatlarını kontrol edin"
+  },
+  "apiPaymentHint": {
+    "message": "⚠️ Her çeviri için sağlayıcınız tarafından ücret alınır. Maliyet modele bağlıdır ve bölüm başına birkaç dolara ulaşabilir. Hızlı modeller (Flash, Haiku) kullanın — yavaş olanlar onlarca dakika sürebilir. Sağlayıcı ayarlarında mutlaka harcama limiti belirleyin."
+  },
+  "apiGetKeyPolza": {
+    "message": "Polza'da API anahtarı alın (₽) →"
+  },
+  "apiSetupGuide": {
+    "message": "Kurulum kılavuzu →"
+  },
+  "costPaidWarning": {
+    "message": "bakiyenizden düşülür"
+  },
+  "modelSelectPlaceholder": {
+    "message": "Model seçin..."
+  },
+  "apiHintBefore": {
+    "message": "Podstrochnik anahtarsız da çalışır —"
+  },
+  "apiHintPlanLink": {
+    "message": "ücretsiz veya Pro plan"
+  },
+  "apiHintAfter": {
+    "message": " ile. Bu bölüm kendi başına ayarlamak isteyenler içindir: kendi sağlayıcınızı bağlayın, model seçin ve maliyetleri doğrudan yönetin."
+  },
+  "tabSubtitles": {
+    "message": "Altyazılar"
+  },
+  "tabDev": {
+    "message": "Dev"
+  },
+  "accountSignInHint": {
+    "message": "Giriş yapın — ayda 5 ücretsiz çeviri"
+  },
+  "accountEmailPlaceholder": {
+    "message": "your@email.com"
+  },
+  "accountSignIn": {
+    "message": "Giriş yap"
+  },
+  "accountOrApiKey": {
+    "message": "veya kendi API anahtarınızı kullanın"
+  },
+  "accountUsingOwnKey": {
+    "message": "Kendi API anahtarınız kullanılıyor"
+  },
+  "accountSignInForFree": {
+    "message": "Ücretsiz çeviriler için giriş yapın"
+  },
+  "labelApiProvider": {
+    "message": "Sağlayıcı"
+  },
+  "apiHintBanner": {
+    "message": ""
+  },
+  "apiGetKeyFor": {
+    "message": "API anahtarı alın:"
+  },
+  "footerHelp": {
+    "message": "Yardım"
+  },
+  "accountCheckEmail": {
+    "message": "E-postanızı kontrol edin ve giriş yapmak için bağlantıya tıklayın"
+  },
+  "accountResend": {
+    "message": "Gelmedi mi? Tekrar gönder"
+  },
+  "accountLogout": {
+    "message": "Çıkış yap"
+  },
+  "accountFreePlan": {
+    "message": "Ücretsiz"
+  },
+  "accountLoginError": {
+    "message": "Giriş yapılamadı. Daha sonra tekrar deneyin."
+  },
+  "accountManageSubscription": {
+    "message": "Yönet"
+  },
+  "accountProPlan": {
+    "message": "Pro"
+  },
+  "accountQuotaExhausted": {
+    "message": "Bu ay $1 çevirinin tamamını kullandınız",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaResets": {
+    "message": "Sıfırlanma: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaText": {
+    "message": "$1 / $2 bu ay",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "accountResendIn": {
+    "message": "$1sn sonra tekrar gönder",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountUseOwnKey": {
+    "message": "Veya kendi API anahtarınızı kullanın"
+  },
+  "badgeQuota": {
+    "message": "Çeviri limitine ulaşıldı"
+  },
+  "badgeSignIn": {
+    "message": "Çevirmek için giriş yapın"
+  },
+  "errorSessionExpired": {
+    "message": "Oturum süresi doldu. Lütfen tekrar giriş yapın."
+  },
+  "accountUpgrade": {
+    "message": "Pro'ya yükselt"
+  },
+  "apiKeyFormatWarning": {
+    "message": "Anahtar sk-or- (OpenRouter) veya pza_ (Polza) ile başlamalıdır"
+  },
+  "localizedLangNames": {
+    "message": ""
+  }
+}

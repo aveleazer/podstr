@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 32">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&amp;display=swap');
+    </style>
+  </defs>
+  <!-- Icon -->
+  <rect width="24" height="24" rx="4.5" y="4" fill="#141414"/>
+  <rect x="5" y="13" width="9" height="0.75" rx="0.375" fill="#999"/>
+  <rect x="5" y="16.5" width="14" height="1.5" rx="0.75" fill="#e8a828"/>
+  <!-- Text -->
+  <text x="32" y="23" font-family="'Space Grotesk', system-ui, sans-serif" font-weight="700" font-size="20">
+    <tspan fill="#e8e6e1">Под</tspan><tspan fill="#e8a828">строчник</tspan>
+  </text>
+</svg>

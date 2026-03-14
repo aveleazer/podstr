@@ -1,0 +1,637 @@
+{
+  "extensionName": {
+    "message": "podstr.cc"
+  },
+  "extensionDescription": {
+    "message": "AI 字幕翻译 — 剧集、电影、视频"
+  },
+  "headerTitle": {
+    "message": "podstr.cc"
+  },
+  "headerSub": {
+    "message": "AI 字幕翻译"
+  },
+  "tabApi": {
+    "message": "API"
+  },
+  "labelTargetLang": {
+    "message": "翻译语言"
+  },
+  "labelTranslationEnabled": {
+    "message": "启用翻译"
+  },
+  "labelSubtitleStyle": {
+    "message": "字幕样式"
+  },
+  "labelSize": {
+    "message": "大小"
+  },
+  "labelColor": {
+    "message": "颜色"
+  },
+  "labelBackground": {
+    "message": "背景"
+  },
+  "labelPosition": {
+    "message": "位置"
+  },
+  "labelAuto": {
+    "message": "自动"
+  },
+  "labelBottom": {
+    "message": "底部"
+  },
+  "labelTop": {
+    "message": "顶部"
+  },
+  "labelReset": {
+    "message": "重置"
+  },
+  "hintOpenVideo": {
+    "message": "打开带字幕的视频，语言选择器会自动出现。点击所需语言，翻译即刻开始。"
+  },
+  "stateLoading": {
+    "message": "加载中..."
+  },
+  "stateNoTitle": {
+    "message": "（无标题）"
+  },
+  "stateCommError": {
+    "message": "扩展通信错误"
+  },
+  "apiGetKey": {
+    "message": "在 openrouter.ai 获取 API 密钥 →"
+  },
+  "labelApiKey": {
+    "message": "API 密钥"
+  },
+  "labelApiKeyPrefix": {
+    "message": "API 密钥"
+  },
+  "polzaPaymentHint": {
+    "message": "支持卢布支付"
+  },
+  "placeholderApiKey": {
+    "message": "sk-or-..."
+  },
+  "tooltipToggleKey": {
+    "message": "显示/隐藏"
+  },
+  "labelModel": {
+    "message": "模型"
+  },
+  "placeholderModel": {
+    "message": "vendor/model-name"
+  },
+  "fontSizeAuto": {
+    "message": "自动"
+  },
+  "badgeLoading": {
+    "message": "正在加载字幕..."
+  },
+  "badgeTranslatingSimple": {
+    "message": "正在翻译..."
+  },
+  "badgeTranslatingCanWatch": {
+    "message": "正在翻译... $PCT$% · 可以边看边等",
+    "placeholders": {
+      "PCT": { "content": "$1" }
+    }
+  },
+  "badgeTranslating": {
+    "message": "翻译中：$PCT$% — 第 $CURRENT$/$TOTAL$ 批",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeFromCache": {
+    "message": "来自缓存"
+  },
+  "badgeDone": {
+    "message": "完成"
+  },
+  "badgeDoneCount": {
+    "message": "$LABEL$！共 $COUNT$ 条字幕",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "字幕（$COUNT$）",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeSubtitlesAvailable": {
+    "message": "字幕可用"
+  },
+  "viewerTranslate": {
+    "message": "翻译（$1）",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerTranslateBtn": {
+    "message": "翻译"
+  },
+  "viewerShow": {
+    "message": "显示（$1）",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerShowBtn": {
+    "message": "显示"
+  },
+  "viewerSetupHint": {
+    "message": "设置翻译 ↗"
+  },
+  "viewerTranslateAnyway": {
+    "message": "仍然翻译"
+  },
+  "viewerCachedByModel": {
+    "message": "已由$1翻译",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerRetranslate": {
+    "message": "用$1翻译",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerSameLangHint": {
+    "message": "此视频已有$1字幕，请在播放器设置中启用",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerSignIn": {
+    "message": "登录即可免费翻译"
+  },
+  "viewerSignInForCache": {
+    "message": "登录即可观看翻译"
+  },
+  "viewerSetupApi": {
+    "message": "或设置 API 密钥"
+  },
+  "viewerQuotaExhausted": {
+    "message": "已达上限 · $1/$2",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "viewerUpgradePro": {
+    "message": "升级到 Pro"
+  },
+  "viewerRenewSub": {
+    "message": "续订"
+  },
+  "viewerUseApiKey": {
+    "message": "或使用自己的 API 密钥"
+  },
+  "badgeCacheHitFree": {
+    "message": "来自缓存 · $1 · −$2 / $3（Pro 免扣）",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "badgeTrackLoading": {
+    "message": "加载中..."
+  },
+  "tooltipSharedCache": {
+    "message": "已在共享缓存中就绪（$MODEL$）",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "tooltipOffsetMinus": {
+    "message": "字幕提前（−0.5秒）"
+  },
+  "tooltipOffsetLabel": {
+    "message": "字幕偏移（点击 = 重置）"
+  },
+  "tooltipOffsetPlus": {
+    "message": "字幕延后（+0.5秒）"
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ 已就绪（$MODEL$）",
+    "placeholders": {
+      "src": {
+        "content": "$1"
+      },
+      "tgt": {
+        "content": "$2"
+      },
+      "model": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeOffset": {
+    "message": "偏移：$OFFSET$秒",
+    "placeholders": {
+      "offset": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeOffsetReset": {
+    "message": "偏移已重置"
+  },
+  "badgePositionBottom": {
+    "message": "字幕：底部"
+  },
+  "badgePositionTop": {
+    "message": "字幕：顶部"
+  },
+  "errorEnableCc": {
+    "message": "请在播放器中启用字幕（CC）"
+  },
+  "errorYouTube": {
+    "message": "YouTube：$ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoSubtitles": {
+    "message": "无字幕"
+  },
+  "errorNoSubsFound": {
+    "message": "未找到字幕"
+  },
+  "errorNotSubtitles": {
+    "message": "非字幕文件"
+  },
+  "errorGeneric": {
+    "message": "错误"
+  },
+  "errorPrefix": {
+    "message": "错误：$ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorStartTranslation": {
+    "message": "启动翻译时出错"
+  },
+  "errorInvalidApiKey": {
+    "message": "OpenRouter API 密钥无效"
+  },
+  "errorInsufficientFunds": {
+    "message": "OpenRouter 余额不足"
+  },
+  "errorTimeout": {
+    "message": "OpenRouter 请求超时（模型 2 分钟内未响应）"
+  },
+  "errorNeedApiKey": {
+    "message": "需要 OpenRouter API 密钥"
+  },
+  "errorUnknownModel": {
+    "message": "未知模型：$MODEL$",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoModel": {
+    "message": "未选择模型（扩展设置）"
+  },
+  "errorNeedKey": {
+    "message": "需要 API 密钥（扩展设置）"
+  },
+  "errorJsonParse": {
+    "message": "模型返回无效响应 — 无法解析 JSON"
+  },
+  "errorHttpStatus": {
+    "message": "错误 $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "retryProgress": {
+    "message": "重试 $ATTEMPT$/$MAX$（$CODE$）...",
+    "placeholders": {
+      "attempt": {
+        "content": "$1"
+      },
+      "max": {
+        "content": "$2"
+      },
+      "code": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorPartialHint": {
+    "message": "（已保存 $DONE$/$TOTAL$，请再次点击）",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "devDownloading": {
+    "message": "正在下载 $LABEL$ 字幕...",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      }
+    }
+  },
+  "devTranslating": {
+    "message": "翻译中：$COUNT$ 条字幕...",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteNotActivated": {
+    "message": "未启用"
+  },
+  "siteActivate": {
+    "message": "启用"
+  },
+  "labelHideSDH": {
+    "message": "隐藏音效描述 [SDH]"
+  },
+  "tooltipHideSDH": {
+    "message": "SDH = 听障人士字幕。隐藏音效描述：[笑声]、[关门声]、[紧张的音乐]"
+  },
+  "footerTerms": {
+    "message": "条款"
+  },
+  "footerPrivacy": {
+    "message": "隐私"
+  },
+  "dropZoneDefault": {
+    "message": "拖放 .srt 或 .vtt 文件"
+  },
+  "dropZoneOnlySrtVtt": {
+    "message": "仅支持 .srt 和 .vtt 文件"
+  },
+  "dropZoneTooBig": {
+    "message": "文件过大（最大 2 MB）"
+  },
+  "dropZoneReading": {
+    "message": "正在读取文件..."
+  },
+  "dropZoneSubmitting": {
+    "message": "正在提交到队列..."
+  },
+  "dropZoneSent": {
+    "message": "已提交"
+  },
+  "dropZonePosition": {
+    "message": "（队列第 $1 位）",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "dropZoneReadError": {
+    "message": "无法读取文件"
+  },
+  "labelQueue": {
+    "message": "翻译队列"
+  },
+  "queuePending": {
+    "message": "等待中"
+  },
+  "queueRunning": {
+    "message": "进行中"
+  },
+  "labelProvider": {
+    "message": "服务商"
+  },
+  "providerApiKey": {
+    "message": "API 密钥（来自 API 标签页）"
+  },
+  "providerOpenRouterHint": {
+    "message": "（需要 API 密钥）"
+  },
+  "providerClaudeCliHint": {
+    "message": "（通过队列）"
+  },
+  "statusCheckingServer": {
+    "message": "正在检查服务器..."
+  },
+  "statusServerOk": {
+    "message": "队列服务器运行正常"
+  },
+  "statusServerDown": {
+    "message": "队列服务器不可用"
+  },
+  "labelEnabled": {
+    "message": "已启用"
+  },
+  "badgeQueueProgress": {
+    "message": "加载中：$1%",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorQueueServer": {
+    "message": "服务器翻译错误"
+  },
+  "errorQueueTimeout": {
+    "message": "等待翻译超时（1 小时）"
+  },
+  "queueStatusInQueue": {
+    "message": "排队中"
+  },
+  "queueStatusPosition": {
+    "message": "排队中（第 $POS$ 位）",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "placeholderModelCustom": {
+    "message": "或输入模型名称..."
+  },
+  "modelCustomOption": {
+    "message": "其他模型..."
+  },
+  "modelHelpLink": {
+    "message": "如何选择模型？→"
+  },
+  "costFree": {
+    "message": "🆓 免费 — 质量可能不稳定"
+  },
+  "costPerEpisode": {
+    "message": "每集"
+  },
+  "costUnknown": {
+    "message": "💰 价格未知 — 请查看服务商定价"
+  },
+  "costPaidWarning": {
+    "message": "从您的余额中扣费"
+  },
+  "modelSelectPlaceholder": {
+    "message": "选择模型..."
+  },
+  "apiPaymentHint": {
+    "message": "⚠️ 每次翻译由服务商收费。费用取决于模型，每集可能达到几美元。建议使用快速模型（Flash、Haiku）— 慢速模型可能需要数十分钟。请务必在服务商设置中设定消费上限。"
+  },
+  "apiSetupGuide": {
+    "message": "设置指南 →"
+  },
+  "apiGetKeyPolza": {
+    "message": "在 Polza 获取 API 密钥（₽）→"
+  },
+  "tabSubtitles": {
+    "message": "字幕"
+  },
+  "tabDev": {
+    "message": "Dev"
+  },
+  "accountSignInHint": {
+    "message": "登录即享每月 5 次免费翻译"
+  },
+  "accountEmailPlaceholder": {
+    "message": "your@email.com"
+  },
+  "accountSignIn": {
+    "message": "登录"
+  },
+  "accountOrApiKey": {
+    "message": "或在以下位置使用自己的 API 密钥"
+  },
+  "accountUsingOwnKey": {
+    "message": "使用自己的 API 密钥"
+  },
+  "accountSignInForFree": {
+    "message": "登录即可免费翻译"
+  },
+  "labelApiProvider": {
+    "message": "服务商"
+  },
+  "apiHintBanner": {
+    "message": "可选 — 使用自己的密钥，无需订阅即可无限翻译"
+  },
+  "apiHintBefore": {
+    "message": "Подстрочник 无需密钥即可使用 —"
+  },
+  "apiHintPlanLink": {
+    "message": "免费或 Pro 套餐"
+  },
+  "apiHintAfter": {
+    "message": "。此部分适合想自行设置的用户：连接自己的服务商、选择模型、直接管理费用。"
+  },
+  "apiGetKeyFor": {
+    "message": "在此获取 API 密钥"
+  },
+  "footerHelp": {
+    "message": "帮助"
+  },
+  "accountCheckEmail": {
+    "message": "请查收邮件并点击链接登录"
+  },
+  "accountResend": {
+    "message": "没收到？重新发送"
+  },
+  "accountLogout": {
+    "message": "退出登录"
+  },
+  "accountFreePlan": {
+    "message": "免费版"
+  },
+  "accountLoginError": {
+    "message": "无法登录，请稍后再试。"
+  },
+  "accountManageSubscription": {
+    "message": "管理"
+  },
+  "accountProPlan": {
+    "message": "Pro"
+  },
+  "accountQuotaExhausted": {
+    "message": "本月 $1 次翻译额度已用完",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaResets": {
+    "message": "$1重置",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaText": {
+    "message": "本月 $1 / $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "accountResendIn": {
+    "message": "$1秒后重新发送",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountUseOwnKey": {
+    "message": "或使用自己的 API 密钥"
+  },
+  "badgeQuota": {
+    "message": "翻译额度已用完"
+  },
+  "badgeSignIn": {
+    "message": "登录以翻译"
+  },
+  "errorSessionExpired": {
+    "message": "会话已过期，请重新登录。"
+  },
+  "accountUpgrade": {
+    "message": "升级到 Pro"
+  },
+  "apiKeyFormatWarning": {
+    "message": "密钥应以 sk-or-（OpenRouter）或 pza_（Polza）开头"
+  },
+  "localizedLangNames": {
+    "message": ""
+  }
+}

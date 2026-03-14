@@ -1,0 +1,637 @@
+{
+  "extensionName": {
+    "message": "podstr.cc"
+  },
+  "extensionDescription": {
+    "message": "Traduction de sous-titres par IA — séries, films, vidéos"
+  },
+  "headerTitle": {
+    "message": "podstr.cc"
+  },
+  "headerSub": {
+    "message": "Traduction de sous-titres par IA"
+  },
+  "tabApi": {
+    "message": "API"
+  },
+  "labelTargetLang": {
+    "message": "Langue de traduction"
+  },
+  "labelTranslationEnabled": {
+    "message": "Traduction activée"
+  },
+  "labelSubtitleStyle": {
+    "message": "Style des sous-titres"
+  },
+  "labelSize": {
+    "message": "Taille"
+  },
+  "labelColor": {
+    "message": "Couleur"
+  },
+  "labelBackground": {
+    "message": "Fond"
+  },
+  "labelPosition": {
+    "message": "Position"
+  },
+  "labelAuto": {
+    "message": "auto"
+  },
+  "labelBottom": {
+    "message": "bas"
+  },
+  "labelTop": {
+    "message": "haut"
+  },
+  "labelReset": {
+    "message": "réinitialiser"
+  },
+  "hintOpenVideo": {
+    "message": "Ouvrez une vidéo avec des sous-titres — un sélecteur de langue apparaîtra. Cliquez sur la langue souhaitée — la traduction démarre automatiquement."
+  },
+  "stateLoading": {
+    "message": "Chargement..."
+  },
+  "stateNoTitle": {
+    "message": "(sans titre)"
+  },
+  "stateCommError": {
+    "message": "Erreur de communication avec l'extension"
+  },
+  "apiGetKey": {
+    "message": "Obtenir une clé API sur openrouter.ai →"
+  },
+  "labelApiKey": {
+    "message": "Clé API"
+  },
+  "labelApiKeyPrefix": {
+    "message": "Clé API"
+  },
+  "polzaPaymentHint": {
+    "message": "Paiement en ₽"
+  },
+  "placeholderApiKey": {
+    "message": "sk-or-..."
+  },
+  "tooltipToggleKey": {
+    "message": "Afficher/masquer"
+  },
+  "labelModel": {
+    "message": "Modèle"
+  },
+  "placeholderModel": {
+    "message": "vendor/model-name"
+  },
+  "fontSizeAuto": {
+    "message": "auto"
+  },
+  "badgeLoading": {
+    "message": "Chargement des sous-titres..."
+  },
+  "badgeTranslatingSimple": {
+    "message": "Traduction en cours..."
+  },
+  "badgeTranslatingCanWatch": {
+    "message": "Traduction... $PCT$% · vous pouvez regarder",
+    "placeholders": {
+      "PCT": { "content": "$1" }
+    }
+  },
+  "badgeTranslating": {
+    "message": "Traduction : $PCT$% — lot $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeFromCache": {
+    "message": "Depuis le cache"
+  },
+  "badgeDone": {
+    "message": "Terminé"
+  },
+  "badgeDoneCount": {
+    "message": "$LABEL$ ! $COUNT$ répliques",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "Sous-titres ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeSubtitlesAvailable": {
+    "message": "Sous-titres disponibles"
+  },
+  "viewerTranslate": {
+    "message": "Traduire ($1)",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerTranslateBtn": {
+    "message": "Traduire"
+  },
+  "viewerShow": {
+    "message": "Afficher ($1)",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerShowBtn": {
+    "message": "Afficher"
+  },
+  "viewerSetupHint": {
+    "message": "Configurer la traduction ↗"
+  },
+  "viewerTranslateAnyway": {
+    "message": "Traduire quand même"
+  },
+  "viewerCachedByModel": {
+    "message": "Traduit par $1",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerRetranslate": {
+    "message": "Traduire avec $1",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerSameLangHint": {
+    "message": "Cette vidéo a déjà des sous-titres $1. Activez-les dans les paramètres du lecteur",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerSignIn": {
+    "message": "Connectez-vous pour des traductions gratuites"
+  },
+  "viewerSignInForCache": {
+    "message": "Connectez-vous pour voir la traduction"
+  },
+  "viewerSetupApi": {
+    "message": "ou configurez une clé API"
+  },
+  "viewerQuotaExhausted": {
+    "message": "Limite atteinte · $1/$2",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "viewerUpgradePro": {
+    "message": "Passer à Pro"
+  },
+  "viewerRenewSub": {
+    "message": "Renouveler l'abonnement"
+  },
+  "viewerUseApiKey": {
+    "message": "ou utilisez votre propre clé API"
+  },
+  "badgeCacheHitFree": {
+    "message": "Depuis le cache · $1 · −$2 sur $3 (gratuit avec Pro)",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "badgeTrackLoading": {
+    "message": "Chargement..."
+  },
+  "tooltipSharedCache": {
+    "message": "Prêt dans le cache partagé ($MODEL$)",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "tooltipOffsetMinus": {
+    "message": "Sous-titres en avance (−0.5s)"
+  },
+  "tooltipOffsetLabel": {
+    "message": "Décalage des sous-titres (clic = réinitialiser)"
+  },
+  "tooltipOffsetPlus": {
+    "message": "Sous-titres en retard (+0.5s)"
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ prêt ($MODEL$)",
+    "placeholders": {
+      "src": {
+        "content": "$1"
+      },
+      "tgt": {
+        "content": "$2"
+      },
+      "model": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeOffset": {
+    "message": "Décalage : $OFFSET$s",
+    "placeholders": {
+      "offset": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeOffsetReset": {
+    "message": "Décalage réinitialisé"
+  },
+  "badgePositionBottom": {
+    "message": "Sous-titres : bas"
+  },
+  "badgePositionTop": {
+    "message": "Sous-titres : haut"
+  },
+  "errorEnableCc": {
+    "message": "Activez les sous-titres (CC) dans le lecteur"
+  },
+  "errorYouTube": {
+    "message": "YouTube : $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoSubtitles": {
+    "message": "Pas de sous-titres"
+  },
+  "errorNoSubsFound": {
+    "message": "Aucun sous-titre trouvé"
+  },
+  "errorNotSubtitles": {
+    "message": "Ce ne sont pas des sous-titres"
+  },
+  "errorGeneric": {
+    "message": "Erreur"
+  },
+  "errorPrefix": {
+    "message": "Erreur : $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorStartTranslation": {
+    "message": "Erreur au lancement de la traduction"
+  },
+  "errorInvalidApiKey": {
+    "message": "Clé API OpenRouter invalide"
+  },
+  "errorInsufficientFunds": {
+    "message": "Fonds insuffisants sur OpenRouter"
+  },
+  "errorTimeout": {
+    "message": "Délai d'attente OpenRouter dépassé (le modèle n'a pas répondu en 2 min)"
+  },
+  "errorNeedApiKey": {
+    "message": "Clé API OpenRouter requise"
+  },
+  "errorUnknownModel": {
+    "message": "Modèle inconnu : $MODEL$",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoModel": {
+    "message": "Aucun modèle sélectionné (paramètres de l'extension)"
+  },
+  "errorNeedKey": {
+    "message": "Clé API requise (paramètres de l'extension)"
+  },
+  "errorJsonParse": {
+    "message": "Le modèle a renvoyé une réponse invalide — impossible d'analyser le JSON"
+  },
+  "errorHttpStatus": {
+    "message": "Erreur $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "retryProgress": {
+    "message": "Tentative $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": {
+        "content": "$1"
+      },
+      "max": {
+        "content": "$2"
+      },
+      "code": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ sauvegardés, cliquez à nouveau)",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "devDownloading": {
+    "message": "Téléchargement des sous-titres $LABEL$...",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      }
+    }
+  },
+  "devTranslating": {
+    "message": "Traduction : $COUNT$ sous-titres...",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteNotActivated": {
+    "message": "non activé"
+  },
+  "siteActivate": {
+    "message": "Activer"
+  },
+  "labelHideSDH": {
+    "message": "Masquer les descriptions sonores [SDH]"
+  },
+  "tooltipHideSDH": {
+    "message": "SDH = Sous-titres pour sourds et malentendants. Masque les effets sonores : [rires], [porte claque], [musique tendue]"
+  },
+  "footerTerms": {
+    "message": "Conditions"
+  },
+  "footerPrivacy": {
+    "message": "Confidentialité"
+  },
+  "dropZoneDefault": {
+    "message": "Déposez un fichier .srt ou .vtt"
+  },
+  "dropZoneOnlySrtVtt": {
+    "message": "Uniquement les fichiers .srt et .vtt"
+  },
+  "dropZoneTooBig": {
+    "message": "Fichier trop volumineux (max 2 Mo)"
+  },
+  "dropZoneReading": {
+    "message": "Lecture du fichier..."
+  },
+  "dropZoneSubmitting": {
+    "message": "Envoi dans la file d'attente..."
+  },
+  "dropZoneSent": {
+    "message": "Envoyé"
+  },
+  "dropZonePosition": {
+    "message": "($1 dans la file)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "dropZoneReadError": {
+    "message": "Impossible de lire le fichier"
+  },
+  "labelQueue": {
+    "message": "File d'attente de traduction"
+  },
+  "queuePending": {
+    "message": "en attente"
+  },
+  "queueRunning": {
+    "message": "en cours"
+  },
+  "labelProvider": {
+    "message": "Fournisseur"
+  },
+  "providerApiKey": {
+    "message": "Clé API (depuis l'onglet API)"
+  },
+  "providerOpenRouterHint": {
+    "message": "(clé API requise)"
+  },
+  "providerClaudeCliHint": {
+    "message": "(via la file d'attente)"
+  },
+  "statusCheckingServer": {
+    "message": "Vérification du serveur..."
+  },
+  "statusServerOk": {
+    "message": "Serveur de file d'attente actif"
+  },
+  "statusServerDown": {
+    "message": "Serveur de file d'attente indisponible"
+  },
+  "labelEnabled": {
+    "message": "Activé"
+  },
+  "badgeQueueProgress": {
+    "message": "Chargement : $1%",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorQueueServer": {
+    "message": "Erreur de traduction sur le serveur"
+  },
+  "errorQueueTimeout": {
+    "message": "Délai d'attente de traduction dépassé (1 heure)"
+  },
+  "queueStatusInQueue": {
+    "message": "En file d'attente"
+  },
+  "queueStatusPosition": {
+    "message": "En file d'attente ($POS$)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "placeholderModelCustom": {
+    "message": "ou saisissez le nom du modèle..."
+  },
+  "modelCustomOption": {
+    "message": "Autre modèle..."
+  },
+  "modelHelpLink": {
+    "message": "Quel modèle choisir ? →"
+  },
+  "costFree": {
+    "message": "🆓 Gratuit — la qualité peut varier"
+  },
+  "costPerEpisode": {
+    "message": "par épisode"
+  },
+  "costUnknown": {
+    "message": "💰 Prix inconnu — vérifiez les tarifs du fournisseur"
+  },
+  "apiPaymentHint": {
+    "message": "⚠️ Le fournisseur vous facture chaque traduction. Le coût dépend du modèle et peut atteindre plusieurs dollars par épisode. Utilisez des modèles rapides (Flash, Haiku) — les lents peuvent prendre des dizaines de minutes. Pensez à définir une limite de dépenses dans les paramètres du fournisseur."
+  },
+  "apiGetKeyPolza": {
+    "message": "Obtenir une clé API chez Polza (₽) →"
+  },
+  "apiSetupGuide": {
+    "message": "Guide de configuration →"
+  },
+  "costPaidWarning": {
+    "message": "débité de votre solde"
+  },
+  "modelSelectPlaceholder": {
+    "message": "Sélectionner un modèle..."
+  },
+  "apiHintBefore": {
+    "message": "Podstrochnik fonctionne sans clé — avec un"
+  },
+  "apiHintPlanLink": {
+    "message": "plan gratuit ou Pro"
+  },
+  "apiHintAfter": {
+    "message": ". Cette section est pour ceux qui veulent tout configurer eux-mêmes : connecter leur propre fournisseur, choisir un modèle et gérer les coûts directement."
+  },
+  "tabSubtitles": {
+    "message": "Sous-titres"
+  },
+  "tabDev": {
+    "message": "Dev"
+  },
+  "accountSignInHint": {
+    "message": "Connectez-vous — 5 traductions/mois gratuites"
+  },
+  "accountEmailPlaceholder": {
+    "message": "your@email.com"
+  },
+  "accountSignIn": {
+    "message": "Se connecter"
+  },
+  "accountOrApiKey": {
+    "message": "ou utilisez votre propre clé API dans"
+  },
+  "accountUsingOwnKey": {
+    "message": "Utilisation de votre propre clé API"
+  },
+  "accountSignInForFree": {
+    "message": "Connectez-vous pour des traductions gratuites"
+  },
+  "labelApiProvider": {
+    "message": "Fournisseur"
+  },
+  "apiHintBanner": {
+    "message": ""
+  },
+  "apiGetKeyFor": {
+    "message": "Obtenir une clé API chez"
+  },
+  "footerHelp": {
+    "message": "Aide"
+  },
+  "accountCheckEmail": {
+    "message": "Vérifiez votre e-mail et cliquez sur le lien pour vous connecter"
+  },
+  "accountResend": {
+    "message": "Pas reçu ? Renvoyer"
+  },
+  "accountLogout": {
+    "message": "Se déconnecter"
+  },
+  "accountFreePlan": {
+    "message": "Gratuit"
+  },
+  "accountLoginError": {
+    "message": "Connexion impossible. Réessayez plus tard."
+  },
+  "accountManageSubscription": {
+    "message": "Gérer"
+  },
+  "accountProPlan": {
+    "message": "Pro"
+  },
+  "accountQuotaExhausted": {
+    "message": "Vous avez utilisé vos $1 traductions ce mois-ci",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaResets": {
+    "message": "Réinitialisation $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaText": {
+    "message": "$1 / $2 ce mois-ci",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "accountResendIn": {
+    "message": "Renvoyer dans $1s",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountUseOwnKey": {
+    "message": "Ou utilisez votre propre clé API"
+  },
+  "badgeQuota": {
+    "message": "Limite de traductions atteinte"
+  },
+  "badgeSignIn": {
+    "message": "Connectez-vous pour traduire"
+  },
+  "errorSessionExpired": {
+    "message": "Session expirée. Veuillez vous reconnecter."
+  },
+  "accountUpgrade": {
+    "message": "Passer à Pro"
+  },
+  "apiKeyFormatWarning": {
+    "message": "La clé doit commencer par sk-or- (OpenRouter) ou pza_ (Polza)"
+  },
+  "localizedLangNames": {
+    "message": ""
+  }
+}

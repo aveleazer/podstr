@@ -1,0 +1,637 @@
+{
+  "extensionName": {
+    "message": "Підрядник"
+  },
+  "extensionDescription": {
+    "message": "AI-переклад субтитрів — серіали, фільми, відео"
+  },
+  "headerTitle": {
+    "message": "Підрядник"
+  },
+  "headerSub": {
+    "message": "AI-переклад субтитрів"
+  },
+  "tabApi": {
+    "message": "API"
+  },
+  "labelTargetLang": {
+    "message": "Мова перекладу"
+  },
+  "labelTranslationEnabled": {
+    "message": "Переклад увімкнено"
+  },
+  "labelSubtitleStyle": {
+    "message": "Стиль субтитрів"
+  },
+  "labelSize": {
+    "message": "Розмір"
+  },
+  "labelColor": {
+    "message": "Колір"
+  },
+  "labelBackground": {
+    "message": "Фон"
+  },
+  "labelPosition": {
+    "message": "Позиція"
+  },
+  "labelAuto": {
+    "message": "авто"
+  },
+  "labelBottom": {
+    "message": "внизу"
+  },
+  "labelTop": {
+    "message": "вгорі"
+  },
+  "labelReset": {
+    "message": "скинути"
+  },
+  "hintOpenVideo": {
+    "message": "Відкрийте відео з субтитрами — з'явиться вибір мови. Натисніть потрібну — переклад почнеться автоматично."
+  },
+  "stateLoading": {
+    "message": "Завантаження..."
+  },
+  "stateNoTitle": {
+    "message": "(без назви)"
+  },
+  "stateCommError": {
+    "message": "Помилка зв'язку з розширенням"
+  },
+  "apiGetKey": {
+    "message": "Отримати API-ключ на openrouter.ai →"
+  },
+  "labelApiKey": {
+    "message": "API-ключ"
+  },
+  "labelApiKeyPrefix": {
+    "message": "API-ключ"
+  },
+  "polzaPaymentHint": {
+    "message": "Оплата в ₽"
+  },
+  "placeholderApiKey": {
+    "message": "sk-or-..."
+  },
+  "tooltipToggleKey": {
+    "message": "Показати/сховати"
+  },
+  "labelModel": {
+    "message": "Модель"
+  },
+  "placeholderModel": {
+    "message": "vendor/model-name"
+  },
+  "fontSizeAuto": {
+    "message": "авто"
+  },
+  "badgeLoading": {
+    "message": "Завантаження субтитрів..."
+  },
+  "badgeTranslatingSimple": {
+    "message": "Перекладаю..."
+  },
+  "badgeTranslatingCanWatch": {
+    "message": "Перекладаю... $PCT$% · можна дивитися",
+    "placeholders": {
+      "PCT": { "content": "$1" }
+    }
+  },
+  "badgeTranslating": {
+    "message": "Переклад: $PCT$% — пакет $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeFromCache": {
+    "message": "З кешу"
+  },
+  "badgeDone": {
+    "message": "Готово"
+  },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$ реплік",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "Субтитри ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeSubtitlesAvailable": {
+    "message": "Субтитри доступні"
+  },
+  "viewerTranslate": {
+    "message": "Перекласти ($1)",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerTranslateBtn": {
+    "message": "Перекласти"
+  },
+  "viewerShow": {
+    "message": "Показати ($1)",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerShowBtn": {
+    "message": "Показати"
+  },
+  "viewerSetupHint": {
+    "message": "Налаштувати переклад ↗"
+  },
+  "viewerTranslateAnyway": {
+    "message": "Все одно перекласти"
+  },
+  "viewerCachedByModel": {
+    "message": "Перекладено ($1)",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerRetranslate": {
+    "message": "Перекласти через $1",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerSameLangHint": {
+    "message": "Це відео вже з субтитрами «$1». Увімкніть у налаштуваннях плеєра",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerSignIn": {
+    "message": "Увійдіть для безкоштовних перекладів"
+  },
+  "viewerSignInForCache": {
+    "message": "Увійдіть щоб подивитися переклад"
+  },
+  "viewerSetupApi": {
+    "message": "або налаштуйте API-ключ"
+  },
+  "viewerQuotaExhausted": {
+    "message": "Ліміт вичерпано · $1/$2",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "viewerUpgradePro": {
+    "message": "Перейти на Pro"
+  },
+  "viewerRenewSub": {
+    "message": "Поновити підписку"
+  },
+  "viewerUseApiKey": {
+    "message": "або свій API-ключ"
+  },
+  "badgeCacheHitFree": {
+    "message": "З кешу · $1 · −$2 з $3 (на Pro безкоштовно)",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "badgeTrackLoading": {
+    "message": "Завантаження..."
+  },
+  "tooltipSharedCache": {
+    "message": "Готово у спільному кеші ($MODEL$)",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "tooltipOffsetMinus": {
+    "message": "Субтитри раніше (−0.5с)"
+  },
+  "tooltipOffsetLabel": {
+    "message": "Зсув субтитрів (клік = скинути)"
+  },
+  "tooltipOffsetPlus": {
+    "message": "Субтитри пізніше (+0.5с)"
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ готово ($MODEL$)",
+    "placeholders": {
+      "src": {
+        "content": "$1"
+      },
+      "tgt": {
+        "content": "$2"
+      },
+      "model": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeOffset": {
+    "message": "Зсув: $OFFSET$с",
+    "placeholders": {
+      "offset": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeOffsetReset": {
+    "message": "Зсув скинуто"
+  },
+  "badgePositionBottom": {
+    "message": "Субтитри: внизу"
+  },
+  "badgePositionTop": {
+    "message": "Субтитри: вгорі"
+  },
+  "errorEnableCc": {
+    "message": "Увімкніть субтитри (CC) у плеєрі"
+  },
+  "errorYouTube": {
+    "message": "YouTube: $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoSubtitles": {
+    "message": "Субтитрів немає"
+  },
+  "errorNoSubsFound": {
+    "message": "Субтитрів не знайдено"
+  },
+  "errorNotSubtitles": {
+    "message": "Це не субтитри"
+  },
+  "errorGeneric": {
+    "message": "Помилка"
+  },
+  "errorPrefix": {
+    "message": "Помилка: $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorStartTranslation": {
+    "message": "Помилка запуску перекладу"
+  },
+  "errorInvalidApiKey": {
+    "message": "Невірний API-ключ OpenRouter"
+  },
+  "errorInsufficientFunds": {
+    "message": "Недостатньо коштів на OpenRouter"
+  },
+  "errorTimeout": {
+    "message": "Тайм-аут запиту OpenRouter (модель не відповіла за 2 хв)"
+  },
+  "errorNeedApiKey": {
+    "message": "Потрібен API-ключ OpenRouter"
+  },
+  "errorUnknownModel": {
+    "message": "Невідома модель: $MODEL$",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoModel": {
+    "message": "Модель не обрано (налаштування розширення)"
+  },
+  "errorNeedKey": {
+    "message": "Потрібен API-ключ (налаштування розширення)"
+  },
+  "errorJsonParse": {
+    "message": "Модель повернула невалідну відповідь — не вдалося розібрати JSON"
+  },
+  "errorHttpStatus": {
+    "message": "Помилка $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "retryProgress": {
+    "message": "Спроба $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": {
+        "content": "$1"
+      },
+      "max": {
+        "content": "$2"
+      },
+      "code": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ збережено, натисніть ще раз)",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "devDownloading": {
+    "message": "Завантаження субтитрів $LABEL$...",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      }
+    }
+  },
+  "devTranslating": {
+    "message": "Переклад: $COUNT$ субтитрів...",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteNotActivated": {
+    "message": "не активовано"
+  },
+  "siteActivate": {
+    "message": "Увімкнути"
+  },
+  "labelHideSDH": {
+    "message": "Приховувати звукові описи [SDH]"
+  },
+  "tooltipHideSDH": {
+    "message": "SDH — субтитри для глухих та слабочуючих. Приховує описи звуків: [сміється], [двері зачиняються], [тривожна музика]"
+  },
+  "footerTerms": {
+    "message": "Умови"
+  },
+  "footerPrivacy": {
+    "message": "Конфіденційність"
+  },
+  "dropZoneDefault": {
+    "message": "Перетягніть .srt або .vtt файл"
+  },
+  "dropZoneOnlySrtVtt": {
+    "message": "Лише .srt та .vtt файли"
+  },
+  "dropZoneTooBig": {
+    "message": "Файл завеликий (макс. 2 МБ)"
+  },
+  "dropZoneReading": {
+    "message": "Читання файлу..."
+  },
+  "dropZoneSubmitting": {
+    "message": "Надсилання до черги..."
+  },
+  "dropZoneSent": {
+    "message": "Надіслано"
+  },
+  "dropZonePosition": {
+    "message": "($1 у черзі)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "dropZoneReadError": {
+    "message": "Не вдалося прочитати файл"
+  },
+  "labelQueue": {
+    "message": "Черга перекладу"
+  },
+  "queuePending": {
+    "message": "очікує"
+  },
+  "queueRunning": {
+    "message": "виконується"
+  },
+  "labelProvider": {
+    "message": "Провайдер"
+  },
+  "providerApiKey": {
+    "message": "API-ключ (з вкладки API)"
+  },
+  "providerOpenRouterHint": {
+    "message": "(потрібен API-ключ)"
+  },
+  "providerClaudeCliHint": {
+    "message": "(через чергу)"
+  },
+  "statusCheckingServer": {
+    "message": "Перевірка сервера..."
+  },
+  "statusServerOk": {
+    "message": "Сервер черги працює"
+  },
+  "statusServerDown": {
+    "message": "Сервер черги недоступний"
+  },
+  "labelEnabled": {
+    "message": "Увімкнено"
+  },
+  "badgeQueueProgress": {
+    "message": "Завантаження: $1%",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorQueueServer": {
+    "message": "Помилка перекладу на сервері"
+  },
+  "errorQueueTimeout": {
+    "message": "Тайм-аут очікування перекладу (1 година)"
+  },
+  "queueStatusInQueue": {
+    "message": "У черзі"
+  },
+  "queueStatusPosition": {
+    "message": "У черзі ($POS$)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "placeholderModelCustom": {
+    "message": "або введіть назву моделі..."
+  },
+  "modelCustomOption": {
+    "message": "Інша модель..."
+  },
+  "modelHelpLink": {
+    "message": "Яку модель обрати? →"
+  },
+  "costFree": {
+    "message": "🆓 Безкоштовно — якість може відрізнятися"
+  },
+  "costPerEpisode": {
+    "message": "за серію"
+  },
+  "costUnknown": {
+    "message": "💰 Ціна невідома — перевірте у провайдера"
+  },
+  "apiPaymentHint": {
+    "message": "⚠️ Гроші списуються з вашого рахунку у провайдера за кожен переклад. Вартість залежить від моделі і може сягати кількох доларів за серію. Використовуйте швидкі моделі (Flash, Haiku) — повільні можуть перекладати десятки хвилин. Обов'язково встановіть ліміт витрат у налаштуваннях провайдера."
+  },
+  "apiGetKeyPolza": {
+    "message": "Отримати ключ на Polza (₽) →"
+  },
+  "apiSetupGuide": {
+    "message": "Інструкція з налаштування →"
+  },
+  "costPaidWarning": {
+    "message": "списується з вашого балансу"
+  },
+  "modelSelectPlaceholder": {
+    "message": "Оберіть модель..."
+  },
+  "apiHintBefore": {
+    "message": "Підрядник працює без ключа — з"
+  },
+  "apiHintPlanLink": {
+    "message": "безкоштовним або Pro-планом"
+  },
+  "apiHintAfter": {
+    "message": ". Цей розділ для тих, хто хоче розібратися сам: підключити свого провайдера, обрати модель та керувати витратами напряму."
+  },
+  "tabSubtitles": {
+    "message": "Субтитри"
+  },
+  "tabDev": {
+    "message": "Dev"
+  },
+  "accountSignInHint": {
+    "message": "Увійдіть — 5 перекладів/міс безкоштовно"
+  },
+  "accountEmailPlaceholder": {
+    "message": "your@email.com"
+  },
+  "accountSignIn": {
+    "message": "Увійти"
+  },
+  "accountOrApiKey": {
+    "message": "або свій API-ключ у вкладці"
+  },
+  "accountUsingOwnKey": {
+    "message": "Використовується свій API-ключ"
+  },
+  "accountSignInForFree": {
+    "message": "Увійдіть для безкоштовних перекладів"
+  },
+  "labelApiProvider": {
+    "message": "Провайдер"
+  },
+  "apiHintBanner": {
+    "message": ""
+  },
+  "apiGetKeyFor": {
+    "message": "Отримати ключ на"
+  },
+  "footerHelp": {
+    "message": "Допомога"
+  },
+  "accountCheckEmail": {
+    "message": "Перевірте пошту та натисніть на посилання для входу"
+  },
+  "accountResend": {
+    "message": "Не прийшло? Надіслати знову"
+  },
+  "accountLogout": {
+    "message": "Вийти"
+  },
+  "accountFreePlan": {
+    "message": "Безкоштовний"
+  },
+  "accountLoginError": {
+    "message": "Не вдалося увійти. Спробуйте пізніше."
+  },
+  "accountManageSubscription": {
+    "message": "Керування"
+  },
+  "accountProPlan": {
+    "message": "Pro"
+  },
+  "accountQuotaExhausted": {
+    "message": "Використано всі $1 перекладів цього місяця",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaResets": {
+    "message": "Скидання $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaText": {
+    "message": "$1 / $2 цього місяця",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "accountResendIn": {
+    "message": "Повторити через $1с",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountUseOwnKey": {
+    "message": "Або використовуйте свій API-ключ"
+  },
+  "badgeQuota": {
+    "message": "Ліміт перекладів вичерпано"
+  },
+  "badgeSignIn": {
+    "message": "Увійдіть для перекладу"
+  },
+  "errorSessionExpired": {
+    "message": "Сесія закінчилася. Увійдіть знову."
+  },
+  "accountUpgrade": {
+    "message": "Перейти на Pro"
+  },
+  "apiKeyFormatWarning": {
+    "message": "Ключ повинен починатися з sk-or- (OpenRouter) або pza_ (Polza)"
+  },
+  "localizedLangNames": {
+    "message": ""
+  }
+}

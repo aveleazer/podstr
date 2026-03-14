@@ -1,0 +1,23 @@
+server/cache/
+*.pyc
+__pycache__/
+.DS_Store
+
+# Secrets & operations (never commit)
+OPERATIONS.md
+update-extension.bat
+*.log
+*.db
+server/server.log
+server/*.db
+server/local_cache.db
+
+# Backend
+backend/.venv/
+backend/db.sqlite3
+
+# Generated site output
+site/out/
+site/tmdb_cache.json
+node_modules/
+.superpowers/

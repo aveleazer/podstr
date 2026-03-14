@@ -1,0 +1,624 @@
+{
+  "extensionName": {
+    "message": "Подстрочник"
+  },
+  "extensionDescription": {
+    "message": "AI-перевод субтитров — сериалы, фильмы, шоу"
+  },
+  "headerTitle": {
+    "message": "Подстрочник"
+  },
+  "headerSub": {
+    "message": "AI-перевод субтитров"
+  },
+  "tabApi": {
+    "message": "API"
+  },
+  "labelTargetLang": {
+    "message": "Язык перевода"
+  },
+  "labelTranslationEnabled": {
+    "message": "Перевод включён"
+  },
+  "labelSubtitleStyle": {
+    "message": "Вид субтитров"
+  },
+  "labelSize": {
+    "message": "Размер"
+  },
+  "labelColor": {
+    "message": "Цвет"
+  },
+  "labelBackground": {
+    "message": "Фон"
+  },
+  "labelPosition": {
+    "message": "Позиция"
+  },
+  "labelAuto": {
+    "message": "авто"
+  },
+  "labelBottom": {
+    "message": "внизу"
+  },
+  "labelTop": {
+    "message": "вверху"
+  },
+  "labelReset": {
+    "message": "сброс"
+  },
+  "hintOpenVideo": {
+    "message": "При открытии видео с субтитрами появится выбор языка. Нажмите на нужный — перевод начнётся автоматически."
+  },
+  "stateLoading": {
+    "message": "Загрузка..."
+  },
+  "stateNoTitle": {
+    "message": "(без названия)"
+  },
+  "stateCommError": {
+    "message": "Ошибка связи с расширением"
+  },
+  "apiGetKey": {
+    "message": "Получить API-ключ на openrouter.ai →"
+  },
+  "labelApiKey": {
+    "message": "API-ключ (OpenRouter / Polza)"
+  },
+  "labelApiKeyPrefix": {
+    "message": "API-ключ"
+  },
+  "polzaPaymentHint": {
+    "message": "Оплата в ₽"
+  },
+  "placeholderApiKey": {
+    "message": "sk-or-... или pza_..."
+  },
+  "tooltipToggleKey": {
+    "message": "Показать/скрыть"
+  },
+  "labelModel": {
+    "message": "Модель"
+  },
+  "placeholderModel": {
+    "message": "vendor/model-name"
+  },
+  "fontSizeAuto": {
+    "message": "авто"
+  },
+  "badgeLoading": {
+    "message": "Загрузка субтитров..."
+  },
+  "badgeTranslatingSimple": {
+    "message": "Перевожу..."
+  },
+  "badgeTranslatingCanWatch": {
+    "message": "Перевожу... $PCT$% · можно смотреть",
+    "placeholders": {
+      "PCT": { "content": "$1" }
+    }
+  },
+  "badgeTranslating": {
+    "message": "Перевод: $PCT$% — батч $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeFromCache": {
+    "message": "Из кеша"
+  },
+  "badgeDone": {
+    "message": "Готово"
+  },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$ фраз",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "Субтитры ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeSubtitlesAvailable": {
+    "message": "Субтитры доступны"
+  },
+  "viewerTranslate": {
+    "message": "Перевести ($1)",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerTranslateBtn": {
+    "message": "Перевести"
+  },
+  "viewerShow": {
+    "message": "Показать ($1)",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerShowBtn": {
+    "message": "Показать"
+  },
+  "viewerSetupHint": {
+    "message": "Настройте перевод ↗"
+  },
+  "viewerTranslateAnyway": {
+    "message": "Всё равно перевести"
+  },
+  "viewerCachedByModel": {
+    "message": "Переведено ($1)",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerRetranslate": {
+    "message": "Перевести через $1",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerSameLangHint": {
+    "message": "Уже с $1 субтитрами — включите в плеере",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerSignIn": {
+    "message": "Войдите для бесплатных переводов"
+  },
+  "viewerSignInForCache": {
+    "message": "Войдите чтобы посмотреть перевод"
+  },
+  "viewerSetupApi": {
+    "message": "или настройте API-ключ"
+  },
+  "viewerQuotaExhausted": {
+    "message": "Лимит исчерпан · $1/$2",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "viewerUpgradePro": {
+    "message": "Перейти на Pro"
+  },
+  "viewerRenewSub": {
+    "message": "Продлить подписку"
+  },
+  "viewerUseApiKey": {
+    "message": "или свой API-ключ"
+  },
+  "badgeCacheHitFree": {
+    "message": "Из кеша · $1 · −$2 из $3 (на Pro не тратит)",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "badgeTrackLoading": {
+    "message": "Загрузка..."
+  },
+  "tooltipSharedCache": {
+    "message": "Готово в shared cache ($MODEL$)",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "tooltipOffsetMinus": {
+    "message": "Субтитры раньше (−0.5с)"
+  },
+  "tooltipOffsetLabel": {
+    "message": "Сдвиг субтитров (клик = сброс)"
+  },
+  "tooltipOffsetPlus": {
+    "message": "Субтитры позже (+0.5с)"
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ готовы ($MODEL$)",
+    "placeholders": {
+      "src": {
+        "content": "$1"
+      },
+      "tgt": {
+        "content": "$2"
+      },
+      "model": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeOffset": {
+    "message": "Сдвиг: $OFFSET$с",
+    "placeholders": {
+      "offset": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeOffsetReset": {
+    "message": "Сдвиг сброшен"
+  },
+  "badgePositionBottom": {
+    "message": "Субтитры: внизу"
+  },
+  "badgePositionTop": {
+    "message": "Субтитры: вверху"
+  },
+  "errorEnableCc": {
+    "message": "Включите субтитры (CC) в плеере"
+  },
+  "errorYouTube": {
+    "message": "YouTube: $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoSubtitles": {
+    "message": "Нет субтитров"
+  },
+  "errorNoSubsFound": {
+    "message": "Субтитры не найдены"
+  },
+  "errorNotSubtitles": {
+    "message": "Не субтитры"
+  },
+  "errorGeneric": {
+    "message": "Ошибка"
+  },
+  "errorPrefix": {
+    "message": "Ошибка: $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorStartTranslation": {
+    "message": "Ошибка запуска перевода"
+  },
+  "errorInvalidApiKey": {
+    "message": "Невалидный API-ключ OpenRouter"
+  },
+  "errorInsufficientFunds": {
+    "message": "Недостаточно средств на OpenRouter"
+  },
+  "errorTimeout": {
+    "message": "Таймаут запроса к OpenRouter (модель не ответила за 2 мин)"
+  },
+  "errorNeedApiKey": {
+    "message": "Нужен API-ключ OpenRouter"
+  },
+  "errorUnknownModel": {
+    "message": "Неизвестная модель: $MODEL$",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoModel": {
+    "message": "Не указана модель (настройки расширения)"
+  },
+  "errorNeedKey": {
+    "message": "Нужен API-ключ (настройки расширения)"
+  },
+  "errorJsonParse": {
+    "message": "Модель вернула некорректный ответ — не удалось распарсить JSON"
+  },
+  "errorHttpStatus": {
+    "message": "Ошибка $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "retryProgress": {
+    "message": "Retry $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": {
+        "content": "$1"
+      },
+      "max": {
+        "content": "$2"
+      },
+      "code": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ сохранено, нажмите ещё раз)",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "devDownloading": {
+    "message": "Скачиваю $LABEL$ субтитры...",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      }
+    }
+  },
+  "devTranslating": {
+    "message": "Перевод: $COUNT$ субтитров...",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteNotActivated": {
+    "message": "не активирован"
+  },
+  "siteActivate": {
+    "message": "Включить"
+  },
+  "labelHideSDH": {
+    "message": "Скрывать звуковые описания [SDH]"
+  },
+  "tooltipHideSDH": {
+    "message": "SDH — субтитры для глухих и слабослышащих. Скрывает описания звуков: [смеётся], [хлопает дверь], [тревожная музыка]"
+  },
+  "footerTerms": {
+    "message": "Условия"
+  },
+  "footerPrivacy": {
+    "message": "Конфиденциальность"
+  },
+  "dropZoneDefault": {
+    "message": "Перетащить .srt или .vtt файл"
+  },
+  "dropZoneOnlySrtVtt": {
+    "message": "Только .srt и .vtt файлы"
+  },
+  "dropZoneTooBig": {
+    "message": "Файл слишком большой (макс. 2 МБ)"
+  },
+  "dropZoneReading": {
+    "message": "Читаю файл..."
+  },
+  "dropZoneSubmitting": {
+    "message": "Отправляю в очередь..."
+  },
+  "dropZoneSent": {
+    "message": "Отправлено"
+  },
+  "dropZonePosition": {
+    "message": "($1-я в очереди)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "dropZoneReadError": {
+    "message": "Не удалось прочитать файл"
+  },
+  "labelQueue": {
+    "message": "Очередь переводов"
+  },
+  "queuePending": {
+    "message": "ждёт"
+  },
+  "queueRunning": {
+    "message": "идёт"
+  },
+  "labelProvider": {
+    "message": "Провайдер"
+  },
+  "providerApiKey": {
+    "message": "API-ключ (из вкладки API)"
+  },
+  "providerOpenRouterHint": {
+    "message": "(нужен ключ)"
+  },
+  "providerClaudeCliHint": {
+    "message": "(через очередь)"
+  },
+  "statusCheckingServer": {
+    "message": "Проверяю сервер..."
+  },
+  "statusServerOk": {
+    "message": "Сервер очередей работает"
+  },
+  "statusServerDown": {
+    "message": "Сервер очередей недоступен"
+  },
+  "labelEnabled": {
+    "message": "Включён"
+  },
+  "badgeQueueProgress": {
+    "message": "Загрузка: $1%",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorQueueServer": {
+    "message": "Ошибка перевода на сервере"
+  },
+  "errorQueueTimeout": {
+    "message": "Таймаут ожидания перевода (1 час)"
+  },
+  "queueStatusInQueue": {
+    "message": "В очереди"
+  },
+  "queueStatusPosition": {
+    "message": "В очереди ($POS$-я)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "placeholderModelCustom": {
+    "message": "или введите название модели..."
+  },
+  "placeholderModel": {
+    "message": "например: google/gemini-3-flash-preview"
+  },
+  "modelCustomOption": {
+    "message": "Другая модель..."
+  },
+  "modelHelpLink": {
+    "message": "Какую модель выбрать? →"
+  },
+  "costFree": {
+    "message": "🆓 Бесплатно — качество может быть ниже"
+  },
+  "costPerEpisode": {
+    "message": "за серию"
+  },
+  "costUnknown": {
+    "message": "💰 Цена неизвестна — проверьте у провайдера"
+  },
+  "costPaidWarning": {
+    "message": "списывается с вашего баланса"
+  },
+  "modelSelectPlaceholder": {
+    "message": "Выберите модель..."
+  },
+  "apiPaymentHint": {
+    "message": "⚠️ Деньги списываются с вашего счёта у провайдера за каждый перевод. Стоимость зависит от модели и может доходить до нескольких долларов за эпизод. Используйте быстрые модели (Flash, Haiku) — медленные могут переводить десятки минут. Обязательно установите лимит расходов в настройках провайдера."
+  },
+  "apiSetupGuide": {
+    "message": "Подробная инструкция →"
+  },
+  "apiGetKeyPolza": {
+    "message": "Получить ключ на Polza (₽) →"
+  },
+  "tabSubtitles": {
+    "message": "Субтитры"
+  },
+  "tabDev": {
+    "message": "Dev"
+  },
+  "accountSignInHint": {
+    "message": "Войдите — 5 переводов/мес бесплатно"
+  },
+  "accountEmailPlaceholder": {
+    "message": "your@email.com"
+  },
+  "accountSignIn": {
+    "message": "Войти"
+  },
+  "accountOrApiKey": {
+    "message": "или свой API-ключ во вкладке"
+  },
+  "accountUsingOwnKey": {
+    "message": "Используется свой API-ключ"
+  },
+  "accountSignInForFree": {
+    "message": "Войдите для бесплатных переводов"
+  },
+  "labelApiProvider": {
+    "message": "Провайдер"
+  },
+  "apiHintBanner": {
+    "message": ""
+  },
+  "apiHintBefore": {
+    "message": "Подстрочник работает без ключа — с"
+  },
+  "apiHintPlanLink": {
+    "message": "бесплатным или Pro-планом"
+  },
+  "apiHintAfter": {
+    "message": ". Этот раздел для тех, кто хочет разобраться сам: подключить своего провайдера, выбрать модель и управлять расходами напрямую."
+  },
+  "apiGetKeyFor": {
+    "message": "Получить ключ на"
+  },
+  "footerHelp": {
+    "message": "Помощь"
+  },
+  "accountCheckEmail": {
+    "message": "Проверьте почту и кликните по ссылке для входа"
+  },
+  "accountResend": {
+    "message": "Не пришло? Отправить снова"
+  },
+  "accountLogout": {
+    "message": "Выйти"
+  },
+  "accountFreePlan": {
+    "message": "Бесплатный"
+  },
+  "accountProPlan": {
+    "message": "Pro"
+  },
+  "accountQuotaText": {
+    "message": "$1 / $2 в этом месяце",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "accountQuotaResets": {
+    "message": "Сброс $1",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "accountQuotaExhausted": {
+    "message": "Использовано все $1 переводов в этом месяце",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "accountUpgrade": {
+    "message": "Перейти на Pro"
+  },
+  "accountManageSubscription": {
+    "message": "Управление"
+  },
+  "accountUseOwnKey": {
+    "message": "Или используйте свой API-ключ"
+  },
+  "accountResendIn": {
+    "message": "Повторить через $1с",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "accountLoginError": {
+    "message": "Не удалось войти. Попробуйте позже."
+  },
+  "badgeSignIn": {
+    "message": "Войдите для перевода"
+  },
+  "badgeQuota": {
+    "message": "Лимит переводов исчерпан"
+  },
+  "errorSessionExpired": {
+    "message": "Сессия истекла. Войдите снова."
+  },
+  "apiKeyFormatWarning": {
+    "message": "Ключ должен начинаться с sk-or- (OpenRouter) или pza_ (Polza)"
+  },
+  "localizedLangNames": {
+    "message": "{\"English\":\"английскими\",\"German\":\"немецкими\",\"French\":\"французскими\",\"Spanish\":\"испанскими\",\"Italian\":\"итальянскими\",\"Portuguese\":\"португальскими\",\"Japanese\":\"японскими\",\"Korean\":\"корейскими\",\"Chinese\":\"китайскими\",\"Dutch\":\"нидерландскими\",\"Polish\":\"польскими\",\"Swedish\":\"шведскими\",\"Danish\":\"датскими\",\"Finnish\":\"финскими\",\"Norwegian\":\"норвежскими\",\"Czech\":\"чешскими\",\"Hungarian\":\"венгерскими\",\"Turkish\":\"турецкими\",\"Arabic\":\"арабскими\",\"Hebrew\":\"ивритскими\",\"Hindi\":\"хинди\",\"Thai\":\"тайскими\",\"Ukrainian\":\"украинскими\",\"Romanian\":\"румынскими\",\"Russian\":\"русскими\",\"Serbian\":\"сербскими\",\"Belarusian\":\"белорусскими\",\"Vietnamese\":\"вьетнамскими\",\"Indonesian\":\"индонезийскими\",\"Greek\":\"греческими\"}"
+  }
+}

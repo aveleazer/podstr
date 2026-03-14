@@ -1,0 +1,637 @@
+{
+  "extensionName": {
+    "message": "podstr.cc"
+  },
+  "extensionDescription": {
+    "message": "AI 자막 번역 — 드라마, 영화, 동영상"
+  },
+  "headerTitle": {
+    "message": "podstr.cc"
+  },
+  "headerSub": {
+    "message": "AI 자막 번역"
+  },
+  "tabApi": {
+    "message": "API"
+  },
+  "labelTargetLang": {
+    "message": "번역 언어"
+  },
+  "labelTranslationEnabled": {
+    "message": "번역 활성화"
+  },
+  "labelSubtitleStyle": {
+    "message": "자막 스타일"
+  },
+  "labelSize": {
+    "message": "크기"
+  },
+  "labelColor": {
+    "message": "색상"
+  },
+  "labelBackground": {
+    "message": "배경"
+  },
+  "labelPosition": {
+    "message": "위치"
+  },
+  "labelAuto": {
+    "message": "자동"
+  },
+  "labelBottom": {
+    "message": "하단"
+  },
+  "labelTop": {
+    "message": "상단"
+  },
+  "labelReset": {
+    "message": "초기화"
+  },
+  "hintOpenVideo": {
+    "message": "자막이 있는 동영상을 열면 언어 선택이 나타납니다. 원하는 언어를 클릭하면 자동으로 번역이 시작됩니다."
+  },
+  "stateLoading": {
+    "message": "로딩 중..."
+  },
+  "stateNoTitle": {
+    "message": "(제목 없음)"
+  },
+  "stateCommError": {
+    "message": "확장 프로그램 통신 오류"
+  },
+  "apiGetKey": {
+    "message": "openrouter.ai에서 API 키 받기 →"
+  },
+  "labelApiKey": {
+    "message": "API 키"
+  },
+  "labelApiKeyPrefix": {
+    "message": "API 키"
+  },
+  "polzaPaymentHint": {
+    "message": "₽ 결제"
+  },
+  "placeholderApiKey": {
+    "message": "sk-or-..."
+  },
+  "tooltipToggleKey": {
+    "message": "표시/숨기기"
+  },
+  "labelModel": {
+    "message": "모델"
+  },
+  "placeholderModel": {
+    "message": "vendor/model-name"
+  },
+  "fontSizeAuto": {
+    "message": "자동"
+  },
+  "badgeLoading": {
+    "message": "자막 로딩 중..."
+  },
+  "badgeTranslatingSimple": {
+    "message": "번역 중..."
+  },
+  "badgeTranslatingCanWatch": {
+    "message": "번역 중... $PCT$% · 시청 가능",
+    "placeholders": {
+      "PCT": { "content": "$1" }
+    }
+  },
+  "badgeTranslating": {
+    "message": "번역 중: $PCT$% — 배치 $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeFromCache": {
+    "message": "캐시에서 로드"
+  },
+  "badgeDone": {
+    "message": "완료"
+  },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$개 자막",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "자막 ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeSubtitlesAvailable": {
+    "message": "자막 사용 가능"
+  },
+  "viewerTranslate": {
+    "message": "번역 ($1)",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerTranslateBtn": {
+    "message": "번역"
+  },
+  "viewerShow": {
+    "message": "보기 ($1)",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerShowBtn": {
+    "message": "보기"
+  },
+  "viewerSetupHint": {
+    "message": "번역 설정 ↗"
+  },
+  "viewerTranslateAnyway": {
+    "message": "그래도 번역하기"
+  },
+  "viewerCachedByModel": {
+    "message": "$1로 번역됨",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerRetranslate": {
+    "message": "$1로 번역하기",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "viewerSameLangHint": {
+    "message": "이 영상에는 이미 $1 자막이 있습니다. 플레이어 설정에서 활성화하세요",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "viewerSignIn": {
+    "message": "로그인하여 무료 번역 이용"
+  },
+  "viewerSignInForCache": {
+    "message": "로그인하여 번역 보기"
+  },
+  "viewerSetupApi": {
+    "message": "또는 API 키 설정"
+  },
+  "viewerQuotaExhausted": {
+    "message": "한도 도달 · $1/$2",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "viewerUpgradePro": {
+    "message": "Pro로 업그레이드"
+  },
+  "viewerRenewSub": {
+    "message": "구독 갱신"
+  },
+  "viewerUseApiKey": {
+    "message": "또는 자체 API 키 사용"
+  },
+  "badgeCacheHitFree": {
+    "message": "캐시에서 · $1 · −$2 / $3 (Pro에서 무료)",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "badgeTrackLoading": {
+    "message": "로딩 중..."
+  },
+  "tooltipSharedCache": {
+    "message": "공유 캐시에 준비됨 ($MODEL$)",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "tooltipOffsetMinus": {
+    "message": "자막 앞으로 (−0.5초)"
+  },
+  "tooltipOffsetLabel": {
+    "message": "자막 오프셋 (클릭 = 초기화)"
+  },
+  "tooltipOffsetPlus": {
+    "message": "자막 뒤로 (+0.5초)"
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ 준비 완료 ($MODEL$)",
+    "placeholders": {
+      "src": {
+        "content": "$1"
+      },
+      "tgt": {
+        "content": "$2"
+      },
+      "model": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeOffset": {
+    "message": "오프셋: $OFFSET$초",
+    "placeholders": {
+      "offset": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeOffsetReset": {
+    "message": "오프셋 초기화됨"
+  },
+  "badgePositionBottom": {
+    "message": "자막: 하단"
+  },
+  "badgePositionTop": {
+    "message": "자막: 상단"
+  },
+  "errorEnableCc": {
+    "message": "플레이어에서 자막(CC)을 활성화하세요"
+  },
+  "errorYouTube": {
+    "message": "YouTube: $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoSubtitles": {
+    "message": "자막 없음"
+  },
+  "errorNoSubsFound": {
+    "message": "자막을 찾을 수 없습니다"
+  },
+  "errorNotSubtitles": {
+    "message": "자막이 아닙니다"
+  },
+  "errorGeneric": {
+    "message": "오류"
+  },
+  "errorPrefix": {
+    "message": "오류: $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorStartTranslation": {
+    "message": "번역 시작 오류"
+  },
+  "errorInvalidApiKey": {
+    "message": "잘못된 OpenRouter API 키"
+  },
+  "errorInsufficientFunds": {
+    "message": "OpenRouter 잔액 부족"
+  },
+  "errorTimeout": {
+    "message": "OpenRouter 요청 시간 초과 (모델이 2분 내에 응답하지 않음)"
+  },
+  "errorNeedApiKey": {
+    "message": "OpenRouter API 키가 필요합니다"
+  },
+  "errorUnknownModel": {
+    "message": "알 수 없는 모델: $MODEL$",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoModel": {
+    "message": "모델이 선택되지 않았습니다 (확장 프로그램 설정)"
+  },
+  "errorNeedKey": {
+    "message": "API 키가 필요합니다 (확장 프로그램 설정)"
+  },
+  "errorJsonParse": {
+    "message": "모델이 잘못된 응답을 반환했습니다 — JSON을 파싱할 수 없음"
+  },
+  "errorHttpStatus": {
+    "message": "오류 $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "retryProgress": {
+    "message": "재시도 $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": {
+        "content": "$1"
+      },
+      "max": {
+        "content": "$2"
+      },
+      "code": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ 저장됨, 다시 클릭하세요)",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "devDownloading": {
+    "message": "$LABEL$ 자막 다운로드 중...",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      }
+    }
+  },
+  "devTranslating": {
+    "message": "번역 중: $COUNT$개 자막...",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteNotActivated": {
+    "message": "활성화되지 않음"
+  },
+  "siteActivate": {
+    "message": "활성화"
+  },
+  "labelHideSDH": {
+    "message": "음향 설명 숨기기 [SDH]"
+  },
+  "tooltipHideSDH": {
+    "message": "SDH = 청각 장애인용 자막. [웃음], [문 닫힘], [긴장감 있는 음악] 등 음향 효과를 숨깁니다"
+  },
+  "footerTerms": {
+    "message": "이용약관"
+  },
+  "footerPrivacy": {
+    "message": "개인정보"
+  },
+  "dropZoneDefault": {
+    "message": ".srt 또는 .vtt 파일을 드롭하세요"
+  },
+  "dropZoneOnlySrtVtt": {
+    "message": ".srt 및 .vtt 파일만 가능"
+  },
+  "dropZoneTooBig": {
+    "message": "파일이 너무 큽니다 (최대 2 MB)"
+  },
+  "dropZoneReading": {
+    "message": "파일 읽는 중..."
+  },
+  "dropZoneSubmitting": {
+    "message": "대기열에 제출 중..."
+  },
+  "dropZoneSent": {
+    "message": "제출됨"
+  },
+  "dropZonePosition": {
+    "message": "(대기열 $1번째)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "dropZoneReadError": {
+    "message": "파일을 읽을 수 없습니다"
+  },
+  "labelQueue": {
+    "message": "번역 대기열"
+  },
+  "queuePending": {
+    "message": "대기 중"
+  },
+  "queueRunning": {
+    "message": "진행 중"
+  },
+  "labelProvider": {
+    "message": "제공업체"
+  },
+  "providerApiKey": {
+    "message": "API 키 (API 탭에서)"
+  },
+  "providerOpenRouterHint": {
+    "message": "(API 키 필요)"
+  },
+  "providerClaudeCliHint": {
+    "message": "(대기열 경유)"
+  },
+  "statusCheckingServer": {
+    "message": "서버 확인 중..."
+  },
+  "statusServerOk": {
+    "message": "대기열 서버 가동 중"
+  },
+  "statusServerDown": {
+    "message": "대기열 서버 사용 불가"
+  },
+  "labelEnabled": {
+    "message": "활성화됨"
+  },
+  "badgeQueueProgress": {
+    "message": "로딩 중: $1%",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorQueueServer": {
+    "message": "서버 번역 오류"
+  },
+  "errorQueueTimeout": {
+    "message": "번역 대기 시간 초과 (1시간)"
+  },
+  "queueStatusInQueue": {
+    "message": "대기열에 있음"
+  },
+  "queueStatusPosition": {
+    "message": "대기열에 있음 ($POS$번째)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "placeholderModelCustom": {
+    "message": "또는 모델 이름 입력..."
+  },
+  "modelCustomOption": {
+    "message": "다른 모델..."
+  },
+  "modelHelpLink": {
+    "message": "어떤 모델을 선택할까? →"
+  },
+  "costFree": {
+    "message": "🆓 무료 — 품질이 다를 수 있음"
+  },
+  "costPerEpisode": {
+    "message": "에피소드당"
+  },
+  "costUnknown": {
+    "message": "💰 가격 미정 — 제공업체 요금 확인"
+  },
+  "apiPaymentHint": {
+    "message": "⚠️ 번역마다 제공업체에서 과금됩니다. 비용은 모델에 따라 다르며 에피소드당 몇 달러에 달할 수 있습니다. 빠른 모델(Flash, Haiku)을 사용하세요 — 느린 모델은 수십 분이 걸릴 수 있습니다. 제공업체 설정에서 지출 한도를 반드시 설정하세요."
+  },
+  "apiGetKeyPolza": {
+    "message": "Polza에서 API 키 받기 (₽) →"
+  },
+  "apiSetupGuide": {
+    "message": "설정 가이드 →"
+  },
+  "costPaidWarning": {
+    "message": "잔액에서 차감됩니다"
+  },
+  "modelSelectPlaceholder": {
+    "message": "모델 선택..."
+  },
+  "apiHintBefore": {
+    "message": "Podstrochnik은 키 없이도 사용 가능 —"
+  },
+  "apiHintPlanLink": {
+    "message": "무료 또는 Pro 플랜"
+  },
+  "apiHintAfter": {
+    "message": "으로 이용 가능합니다. 이 섹션은 직접 설정하려는 분을 위한 것입니다: 자체 제공업체 연결, 모델 선택, 비용 직접 관리."
+  },
+  "tabSubtitles": {
+    "message": "자막"
+  },
+  "tabDev": {
+    "message": "Dev"
+  },
+  "accountSignInHint": {
+    "message": "로그인 — 월 5회 무료 번역"
+  },
+  "accountEmailPlaceholder": {
+    "message": "your@email.com"
+  },
+  "accountSignIn": {
+    "message": "로그인"
+  },
+  "accountOrApiKey": {
+    "message": "또는 자체 API 키 사용 (탭)"
+  },
+  "accountUsingOwnKey": {
+    "message": "자체 API 키 사용 중"
+  },
+  "accountSignInForFree": {
+    "message": "로그인하여 무료 번역 이용"
+  },
+  "labelApiProvider": {
+    "message": "제공업체"
+  },
+  "apiHintBanner": {
+    "message": ""
+  },
+  "apiGetKeyFor": {
+    "message": "API 키 받기:"
+  },
+  "footerHelp": {
+    "message": "도움말"
+  },
+  "accountCheckEmail": {
+    "message": "이메일을 확인하고 링크를 클릭하여 로그인하세요"
+  },
+  "accountResend": {
+    "message": "못 받으셨나요? 재전송"
+  },
+  "accountLogout": {
+    "message": "로그아웃"
+  },
+  "accountFreePlan": {
+    "message": "무료"
+  },
+  "accountLoginError": {
+    "message": "로그인할 수 없습니다. 나중에 다시 시도하세요."
+  },
+  "accountManageSubscription": {
+    "message": "관리"
+  },
+  "accountProPlan": {
+    "message": "Pro"
+  },
+  "accountQuotaExhausted": {
+    "message": "이번 달 번역 $1회를 모두 사용했습니다",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaResets": {
+    "message": "초기화: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaText": {
+    "message": "$1 / $2 (이번 달)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "accountResendIn": {
+    "message": "$1초 후 재전송",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountUseOwnKey": {
+    "message": "또는 자체 API 키 사용"
+  },
+  "badgeQuota": {
+    "message": "번역 한도 도달"
+  },
+  "badgeSignIn": {
+    "message": "로그인하여 번역"
+  },
+  "errorSessionExpired": {
+    "message": "세션이 만료되었습니다. 다시 로그인하세요."
+  },
+  "accountUpgrade": {
+    "message": "Pro로 업그레이드"
+  },
+  "apiKeyFormatWarning": {
+    "message": "키는 sk-or- (OpenRouter) 또는 pza_ (Polza)로 시작해야 합니다"
+  },
+  "localizedLangNames": {
+    "message": ""
+  }
+}
