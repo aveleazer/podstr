@@ -1,115 +1,114 @@
-# Подстрочник / podstr.cc
+# Podstr — AI subtitle translation
 
-**AI-перевод субтитров — сериалы, фильмы, видео.**
-Chrome-расширение + общая библиотека переводов от сообщества.
+**One translates, everyone watches.**
+Chrome extension for AI subtitle translation with a shared community translation cache.
 
-[Установить из Chrome Web Store](https://chromewebstore.google.com/detail/podstrcc/iophagcapjpmkcpdjkfndpdakipokeih) · [Сайт](https://podstr.cc) · [Telegram](https://t.me/podstrcc)
+[Install from Chrome Web Store](https://chromewebstore.google.com/detail/podstrcc/iophagcapjpmkcpdjkfndpdakipokeih) · [Website](https://podstr.cc) · [Telegram](https://t.me/podstrcc)
+
+> [Читать на русском](docs/README.ru.md)
 
 ---
 
-## Что это
+## What is this
 
-Расширение переводит субтитры через AI-модели (Claude, Gemini, DeepSeek, Llama) и показывает поверх видео. Работает на YouTube, Plex, ARTE, Filmzie и любом сайте с HLS-субтитрами. Netflix — в разработке.
+The extension translates subtitles using AI models (Claude, Gemini, DeepSeek, Llama) and renders them over the video. Works on YouTube, Plex, ARTE, Filmzie and any site with HLS subtitles. Netflix — in development.
 
-Один пользователь перевёл серию — все остальные получают перевод мгновенно через общий кэш.
+One user translates an episode — everyone else gets the translation instantly via the shared cache.
 
-## Установка
+## Installation
 
-### Chrome Web Store (рекомендуется)
+### Chrome Web Store (recommended)
 
-[Установить Подстрочник](https://chromewebstore.google.com/detail/podstrcc/iophagcapjpmkcpdjkfndpdakipokeih) — один клик, автообновления.
+[Install Podstr](https://chromewebstore.google.com/detail/podstrcc/iophagcapjpmkcpdjkfndpdakipokeih) — one click, auto-updates.
 
-### Из исходников
+### From source
 
 ```bash
 git clone https://github.com/aveleazer/podstr.git
 ```
 
-1. Открой `chrome://extensions/`, включи «Режим разработчика»
-2. «Загрузить распакованное расширение» → выбери папку `extension/`
+1. Open `chrome://extensions/`, enable Developer mode
+2. Click "Load unpacked" and select the `extension/` folder
 
-## Как пользоваться
+## How to use
 
-1. Открой видео с субтитрами
-2. Появится пикер с доступными языками
-3. Нажми на нужный — перевод начнётся автоматически
-4. Если перевод уже есть в общем кэше — подгрузится мгновенно
+1. Open a video with subtitles
+2. A language picker appears above the video
+3. Click the language you need — translation starts automatically
+4. If a translation already exists in the shared cache — it loads instantly
 
-### Два способа переводить
+### Two ways to translate
 
-| Способ | Что нужно | Стоимость |
-|--------|-----------|-----------|
-| **Свой API-ключ (BYOK)** | Ключ OpenRouter или Polza | От $0.01 за серию, зависит от модели |
-| **Claude CLI** | Подписка Claude Max + локальный воркер | Бесплатно при наличии подписки |
+| Method | Requirements | Cost |
+|--------|-------------|------|
+| **BYOK (Bring Your Own Key)** | OpenRouter or Polza API key | From $0.01 per episode, depends on the model |
+| **Claude CLI** | Claude Max subscription + local worker | Free with existing subscription |
 
-## Возможности
+## Features
 
-- **30 языков перевода**, 13 языков интерфейса
-- **YouTube, Plex, ARTE, Filmzie** + любой сайт с HLS-субтитрами
-- **Общий кэш переводов** — один перевёл, все смотрят
-- **Выбор AI-модели** — Claude, Gemini, DeepSeek, Llama через OpenRouter
-- **Двойные субтитры** — оригинал + перевод одновременно
-- **Настройка вида** — шрифт, цвет, прозрачность, позиция
-- **Подстройка тайминга** — `[` / `]` (±0.5с), `\` (сброс)
-- **Скрытие SDH** — убирает [смеётся], [хлопает дверь] из перевода
-- **Drag & drop** — перетащи .srt/.vtt в side panel для перевода
-- **Fullscreen** — всё работает в полноэкранном режиме
-- **Zero dependencies** — vanilla JS, без bundler, без npm
+- **30 target languages**, 13 interface languages
+- **YouTube, Plex, ARTE, Filmzie** + any site with HLS subtitles
+- **Shared translation cache** — one translates, everyone watches
+- **AI model selection** — Claude, Gemini, DeepSeek, Llama via OpenRouter
+- **Dual subtitles** — original + translation simultaneously
+- **Appearance settings** — font, color, opacity, position
+- **Timing adjustment** — `[` / `]` (±0.5s), `\` (reset)
+- **SDH filtering** — removes [laughs], [door closes] from translation
+- **Drag & drop** — drop .srt/.vtt into the side panel for translation
+- **Fullscreen** — everything works in fullscreen mode
+- **Zero dependencies** — vanilla JS, no bundler, no npm
 
-## Как это работает
+## How it works
 
 ```
-  Браузер                 Расширение
-  (любой сайт)            (background.js + content.js)
+  Browser                 Extension
+  (any site)              (background.js + content.js)
       |                        |
-      |  Плеер загружает       |
-      |  субтитры (.m3u8/VTT)  |
+      |  Player loads          |
+      |  subtitles (.m3u8/VTT) |
       |───────────────────────>|
       |                        |
       |                  background.js:
-      |                  - ловит URL через webRequest
-      |                  - скачивает .vtt сегменты (обход CORS)
-      |                  - проверяет общий кэш
-      |                  - если нет — переводит батчами через API
-      |                  - кэширует локально (gzip) и в общий кэш
+      |                  - intercepts URL via webRequest
+      |                  - downloads .vtt segments (CORS bypass)
+      |                  - checks shared cache
+      |                  - if not found — translates in batches via API
+      |                  - caches locally (gzip) and in shared cache
       |                        |
       |  content.js:           |
-      |  - рисует субтитры     |
-      |    поверх видео        |
-      |  - синхронизирует с    |
+      |  - renders subtitles   |
+      |    over the video      |
+      |  - syncs with          |
       |    video.currentTime   |
       |<───────────────────────|
 ```
 
-Подробнее: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+## Keyboard shortcuts
 
-## Горячие клавиши
+| Key | Action |
+|-----|--------|
+| `[` | Subtitles earlier by 0.5s |
+| `]` | Subtitles later by 0.5s |
+| `\` | Reset timing offset |
+| `B` | Toggle position (bottom ↔ top) |
 
-| Клавиша | Действие |
-|---------|----------|
-| `[` | Субтитры раньше на 0.5 сек |
-| `]` | Субтитры позже на 0.5 сек |
-| `\` | Сброс сдвига тайминга |
-| `B` | Переключить позицию (внизу ↔ вверху) |
-
-## Структура проекта
+## Project structure
 
 ```
 podstr/
 ├── extension/
-│   ├── manifest.json       # MV3 манифест
-│   ├── providers.js        # Провайдеры, промпт, VTT-парсер (shared)
-│   ├── background.js       # Ядро: webRequest, перевод, кэш, API
-│   ├── content.js          # Пикер, рендер субтитров, overlay
-│   ├── youtube-detect.js   # Детекция субтитров YouTube (MAIN world)
-│   ├── overlay.css         # Стили субтитров и пикера
-│   ├── popup.html/js       # Side panel: настройки
-│   └── _locales/           # 13 языков интерфейса
+│   ├── manifest.json       # MV3 manifest
+│   ├── providers.js        # Providers, prompt, VTT parser (shared)
+│   ├── background.js       # Core: webRequest, translation, cache, API
+│   ├── content.js          # Picker, subtitle renderer, overlay
+│   ├── youtube-detect.js   # YouTube subtitle detection (MAIN world)
+│   ├── overlay.css         # Subtitle and picker styles
+│   ├── popup.html/js       # Side panel: settings
+│   └── _locales/           # 13 interface languages
 ├── server/
-│   ├── server.py           # Воркер: очередь → Claude CLI → результат
-│   └── shared_cache.py     # VPS: общий кэш + очередь задач (SQLite)
+│   ├── server.py           # Worker: queue → Claude CLI → result
+│   └── shared_cache.py     # VPS: shared cache + task queue (SQLite)
 ├── docs/
-│   ├── ARCHITECTURE.md
 │   └── CONTRIBUTING.md
 ├── CHANGELOG.md
 └── README.md
@@ -117,37 +116,37 @@ podstr/
 
 ## FAQ
 
-### Нужен ли API-ключ?
+### Do I need an API key?
 
-Для просмотра — нет. Если перевод есть в общем кэше, он подгрузится автоматически. API-ключ нужен только для перевода нового контента.
+To watch — no. If a translation exists in the shared cache, it loads automatically. An API key is only needed to translate new content.
 
-### Какое качество перевода?
+### What's the translation quality?
 
-Зависит от модели. Claude Sonnet и Opus дают качество на уровне хорошего фансаба — с юмором, сленгом и контекстом. Быстрые модели (Gemini Flash, Haiku) — проще, но читаемо.
+Depends on the model. Claude Sonnet and Opus deliver quality comparable to good fansubs — with humor, slang, and context. Faster models (Gemini Flash, Haiku) — simpler but readable.
 
-### С какими сайтами работает?
+### Which sites are supported?
 
-YouTube, Plex, ARTE, Filmzie — из коробки. Любой другой сайт с видео можно активировать через кнопку Enable в popup расширения. Netflix — в разработке.
+YouTube, Plex, ARTE, Filmzie — out of the box. Any other video site can be activated via the Enable button in the extension popup. Netflix — in development.
 
-### Как работает общий кэш?
+### How does the shared cache work?
 
-Когда кто-то переводит серию, перевод сохраняется на сервере (sha256 от VTT-файла). Следующий пользователь с теми же субтитрами получает готовый перевод мгновенно. Подробнее о приватности — в [политике конфиденциальности](https://podstr.cc/en/privacy/).
+When someone translates an episode, the translation is saved on the server (sha256 of the VTT file). The next user with the same subtitles gets the translation instantly. More on privacy — in the [privacy policy](https://podstr.cc/en/privacy/).
 
-### Безопасно?
+### Is it safe?
 
-- API-ключ хранится только в `chrome.storage.local`
-- Субтитры рендерятся через `textContent` — нет XSS
-- Расширение не модифицирует запросы (webRequest read-only)
-- Код открыт (MIT)
+- API key is stored only in `chrome.storage.local`
+- Subtitles are rendered via `textContent` — no XSS
+- The extension does not modify requests (webRequest read-only)
+- Code is open source (MIT)
 
-## Лицензия
+## License
 
 MIT
 
-## Ссылки
+## Links
 
 - [Chrome Web Store](https://chromewebstore.google.com/detail/podstrcc/iophagcapjpmkcpdjkfndpdakipokeih)
-- [Сайт](https://podstr.cc)
+- [Website](https://podstr.cc)
 - [Telegram](https://t.me/podstrcc)
 - [Changelog](CHANGELOG.md)
 - [Contributing](docs/CONTRIBUTING.md)
