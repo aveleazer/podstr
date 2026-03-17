@@ -3,7 +3,7 @@
 **AI-перевод субтитров — сериалы, фильмы, видео.**
 Chrome-расширение + общая библиотека переводов от сообщества.
 
-[Установить из Chrome Web Store](https://chromewebstore.google.com/detail/podstrcc/iophagcapjpmkcpdjkfndpdakipokeih) · [Сайт](https://podstr.cc) · [Telegram](https://t.me/ai_subtitler)
+[Установить из Chrome Web Store](https://chromewebstore.google.com/detail/podstrcc/iophagcapjpmkcpdjkfndpdakipokeih) · [Сайт](https://podstr.cc) · [Telegram](https://t.me/podstrcc)
 
 ---
 
@@ -148,6 +148,6 @@ MIT
 
 - [Chrome Web Store](https://chromewebstore.google.com/detail/podstrcc/iophagcapjpmkcpdjkfndpdakipokeih)
 - [Сайт](https://podstr.cc)
-- [Telegram](https://t.me/ai_subtitler)
+- [Telegram](https://t.me/podstrcc)
 - [Changelog](CHANGELOG.md)
 - [Contributing](docs/CONTRIBUTING.md)
