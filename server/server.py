@@ -119,9 +119,9 @@ def save_to_local_db(cache_key, vtt, model, model_rank, title='', target_lang=''
         conn.commit()
         count = conn.execute('SELECT COUNT(*) FROM translations').fetchone()[0]
         conn.close()
-        log.info(f"  💾 Локальный бекап: {cache_key[:20]}... ({count} всего)")
+        log.info(f"  💾 Local backup: {cache_key[:20]}... ({count} total)")
     except Exception as e:
-        log.warning(f"  ⚠ Локальный бекап failed: {e}")
+        log.warning(f"  ⚠ Local backup failed: {e}")
 
 
 # ── Step 1: VTT Parser ──────────────────────────────────────────────
@@ -673,7 +673,7 @@ def validate_and_retry(lines, translations, model, target_lang, on_event=None):
             return translations
 
         missing_lines = [l for l in lines if l['id'] in missing]
-        log.info(f"  ⚠ Пропущено {len(missing)} строк, retry round {round_num} (пауза {RETRY_DELAY}с)...")
+        log.info(f"  ⚠ Skipped {len(missing)} lines, retry round {round_num} (pause {RETRY_DELAY}s)...")
         time.sleep(RETRY_DELAY)
 
         recovered = 0
@@ -704,9 +704,9 @@ def validate_and_retry(lines, translations, model, target_lang, on_event=None):
                 log.info(f"  ⚠ Retry chunk error: {e}")
 
         if recovered > 0:
-            log.info(f"  → Retry round {round_num}: +{recovered} строк ✓")
+            log.info(f"  → Retry round {round_num}: +{recovered} lines ✓")
         else:
-            log.info(f"  ⚠ Retry round {round_num} вернул 0 строк, прекращаю")
+            log.info(f"  ⚠ Retry round {round_num} returned 0 lines, stopping")
             break
 
     return translations
@@ -858,7 +858,7 @@ def translate_job(job, batch_timeout=None):
 
     t0 = time.time()
     stream_label = ', streaming' if streaming else ''
-    log.info(f"🎬 Job {job_id}: {total} строк, {total_batches} батч(ей), модель: {model}, язык: {target_lang}{stream_label}")
+    log.info(f"🎬 Job {job_id}: {total} lines, {total_batches} batch(es), model: {model}, lang: {target_lang}{stream_label}")
 
     report_progress(job_id, 0, total, 0, total_batches)
 
@@ -872,10 +872,10 @@ def translate_job(job, batch_timeout=None):
 
         # Delay between batches
         if batch_idx > 0:
-            log.info(f"  ⏳ Пауза {BATCH_DELAY}с перед батчем {batch_num}...")
+            log.info(f"  ⏳ Pause {BATCH_DELAY}s before batch {batch_num}...")
             time.sleep(BATCH_DELAY)
 
-        log.info(f"  📦 Батч {batch_num}/{total_batches}: {len(batch_lines)} строк (ids {batch_lines[0]['id']}-{batch_lines[-1]['id']})")
+        log.info(f"  📦 Batch {batch_num}/{total_batches}: {len(batch_lines)} lines (ids {batch_lines[0]['id']}-{batch_lines[-1]['id']})")
 
         # Context from previous batch
         context_lines = None
@@ -904,7 +904,7 @@ def translate_job(job, batch_timeout=None):
         def on_heartbeat(_batch_num=batch_num):
             elapsed = int(time.time() - t0)
             report_progress(job_id, translated_count[0], total, _batch_num, total_batches)
-            log.info(f"  [heartbeat] {elapsed}s, {translated_count[0]}/{total} строк")
+            log.info(f"  [heartbeat] {elapsed}s, {translated_count[0]}/{total} lines")
 
         batch_translations = translate_cli_stream(prompt, model, on_line, on_heartbeat, timeout=batch_timeout)
 
@@ -918,7 +918,7 @@ def translate_job(job, batch_timeout=None):
         all_translations.extend(batch_translations)
 
         elapsed = int(time.time() - t0)
-        log.info(f"  ✓ Батч {batch_num}: {len(batch_translations)}/{len(batch_lines)} строк за {elapsed}s")
+        log.info(f"  ✓ Batch {batch_num}: {len(batch_translations)}/{len(batch_lines)} lines in {elapsed}s")
 
         # Build and send partial VTT when streaming (don't mutate lines — final merge is later)
         partial_vtt = None
@@ -941,7 +941,7 @@ def translate_job(job, batch_timeout=None):
             extracted = extract_glossary(enriched, model, target_lang)
             if extracted:
                 auto_glossary.update(extracted)
-                log.info(f"  📖 Глоссарий: {len(extracted)} терминов")
+                log.info(f"  📖 Glossary: {len(extracted)} terms")
 
     # 4. Merge translations
     tr_map = {t['id']: t['tr'] for t in all_translations}
@@ -958,14 +958,14 @@ def translate_job(job, batch_timeout=None):
 
     elapsed = int(time.time() - t0)
     if missed > 0:
-        log.info(f"  ⚠ Итого: {translated_final}/{total} строк за {elapsed}s ({missed} пропущено)")
+        log.info(f"  ⚠ Total: {translated_final}/{total} lines in {elapsed}s ({missed} skipped)")
     else:
-        log.info(f"  ✅ Готово: {translated_final}/{total} строк за {elapsed}s ({total_batches} батч(ей))")
+        log.info(f"  ✅ Done: {translated_final}/{total} lines in {elapsed}s ({total_batches} batch(es))")
 
     # 6. Upload result — accept partial translations (missed lines keep original text)
     miss_pct = missed / total * 100 if total else 0
     if missed > 0:
-        log.info(f"  ⚠ {missed}/{total} строк не переведены ({miss_pct:.0f}%), оригинал сохранён")
+        log.info(f"  ⚠ {missed}/{total} lines not translated ({miss_pct:.0f}%), original kept")
 
     report_result(job_id, translated_vtt, model)
 
@@ -1006,10 +1006,10 @@ def upload_to_cache(original_text, translated_vtt, model, title='', target_lang=
 
     try:
         queue_request('PUT', f'/cache/{cache_key}', data)
-        log.info(f"  ☁ Загружено в shared cache (key: {cache_key[:16]}...)")
+        log.info(f"  ☁ Uploaded to shared cache (key: {cache_key[:16]}...)")
         return True
     except Exception as e:
-        log.warning(f"  ⚠ Не удалось загрузить в shared cache: {e}")
+        log.warning(f"  ⚠ Failed to upload to shared cache: {e}")
         return False
 
 
@@ -1020,7 +1020,7 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
     Optionally uploads to shared cache on VPS.
     """
     if not os.path.isfile(filepath):
-        log.error(f"✗ Файл не найден: {filepath}")
+        log.error(f"✗ File not found: {filepath}")
         sys.exit(1)
 
     # 1. Parse
@@ -1028,7 +1028,7 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
     total = len(lines)
 
     if total == 0:
-        log.error(f"✗ Не найдено субтитров в файле: {filepath}")
+        log.error(f"✗ No subtitles found in file: {filepath}")
         sys.exit(1)
 
     # Auto-detect title from filename if not provided
@@ -1041,7 +1041,7 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
     lines_by_id = {l['id']: l for l in lines}
 
     t0 = time.time()
-    log.info(f"🎬 {title}: {total} строк, {total_batches} батч(ей), модель: {model}, → {target_lang}")
+    log.info(f"🎬 {title}: {total} lines, {total_batches} batch(es), model: {model}, → {target_lang}")
 
     # 3. Batch loop (same as translate_job)
     all_translations = []
@@ -1052,10 +1052,10 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
         batch_num = batch_idx + 1
 
         if batch_idx > 0:
-            log.info(f"  ⏳ Пауза {BATCH_DELAY}с перед батчем {batch_num}...")
+            log.info(f"  ⏳ Pause {BATCH_DELAY}s before batch {batch_num}...")
             time.sleep(BATCH_DELAY)
 
-        log.info(f"  📦 Батч {batch_num}/{total_batches}: {len(batch_lines)} строк")
+        log.info(f"  📦 Batch {batch_num}/{total_batches}: {len(batch_lines)} lines")
 
         # Context from previous batch
         context_lines = None
@@ -1091,7 +1091,7 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
         all_translations.extend(batch_translations)
 
         elapsed = int(time.time() - t0)
-        log.info(f"  ✓ Батч {batch_num}: {len(batch_translations)}/{len(batch_lines)} строк за {elapsed}s")
+        log.info(f"  ✓ Batch {batch_num}: {len(batch_translations)}/{len(batch_lines)} lines in {elapsed}s")
 
         # After first batch: extract glossary
         if batch_idx == 0 and total_batches > 1:
@@ -1102,7 +1102,7 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
             extracted = extract_glossary(enriched, model, target_lang)
             if extracted:
                 auto_glossary.update(extracted)
-                log.info(f"  📖 Глоссарий: {len(extracted)} терминов")
+                log.info(f"  📖 Glossary: {len(extracted)} terms")
 
     # 4. Merge translations
     tr_map = {t['id']: t['tr'] for t in all_translations}
@@ -1119,9 +1119,9 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
     elapsed = int(time.time() - t0)
     translated_final = total - missed
     if missed > 0:
-        log.info(f"  ⚠ Итого: {translated_final}/{total} строк за {elapsed}s ({missed} пропущено)")
+        log.info(f"  ⚠ Total: {translated_final}/{total} lines in {elapsed}s ({missed} skipped)")
     else:
-        log.info(f"  ✅ Готово: {translated_final}/{total} строк за {elapsed}s")
+        log.info(f"  ✅ Done: {translated_final}/{total} lines in {elapsed}s")
 
     # 6. Save locally
     base, ext = os.path.splitext(filepath)
@@ -1130,13 +1130,13 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
     out_path = f"{base}.{lang_short}{ext}"
     with open(out_path, 'w', encoding='utf-8') as f:
         f.write(translated_vtt)
-    log.info(f"  💾 Сохранено: {out_path}")
+    log.info(f"  💾 Saved: {out_path}")
 
     # 7. Upload to shared cache
     if upload and missed == 0:
         upload_to_cache(original_text, translated_vtt, model, title, target_lang)
     elif upload and missed > 0:
-        log.info(f"  ⚠ Не загружаю в кеш — {missed} строк пропущено")
+        log.info(f"  ⚠ Not uploading to cache — {missed} lines skipped")
 
     # Always save locally (even incomplete — better than nothing)
     full_model = CLI_MODEL_MAP.get(model, model)

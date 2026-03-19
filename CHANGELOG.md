@@ -1,7 +1,7 @@
 # Changelog
 
-Формат: [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/).
-Версионирование: [Semver](https://semver.org/lang/ru/). Source of truth — `extension/manifest.json`.
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+Versioning: [Semver](https://semver.org/). Source of truth — `extension/manifest.json`.
 
 ## [Unreleased]
 
@@ -98,170 +98,170 @@
 - Added `scripting` permission for programmatic content script injection
 
 ### Fixed
-- Двойная кредитная строка при скачивании субтитров — `shared_cache.py` проверяет наличие кредита перед добавлением
+- Double credit line when downloading subtitles — `shared_cache.py` checks for existing credit before adding
 
 ### Added
 - **YouTube ID extraction** — `shared_cache.py` extracts `youtube_id` from `page_url` on PUT /cache and stores in translations table. New GET `/youtube/pending` endpoint returns YouTube translations not yet published as video pages
 - **Onboarding modal** — first-run screen with 3 checkboxes (legal access, personal use, terms read) before using the extension. Stores `termsAccepted` timestamp in `chrome.storage.local`. All 13 locales
 - **Hide SDH** toggle in popup — hides sound descriptions `[SDH]` from translated subtitles. Prompt normalizes all sound effects to `[brackets]` for consistent filtering
-- **30 языков перевода** — TARGET_LANGS в providers.js (единый источник), дефолт по UI-языку браузера (`getDefaultTargetLang()`), кредитные строки для всех 30 языков
-- **i18n через chrome.i18n** — 13 локалей (en, ru, uk, be, sr, es, fr, de, pt_BR, zh_CN, ja, ko, tr). ~116 строк вынесены из кода в `_locales/`. `localize()` для HTML data-i18n атрибутов. Кредитная строка VTT по языку перевода (`CREDIT_BY_LANG`). Pre-commit hook блокирует захардкоженную кириллицу и рассинхрон ключей между локалями
-- **Реструктуризация табов popup** — новый таб API (ключ, модель, ссылки) видим всем. Translations переименован в Library. Requests и Settings — dev-only
-- **Поддержка polza.ai** — ключ с префиксом `pza_` автоматически направляет запросы на `polza.ai/api/v1`. Ссылка на polza.ai видна в ru и be локалях
-- Локализация названия расширения: Підрядник (uk), Падрадкоўнік (be), podstr.cc (неславянские)
-- Кредитная строка в субтитрах: `podstr.cc` для неславянских языков, локальные названия для славянских (Підрядник, Падрадкоўнік, Подстрочник)
+- **30 translation languages** — TARGET_LANGS in providers.js (single source of truth), default based on browser UI language (`getDefaultTargetLang()`), credit lines for all 30 languages
+- **i18n via chrome.i18n** — 13 locales (en, ru, uk, be, sr, es, fr, de, pt_BR, zh_CN, ja, ko, tr). ~116 strings extracted from code into `_locales/`. `localize()` for HTML data-i18n attributes. VTT credit line based on translation language (`CREDIT_BY_LANG`). Pre-commit hook blocks hardcoded Cyrillic and key mismatches between locales
+- **Popup tab restructuring** — new API tab (key, model, links) visible to all users. Translations renamed to Library. Requests and Settings — dev-only
+- **polza.ai support** — keys with `pza_` prefix automatically route requests to `polza.ai/api/v1`. Link to polza.ai visible in ru and be locales
+- Extension name localization: Підрядник (uk), Падрадкоўнік (be), podstr.cc (non-Slavic)
+- Credit line in subtitles: `podstr.cc` for non-Slavic languages, localized names for Slavic (Підрядник, Падрадкоўнік, Подстрочник)
 
 ### Fixed
-- Версия расширения в popup берётся из `chrome.runtime.getManifest().version` вместо захардкоженной `v0.4`
-- Шрифт Space Grotesk загружается локально вместо Google Fonts CDN (CSP compliance для CWS)
-- Добавлена иконка 32px, `minimum_chrome_version: 116`
-- Строка «No subtitles found» локализована через chrome.i18n
+- Extension version in popup now reads from `chrome.runtime.getManifest().version` instead of hardcoded `v0.4`
+- Space Grotesk font loaded locally instead of Google Fonts CDN (CSP compliance for CWS)
+- Added 32px icon, `minimum_chrome_version: 116`
+- "No subtitles found" string localized via chrome.i18n
 
 ## [0.5.2] — 2026-03-04
 
 ### Added
-- Страницы YouTube-шоу на сайте — группировка по каналу + названию шоу из title (часть после `|`). Генерация `/ru/subtitles/{slug}/`
-- Извлечение и хранение YouTube channel name (`videoDetails.author`)
-- **Страница очереди** `/ru/queue/` — форма заявки на перевод, доска wishlist с голосованием, статусы активных и завершённых переводов, мини-админка (retry ошибок, удаление заявок). Endpoint `DELETE /wishlist` для админки
-- **SEO страниц шоу** — title с русским названием первым (каскадное усечение ≤60 символов), H1 «{RU} ({EN}) — русские субтитры», meta description по шаблону (сериал/фильм/мультисезон ≤155 символов)
-- Русские названия эпизодов из TMDB API (RU + EN) на страницах шоу
-- `enrich.py` — обогащение TMDB-кеша: поэпизодные данные (TMDB) и AI-описания шоу (Claude CLI с веб-поиском). Автозапуск `--episodes-only` при генерации сайта
-- **Idle enrichment в воркере** — после 90с простоя воркер автоматически запускает обогащение: скачивает tmdb_cache.json и список переводов с VPS, запускает enrich.py локально (TMDB эпизоды + перевод названий + AI-описания), загружает результат обратно с перегенерацией сайта
-- Эндпоинты `GET/PUT /site/tmdb-cache` и `GET /site/translations` в shared_cache.py для синхронизации воркера с VPS
-- Флаг `--translations-json` в enrich.py для загрузки переводов из JSON вместо SQLite
+- YouTube show pages on site — grouped by channel + show name from title (part after `|`). Generates `/ru/subtitles/{slug}/`
+- YouTube channel name extraction and storage (`videoDetails.author`)
+- **Queue page** `/ru/queue/` — translation request form, wishlist board with voting, active and completed translation statuses, mini admin panel (retry errors, delete requests). `DELETE /wishlist` endpoint for admin
+- **Show page SEO** — title with Russian name first (cascading truncation ≤60 chars), H1 "{RU} ({EN}) — Russian subtitles", meta description by template (series/movie/multi-season ≤155 chars)
+- Russian episode names from TMDB API (RU + EN) on show pages
+- `enrich.py` — TMDB cache enrichment: per-episode data (TMDB) and AI-generated show descriptions (Claude CLI with web search). Auto-runs `--episodes-only` during site generation
+- **Worker idle enrichment** — after 90s idle, worker automatically runs enrichment: downloads tmdb_cache.json and translation list from VPS, runs enrich.py locally (TMDB episodes + title translation + AI descriptions), uploads result back with site regeneration
+- `GET/PUT /site/tmdb-cache` and `GET /site/translations` endpoints in shared_cache.py for worker-VPS sync
+- `--translations-json` flag in enrich.py for loading translations from JSON instead of SQLite
 
 ### Changed
-- OpenRouter: свободный ввод модели вместо фиксированного списка (text input + datalist с подсказками: DeepSeek V3.2, Gemini 3 Flash, Claude Sonnet 4.6)
-- Дефолтная модель OpenRouter: `google/gemini-3-flash-preview` (вместо устаревшего Gemini 2.5)
-- Размер батча перевода: 200 → 100 строк (стабильнее на разных моделях)
-- Параллельные воркеры: 2 → 1 (последовательные батчи — надёжнее)
-- Бейдж прогресса: «Перевод: N субтитров...» вместо «Перевожу N фраз...»
-- Убрана личная интонация с сайта и из расширения — продуктовый стиль без «я/ты»
+- OpenRouter: free-form model input instead of fixed list (text input + datalist with suggestions: DeepSeek V3.2, Gemini 3 Flash, Claude Sonnet 4.6)
+- Default OpenRouter model: `google/gemini-3-flash-preview` (replacing outdated Gemini 2.5)
+- Translation batch size: 200 → 100 lines (more stable across models)
+- Parallel workers: 2 → 1 (sequential batches — more reliable)
+- Progress badge: "Translating: N subtitles..." instead of "Translating N phrases..."
+- Removed personal tone from site and extension — product-style copy without first/second person
 
 ### Fixed
-- YouTube: `page_url` теперь сохраняет `?v=videoId` (раньше отбрасывался query string)
-- YouTube SPA: `page_url` захватывается в момент клика (раньше — после перевода, когда пользователь мог уже уйти со страницы)
-- Таймаут OpenRouter показывает русское сообщение (было «user aborted request»)
+- YouTube: `page_url` now preserves `?v=videoId` (query string was previously stripped)
+- YouTube SPA: `page_url` captured at click time (previously captured after translation, when user may have navigated away)
+- OpenRouter timeout shows localized message (was "user aborted request")
 
 ## [0.5.1] — 2026-03-02
 
 ### Fixed
-- YouTube: субтитры работают без ручного нажатия CC — проактивное обнаружение треков из `ytInitialPlayerResponse` (youtube-detect.js в MAIN world), программное включение CC через player API для получения рабочего URL, автоотключение нативных CC после перехвата
+- YouTube: subtitles work without manually clicking CC — proactive track detection from `ytInitialPlayerResponse` (youtube-detect.js in MAIN world), programmatic CC enable via player API to get working URL, automatic native CC disable after interception
 
 ## [0.5.0] — 2026-03-02
 
 ### Added
-- **Поддержка YouTube** — перехват субтитров через `/api/timedtext`, перевод ручных CC (ASR фильтруются). Picker появляется при включении CC. SPA-навигация: очистка треков при смене видео
-- Скрытие нативных YouTube CC (`.ytp-caption-window-container`) при показе перевода
+- **YouTube support** — subtitle interception via `/api/timedtext`, translation of manual CC (ASR filtered out). Picker appears when CC enabled. SPA navigation: track cleanup on video change
+- Native YouTube CC hiding (`.ytp-caption-window-container`) when showing translation
 
 ### Fixed
-- Overlay на YouTube: контейнер `.html5-video-container` имеет `height: 0` — теперь пропускается при поиске контейнера, overlay привязывается к `#movie_player`
-- Очистка title от YouTube-мусора: счётчик уведомлений `(16)`, суффикс `- YouTube`
+- YouTube overlay: `.html5-video-container` has `height: 0` — now skipped during container search, overlay attaches to `#movie_player`
+- Title cleanup from YouTube artifacts: notification counter `(16)`, `- YouTube` suffix
 
 ### Changed
-- Главная: секция «Готовые переводы» — аккордеон заменён на «Последние переводы» (10 эпизодов по дате) + «Все сериалы» (компактный каталог). Скачивание .vtt/.srt — на страницах сериалов
-- Автогенерация сайта при добавлении перевода — `trigger_generate()` в shared_cache.py, дебаунс 60 сек
-- Модели хранятся с полным ID (`claude-opus-4-6` вместо `opus`) — готовность к будущим версиям (4.7, 5.0). Миграция старых записей
-- Retry пропущенных строк через streaming CLI (вместо subprocess.run) + пауза 30с (rate limit cooldown)
-- Промпт: явное указание количества строк, инструкции для ♪ (текст песен) и звуковых эффектов
-- Частичные переводы сохраняются — пропущенные строки остаются на оригинале, результат не выбрасывается
+- Homepage: "Ready translations" section — accordion replaced with "Recent translations" (10 episodes by date) + "All series" (compact catalog). .vtt/.srt download — on series pages
+- Auto site regeneration on translation upload — `trigger_generate()` in shared_cache.py, 60s debounce
+- Models stored with full ID (`claude-opus-4-6` instead of `opus`) — future-proof for versions 4.7, 5.0. Migration of old records
+- Retry missed lines via streaming CLI (instead of subprocess.run) + 30s pause (rate limit cooldown)
+- Prompt: explicit line count, instructions for ♪ (song lyrics) and sound effects
+- Partial translations preserved — missed lines stay in original language, result not discarded
 
 ### Fixed
-- Парсер JSON-объектов (`parse_json_objects`) — literal newlines в ответе CLI ломали `json.loads`. Добавлен fix `\n` → `\\n` + fallback через `json.loads` массива + regex-извлечение как последняя линия обороны
+- JSON object parser (`parse_json_objects`) — literal newlines in CLI response broke `json.loads`. Added fix `\n` → `\\n` + fallback via `json.loads` array + regex extraction as last resort
 
 ### Added
-- Подпись «Переведено через Подстрочник» в конце субтитров — видимый cue после последнего субтитра (скачивание с сайта, CLI-переводы, расширение)
-- Страницы сериалов `/ru/subtitles/{slug}/` — отдельная HTML-страница для каждого сериала/фильма из кеша. TMDB-метаданные (постер, описание, год, жанры, рейтинг). Двуязычные названия. Опциональные Markdown-рецензии. SEO: уникальные title/description, canonical, OG-теги, sitemap
-- Трёхуровневые бекапы SQLite: локальный .db на ноуте (server.py), ротация .db на VPS (7 копий), SQL dump → приватная GitHub-репа
-- `scripts/backup-db.sh` — скрипт бекапа с настраиваемыми путями через env vars
-- Хук бекапа в shared_cache.py — автоматический запуск после записи в БД (дебаунс 1ч)
-- Локальный SQLite бекап в server.py — каждый успешный перевод сохраняется в `server/local_cache.db` на локальной машине (worker и translate mode)
+- "Translated with Podstr" credit at end of subtitles — visible cue after last subtitle (site downloads, CLI translations, extension)
+- Series pages `/ru/subtitles/{slug}/` — dedicated HTML page for each series/movie from cache. TMDB metadata (poster, description, year, genres, rating). Bilingual titles. Optional Markdown reviews. SEO: unique title/description, canonical, OG tags, sitemap
+- Three-tier SQLite backups: local .db on laptop (server.py), .db rotation on VPS (7 copies), SQL dump → private GitHub repo
+- `scripts/backup-db.sh` — backup script with configurable paths via env vars
+- Backup hook in shared_cache.py — auto-runs after DB write (1h debounce)
+- Local SQLite backup in server.py — each successful translation saved to `server/local_cache.db` on local machine (worker and translate mode)
 
 ### Security
-- ufw firewall на VPS (порты 22, 80, 443)
-- fail2ban на SSH (5 попыток, бан 1ч)
-- Платформа статического сайта: Jinja2-шаблоны, Python-генератор (SQLite → HTML), i18n (ru.json), Nginx-конфиг. Библиотека переводов предрендерена в HTML (видна краулерам). URL-структура `/ru/`
-- Логотип и фавиконка: SVG-фавикон (две линии — оригинал/перевод), ICO (16+32+48), PNG-иконки расширения (16/48/128), docs/logo.svg с двухцветным названием, OG-image 1280x640
-- Partial VTT для CLI-очереди — субтитры появляются после первого батча (50 строк), остальные подтягиваются по мере перевода. Флаг `streaming` при сабмите, progressive batching (50/200), `vtt_partial` в прогрессе
-- Секция «Запросы на перевод» в side panel (dev mode) — список из /wishlist, клик открывает эпизод, счётчик запросов
-- Кнопка «Хочу субтитры» для зрителей — простой picker: «Субтитры доступны» (показ из кеша) или «Хочу субтитры на русском» (запрос на VPS)
-- Dropdown языка перевода в side panel (вкладка Плеер) — видим всем пользователям
-- Viewer picker: три состояния (доступны / загрузка / хочу), отдельно от dev picker
-- Эндпоинты POST/GET /wishlist на VPS — upsert запросов, список по популярности
+- ufw firewall on VPS (ports 22, 80, 443)
+- fail2ban on SSH (5 attempts, 1h ban)
+- Static site platform: Jinja2 templates, Python generator (SQLite → HTML), i18n (ru.json), Nginx config. Translation library pre-rendered as HTML (crawler-visible). URL structure `/ru/`
+- Logo and favicon: SVG favicon (two lines — original/translation), ICO (16+32+48), PNG extension icons (16/48/128), docs/logo.svg with two-color name, OG image 1280x640
+- Partial VTT for CLI queue — subtitles appear after first batch (50 lines), rest load as translation progresses. `streaming` flag on submit, progressive batching (50/200), `vtt_partial` in progress
+- "Translation requests" section in side panel (dev mode) — list from /wishlist, click opens episode, request counter
+- "I want subtitles" button for viewers — simple picker: "Subtitles available" (show from cache) or "I want Russian subtitles" (request to VPS)
+- Translation language dropdown in side panel (Player tab) — visible to all users
+- Viewer picker: three states (available / loading / request), separate from dev picker
+- POST/GET /wishlist endpoints on VPS — upsert requests, list by popularity
 
 ### Fixed
-- **Security**: убран дефолтный API-ключ `changeme` — сервер и воркер требуют `AIS_API_KEY` при запуске
-- **Security**: `sharedCacheApiKey` перенесён из `chrome.storage.sync` в `chrome.storage.local` — ключ не покидает устройство (автомиграция)
-- **Security**: `model_rank` вычисляется сервером по имени модели — клиент не может подделать ранг (cache poisoning)
-- **Security**: rate limiting на `POST /queue/submit` — макс. 5 запросов в минуту с одного IP
-- **Security**: валидация VTT/SRT на входе — отклонение невалидного контента на `/queue/submit` и `PUT /cache`
-- **Security**: санитизация `page_url` — query string и hash отрезаются перед отправкой на VPS (утечка auth-токенов)
-- **Security**: rate limiting на GET-эндпоинты — `/translations/recent`, `/queue/list` (10/min), `/cache/*`, `/queue/{id}` (30/min)
-- **Security**: CORS whitelist — POST/PUT доступны только из browser extensions, GET остаётся открытым
-- **Security**: стектрейсы не утекают в HTTP-ответы — generic "Internal server error" вместо `str(e)`
-- **Security**: валидация модели в `POST /queue/submit` — только `sonnet`, `opus`, `haiku`
-- **Security**: Content-Disposition по RFC 6266 — `filename*=UTF-8''...` вместо `filename="..."`
-- **Security**: `innerHTML = ''` заменён на `replaceChildren()` в popup.js и content.js
-- **Security**: добавлен `content_security_policy` в manifest.json
-- Viewer mode: убрано дублирование уведомлений (picker + badge), упрощены статусы перевода («Загрузка субтитров...» вместо «Скачиваю DE субтитры...»)
+- **Security**: removed default API key `changeme` — server and worker require `AIS_API_KEY` at startup
+- **Security**: `sharedCacheApiKey` moved from `chrome.storage.sync` to `chrome.storage.local` — key stays on device (auto-migration)
+- **Security**: `model_rank` computed server-side from model name — client cannot forge rank (cache poisoning)
+- **Security**: rate limiting on `POST /queue/submit` — max 5 requests per minute per IP
+- **Security**: VTT/SRT input validation — invalid content rejected on `/queue/submit` and `PUT /cache`
+- **Security**: `page_url` sanitization — query string and hash stripped before sending to VPS (auth token leak prevention)
+- **Security**: rate limiting on GET endpoints — `/translations/recent`, `/queue/list` (10/min), `/cache/*`, `/queue/{id}` (30/min)
+- **Security**: CORS whitelist — POST/PUT accessible only from browser extensions, GET remains open
+- **Security**: stack traces no longer leak into HTTP responses — generic "Internal server error" instead of `str(e)`
+- **Security**: model validation in `POST /queue/submit` — only `sonnet`, `opus`, `haiku`
+- **Security**: Content-Disposition per RFC 6266 — `filename*=UTF-8''...` instead of `filename="..."`
+- **Security**: `innerHTML = ''` replaced with `replaceChildren()` in popup.js and content.js
+- **Security**: added `content_security_policy` to manifest.json
+- Viewer mode: removed notification duplication (picker + badge), simplified translation statuses ("Loading subtitles..." instead of "Downloading DE subtitles...")
 
 ## [0.4.0] — 2026-02-24
 
 ### Added
-- Два режима расширения: «зритель» (простой UI) и «разработчик» (полный, с настройками провайдера/модели/очереди)
-- Переключение режимов двойным кликом на логотип
-- Drag & drop .srt/.vtt файлов в side panel — перетаскиваешь файл, он отправляется в очередь на VPS, воркер переводит
-- CLI-перевод локальных .srt/.vtt файлов: `server.py translate movie.srt -t ru -m opus`
-- Автозаливка переведённых файлов в shared cache на VPS
-- Парсер SRT-формата (конвертация таймкодов SRT→VTT)
-- Аккордеон для переводов на сайте — серии скрыты по умолчанию, раскрываются по клику
-- Скачивание .vtt и .srt для каждого эпизода на сайте
-- Лейблы сезонов в списке эпизодов
+- Two extension modes: "viewer" (simple UI) and "developer" (full, with provider/model/queue settings)
+- Mode switching via double-click on logo
+- Drag & drop .srt/.vtt files in side panel — drop a file, it's sent to queue on VPS, worker translates
+- CLI translation of local .srt/.vtt files: `server.py translate movie.srt -t ru -m opus`
+- Auto-upload of translated files to shared cache on VPS
+- SRT format parser (SRT→VTT timecode conversion)
+- Accordion for translations on site — episodes hidden by default, expand on click
+- .vtt and .srt download for each episode on site
+- Season labels in episode list
 
 ### Changed
-- Расширение переименовано в «Подстрочник»
-- Полный редизайн side panel: цвета, шрифты, компоненты унифицированы с сайтом (Space Grotesk, amber-палитра, тёмная тема)
-- Обновлены модели: Claude Sonnet/Opus 4.6, Gemini 2.5 Flash, Llama 4 Maverick
-- Упрощена вкладка «Переводы» в side panel — плоский список + ссылка на сайт
-- Документация приведена в соответствие: CLI только через Claude Code, проверено на Кинопабе, убраны ChatGPT/Gemini CLI-секции
+- Extension renamed to "Podstr" (Подстрочник)
+- Full side panel redesign: colors, fonts, components unified with site (Space Grotesk, amber palette, dark theme)
+- Models updated: Claude Sonnet/Opus 4.6, Gemini 2.5 Flash, Llama 4 Maverick
+- Simplified "Translations" tab in side panel — flat list + link to site
+- Documentation aligned: CLI only via Claude Code, tested on Kinopub, removed ChatGPT/Gemini CLI sections
 
 ## [0.3.0] — 2026-02-23
 
 ### Added
-- Shared cache на VPS — общий кеш переводов между пользователями
-- Очередь задач на VPS — Claude CLI перевод через воркер (server.py)
-- Backfill в shared cache при локальном переводе через OpenRouter
-- Экспорт .vtt — кнопка «Скачать» в picker
-- Gzip-сжатие кеша через CompressionStream (5-10x)
+- Shared cache on VPS — shared translation cache between users
+- Task queue on VPS — Claude CLI translation via worker (server.py)
+- Backfill to shared cache on local OpenRouter translation
+- .vtt export — "Download" button in picker
+- Gzip cache compression via CompressionStream (5-10x)
 
 ### Changed
-- Переименование в «Подстрочник»
-- Убран GPT-4o (discontinued by OpenAI)
+- Renamed to "Podstr" (Подстрочник)
+- Removed GPT-4o (discontinued by OpenAI)
 
 ### Fixed
-- Race condition при backfill в shared cache
-- webRequest не ловил собственные запросы расширения
+- Race condition during backfill to shared cache
+- webRequest not catching extension's own requests
 
 ## [0.2.0] — 2026-02-17
 
 ### Added
-- OpenRouter как основной провайдер (без сервера)
-- Мульти-провайдер: OpenRouter, Claude CLI
-- Перевод батчами по 200 строк
-- Кеш в chrome.storage.local с нормализацией URL
-- Auto-retry для 429/5xx (3 попытки, exponential backoff)
-- LRU eviction при >500 записей в кеше
-- Picker для выбора языка субтитров
+- OpenRouter as primary provider (no server needed)
+- Multi-provider: OpenRouter, Claude CLI
+- Batch translation at 200 lines per batch
+- Cache in chrome.storage.local with URL normalization
+- Auto-retry for 429/5xx (3 attempts, exponential backoff)
+- LRU eviction at >500 cache entries
+- Picker for subtitle language selection
 
 ### Changed
-- Вся логика перевода перенесена в background.js (extension-first)
-- server.py стал опциональным тонким CLI-мостом
+- All translation logic moved to background.js (extension-first)
+- server.py became an optional thin CLI bridge
 
 ## [0.1.0] — 2026-02-16
 
 ### Added
-- Перехват HLS-субтитров через webRequest
-- Склейка VTT-сегментов
-- Перевод через localhost Python-сервер + Claude CLI
-- Рендер субтитров поверх видео через requestAnimationFrame
-- Скрытие оригинальных субтитров (textTracks + CSS)
+- HLS subtitle interception via webRequest
+- VTT segment concatenation
+- Translation via localhost Python server + Claude CLI
+- Subtitle rendering over video via requestAnimationFrame
+- Original subtitle hiding (textTracks + CSS)
