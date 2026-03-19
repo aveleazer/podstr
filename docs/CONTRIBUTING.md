@@ -1,88 +1,70 @@
-# Как начать переводить
+# Contributing to Podstr
 
-Вы можете переводить сериалы, которые смотрите сами. Каждый перевод автоматически попадает в библиотеку и становится доступен всем пользователям.
+## Contribute translations
 
-Есть два способа переводить: через подписку Claude Max с CLI-доступом (бесплатно) или через OpenRouter API (платно по токенам).
+The easiest way to contribute is to simply use the extension. Every time you translate an episode, the result is automatically uploaded to the shared cache at [podstr.cc](https://podstr.cc). After that, anyone else watching the same episode gets your translation instantly and for free.
 
----
+Better models win: if an episode was previously translated with a cheaper model and you translate it with a higher-quality one, your translation replaces the old one.
 
-## Способ 1: Через Claude Code (бесплатно при наличии подписки)
+Translate whatever you watch -- that's the whole idea.
 
-Если у вас есть подписка **Claude Max** -- вы уже платите за неё, а перевод одной серии занимает ~10 минут.
+## Contribute code
 
-### Что нужно
+### Setup
 
-- Установленное расширение Подстрочник ([инструкция](how-to-watch.md) или [README](../README.md#хочу-смотреть))
-- Подписка Claude Max
-- Терминал (командная строка)
-
-### Настройка Claude Code
-
-1. Установите [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview):
+1. Clone the repo:
    ```bash
-   npm install -g @anthropic-ai/claude-code
+   git clone https://github.com/aveleazer/podstr.git
+   cd podstr
    ```
-2. Авторизуйтесь:
+
+2. Load the unpacked extension in Chrome:
+   - Go to `chrome://extensions/`
+   - Enable **Developer mode**
+   - Click **Load unpacked** and select the `extension/` folder
+
+3. If you are on WSL (the project's primary dev environment), Chrome cannot see WSL paths. Copy the extension to a Windows-accessible location:
    ```bash
-   claude
+   cp -r extension/* /mnt/c/path/to/your/extension-folder/
    ```
-   Следуйте инструкциям -- привяжите подписку Claude Max.
+   Then load that Windows folder in Chrome.
 
-3. Проверьте:
+### Dev workflow
+
+1. Edit files in `extension/`
+2. Sync to Windows (if on WSL): `cp -r extension/* /mnt/c/.../extension/`
+3. Reload the extension in `chrome://extensions/`
+4. Test on a real video with foreign subtitles
+5. Repeat
+
+### Pull requests
+
+- Fork the repo, create a feature branch, open a PR against `master`
+- Test on at least one real video before submitting
+- The extension is vanilla JS with zero dependencies -- no build step required
+
+## Claude CLI mode (for developers)
+
+This is a hidden dev-only feature for contributors with a Claude Max subscription. It translates via the Claude CLI through a job queue.
+
+1. In the extension popup, **double-click the logo** to reveal the Dev tab
+2. Switch the provider to **Claude CLI**
+3. Run the worker in a terminal:
    ```bash
-   claude -p "Привет, как дела?"
+   AIS_API_KEY=<your-key> QUEUE_URL=https://podstr.cc python3 server/server.py --model sonnet
    ```
-   Если ответил -- всё работает.
+4. Open a video and pick a language -- the job goes into the queue, the worker picks it up and translates via Claude
 
-### Запуск перевода
+This mode is not intended for end users and is not documented in the extension UI.
 
-1. Запустите воркер:
-   ```bash
-   python server/server.py
-   ```
-   Воркер будет опрашивать очередь на сервере каждые 30 секунд.
+## Cost reference
 
-2. В расширении: откройте настройки (иконка расширения) и переключите провайдер на **Claude CLI**.
+See [podstr.cc/models](https://podstr.cc/en/models/) for current model pricing and quality comparison.
 
-3. Откройте видео, выберите язык субтитров -- перевод отправится в очередь, воркер подхватит и переведёт.
+## Report bugs
 
-4. Результат автоматически сохранится в общий кеш и станет доступен всем.
+Open an issue on [GitHub](https://github.com/aveleazer/podstr/issues). Include:
 
----
-
-## Способ 2: Через OpenRouter (по токенам)
-
-Если у вас нет подписки Claude Max, но вы хотите переводить -- можно использовать OpenRouter API. Оплата по факту использования.
-
-### Стоимость
-
-| Модель | ~Цена за серию (40 мин) | Качество |
-|--------|------------------------|----------|
-| Claude Opus 4.6 | $5--15 | Лучшее |
-| Claude Sonnet 4.6 | $1--3 | Отличное |
-| Gemini 2.5 Flash | $0.05--0.3 | Хорошее |
-| Llama 4 Maverick | $0.05--0.2 | Приемлемое |
-
-Цена зависит от длины субтитров. Серия (~300 строк) дешевле фильма (~1000 строк).
-
-### Настройка
-
-1. Зарегистрируйтесь на [openrouter.ai](https://openrouter.ai/) и пополните баланс
-2. Создайте API-ключ: [openrouter.ai/keys](https://openrouter.ai/keys)
-3. В расширении: откройте настройки, выберите провайдер **OpenRouter**, вставьте ключ
-4. Выберите модель (рекомендуем Claude Sonnet -- баланс цены и качества)
-5. Откройте видео, выберите язык -- перевод начнётся автоматически
-
----
-
-## Как работает общий кеш
-
-Когда вы переводите серию, результат отправляется на сервер общего кеша. После этого **любой** пользователь с установленным расширением получит этот перевод мгновенно, без затрат.
-
-Лучшая модель побеждает: если серия уже переведена Haiku, а вы перевели Opus -- ваш перевод заменит старый (по рангу модели).
-
-## Что переводить
-
-Что угодно. Переводите то, что смотрите сами -- это и есть идея проекта. Не нужно переводить по заказу или по списку. Просто смотрите что нравится, и перевод станет доступен всем.
-
-Библиотека переводов: [Подстрочник](http://84.38.182.45:5001/#translations)
+- The platform and video URL (or a description if the URL is private)
+- What you expected vs. what happened
+- Browser console errors (F12, filter by `[podstr.cc]`)

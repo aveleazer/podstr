@@ -1,141 +1,3 @@
-**[English version below](#podstr--ai-subtitle-translation)**
-
-<div align="center">
-
-# Подстрочник / Podstr
-
-**AI-перевод субтитров на любой язык.**
-Chrome-расширение: находит субтитры на видео-платформах и переводит в реальном времени.
-
-[Сайт](https://podstr.cc) · [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) · [Telegram](https://t.me/podstrcc)
-
-<!-- TODO: скриншот или GIF расширения в действии -->
-
-</div>
-
----
-
-## Что это
-
-Расширение перехватывает субтитры на видео-сайтах и переводит их через AI-модели (Claude, Gemini, DeepSeek и др. через OpenRouter). Работает с английскими, испанскими, немецкими, финскими — любыми субтитрами. Переводит на любой язык.
-
-Если кто-то уже перевёл этот эпизод — перевод подтянется из общего кеша мгновенно и бесплатно.
-
-## Хочу смотреть
-
-1. Установи из [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
-2. Открой видео с субтитрами → выбери язык в пикере → готово
-
-## Хочу переводить
-
-### Через OpenRouter API (платно по токенам)
-
-1. Получи ключ на [openrouter.ai](https://openrouter.ai/)
-2. Вставь ключ в настройках расширения
-3. Выбери модель и язык → перевод запустится автоматически
-
-> Стоимость зависит от модели: DeepSeek V3 — от $0.01 за серию, Claude Opus — $5–15 за часовой эпизод.
-
-### Через Claude CLI (бесплатно с подпиской Max)
-
-Подробная инструкция: [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
-
-## Проверенные платформы
-
-| Платформа | Субтитры | Статус |
-|-----------|----------|--------|
-| **YouTube** | Ручные CC (не автогенерированные) | Проверено |
-| **Кинопаб** | HLS-субтитры | Проверено |
-| **ARTE** | HLS-субтитры | Проверено |
-| **Filmzie** | HLS-субтитры | Проверено |
-| **BBC iPlayer** | TTML/EBU-TT-D | Проверено |
-
-Другие сайты с HLS-субтитрами могут работать — нажмите **Enable** в popup расширения. Но каждый конкретный ресурс нужно проверять.
-
-## Возможности
-
-- **Мультиязычность** — переводит с любого языка на любой. Русский по умолчанию
-- **Двойные субтитры** — оригинал + перевод одновременно (клавиша `v`)
-- **Выбор AI-модели** — DeepSeek, Gemini, Claude Sonnet/Opus, Llama через OpenRouter
-- **Общий кеш** — один перевёл, остальные смотрят бесплатно
-- **Подстройка тайминга** — `[` / `]` для сдвига ±0.5с
-- **Настройка вида** — шрифт, цвет, прозрачность, позиция
-- **Drag & drop** — перетащи .srt/.vtt для перевода через очередь
-
-## Как это работает
-
-<details>
-<summary>Техническая архитектура</summary>
-
-```
-  Видео-платформа          Расширение
-  (YouTube, и др.)         (background.js + content.js)
-      |                        |
-      |  Плеер загружает       |
-      |  субтитры              |
-      |───────────────────────>|
-      |                        |
-      |                  background.js:
-      |                  - ловит URL через webRequest
-      |                  - скачивает субтитры (обход CORS)
-      |                  - разбивает на батчи
-      |                  - переводит через OpenRouter API
-      |                  - gzip-кеширует в chrome.storage
-      |                        |
-      |  content.js:           |
-      |  - рисует субтитры     |
-      |    поверх видео        |
-      |  - синхронизирует с    |
-      |    video.currentTime   |
-      |<───────────────────────|
-```
-
-1. **Детекция** — service worker ловит запросы субтитров через `chrome.webRequest` (HLS) или перехват API (YouTube)
-2. **Скачивание** — background скачивает субтитры, обходя CORS
-3. **Перевод** — батчами через OpenRouter API или Claude CLI
-4. **Кеш** — переведённый VTT сжимается gzip и сохраняется локально + в общий кеш
-5. **Рендер** — content script показывает субтитры синхронно с видео
-
-Подробнее: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-
-</details>
-
-## FAQ
-
-### Нужен ли API-ключ?
-
-Нет, если этот эпизод уже переведён кем-то (общий кеш). Для нового перевода — нужен ключ OpenRouter или подписка Claude Max.
-
-### Это бесплатно?
-
-Расширение бесплатное. Переводы из общего кеша — бесплатные. Платить нужно только за перевод нового контента через OpenRouter API.
-
-### Какое качество перевода?
-
-Зависит от модели. Claude Opus — на уровне хорошего фансаба, с юмором, сленгом и контекстом. DeepSeek и Gemini Flash — дешевле, но тоже читаемо.
-
-### На какие языки переводит?
-
-На любой. Русский по умолчанию, но можно выбрать другой в пикере.
-
-### Какие субтитры нужны для перевода?
-
-Любые — английские, испанские, немецкие, финские. Расширение покажет доступные треки, вы выбираете какой перевести.
-
-### Работает в полноэкранном режиме?
-
-Да. Пикер, субтитры и бейджик адаптируются к фуллскрину.
-
-## Сайт
-
-[podstr.cc](https://podstr.cc) — сайт проекта. Сравнение моделей, платформы, инструкция по установке.
-
-## Лицензия
-
-MIT
-
----
-
 <div align="center">
 
 # Podstr — AI Subtitle Translation
@@ -146,6 +8,8 @@ Chrome extension: detects subtitles on video platforms and translates them in re
 [Website](https://podstr.cc) · [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) · [Telegram](https://t.me/podstrcc)
 
 </div>
+
+🇷🇺 [Русский](docs/README.ru.md) · 🇺🇦 [Українська](docs/README.uk.md) · 🇧🇾 [Беларуская](docs/README.be.md) · 🇷🇸 [Srpski](docs/README.sr.md) · 🇪🇸 [Español](docs/README.es.md) · 🇫🇷 [Français](docs/README.fr.md) · 🇩🇪 [Deutsch](docs/README.de.md) · 🇧🇷 [Português](docs/README.pt-BR.md) · 🇨🇳 [中文](docs/README.zh-CN.md) · 🇯🇵 [日本語](docs/README.ja.md) · 🇰🇷 [한국어](docs/README.ko.md) · 🇹🇷 [Türkçe](docs/README.tr.md) · 🇫🇮 [Suomi](docs/README.fi.md)
 
 ---
 
@@ -160,36 +24,68 @@ If someone has already translated the same episode, the translation loads from a
 1. Install from [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
 2. Open a video with subtitles → pick a language → done
 
-## Tested Platforms
+To translate new content, you need an [OpenRouter API key](https://openrouter.ai/keys) (free keys available).
+
+## Supported Platforms
 
 | Platform | Subtitles | Status |
 |----------|-----------|--------|
 | **YouTube** | Manual CC (not auto-generated) | Tested |
-| **Kinopub** | HLS subtitles | Tested |
-| **ARTE** | HLS subtitles | Tested |
-| **Filmzie** | HLS subtitles | Tested |
 | **BBC iPlayer** | TTML/EBU-TT-D | Tested |
+| **ARTE** | HLS subtitles | Tested |
+| **Plex** | HLS subtitles | Tested |
+| **Filmzie** | HLS subtitles | Tested |
 
-Other sites with HLS subtitles may work — click **Enable** in the extension popup. Each site needs individual testing.
+Other sites with HLS/VTT/TTML subtitles may work — click **Enable** in the extension popup.
 
 ## Features
 
 - **Any language** — translates from any subtitle language to any target language
-- **Dual subtitles** — original + translation side by side (press `v`)
-- **Model choice** — DeepSeek, Gemini, Claude Sonnet/Opus, Llama via OpenRouter
+- **Multiple AI models** — choose by quality and price. Free models available
+- **Translation cost** — see how much each translation costs right on the video
 - **Shared cache** — one person translates, everyone else watches for free
+- **Smart local cache** — translated subtitles load instantly on repeat viewing
 - **Timing adjustment** — `[` / `]` to shift ±0.5s
 - **Style customization** — font, color, opacity, position
-- **Drag & drop** — drop .srt/.vtt files for translation via queue
+- **Keyboard shortcuts** — `B` toggle position, `\` reset offset
+- **13 interface languages** — EN, RU, UK, BE, SR, ES, FR, DE, PT, ZH, JA, KO, TR
+
+## How it works
+
+1. **Detection** — service worker intercepts subtitle requests via `chrome.webRequest`
+2. **Download** — background script fetches subtitles, bypassing CORS
+3. **Translation** — batched via OpenRouter API (your key, your choice of model)
+4. **Cache** — translated VTT compressed with gzip, stored locally + shared cache
+5. **Render** — content script displays subtitles synced with video playback
 
 ## FAQ
 
-**Do I need an API key?** No, if the episode is already in the shared cache. For new translations — you need an OpenRouter key or a Claude Max subscription.
+**Do I need an API key?** No, if the episode is already in the shared cache. For new translations — you need an OpenRouter key.
 
-**Is it free?** The extension is free. Cached translations are free. You only pay for translating new content via OpenRouter API.
+**Is it free?** The extension is free. Cached translations are free. You only pay for translating new content via the AI provider.
 
 **Translation quality?** Depends on the model. Claude Opus is on par with good fansubs. DeepSeek and Gemini Flash are cheaper but still readable.
+
+**Typical cost?** $0.005–0.05 per episode depending on the model. Free models available.
+
+## Privacy
+
+- Your API key stays on your device — never sent to any server
+- No tracking, no analytics, no ads
+- Subtitle text is sent only to the AI provider you choose
+- [Privacy policy](https://podstr.cc/en/privacy/)
+
+## Contributing
+
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md)
 
 ## License
 
 MIT
+
+## Links
+
+- [podstr.cc](https://podstr.cc) — website
+- [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
+- [GitHub](https://github.com/aveleazer/podstr)
+- [Telegram](https://t.me/podstrcc)

@@ -1,48 +1,50 @@
-# Как установить и смотреть
+# How to watch with translated subtitles
 
-Расширение показывает готовые переводы из библиотеки. Бесплатно, без регистрации, без API-ключей.
+## 1. Install the extension
 
-## Установка
+Install **Podstr** from the [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih).
 
-1. Скачайте [extension.zip](http://84.38.182.45:5001/extension.zip) и распакуйте в папку
-2. Откройте `chrome://extensions/` в Chrome
-3. Включите **Режим разработчика** (переключатель в правом верхнем углу)
-4. Нажмите **Загрузить распакованное расширение** и выберите распакованную папку
+## 2. Get an API key (optional)
 
-Готово. Расширение установлено.
+If you want to translate new content, you need an OpenRouter API key. If someone has already translated the episode you want to watch, the cached translation loads for free -- no key needed.
 
-## Как смотреть
+1. Sign up at [openrouter.ai](https://openrouter.ai/)
+2. Create an API key at [openrouter.ai/keys](https://openrouter.ai/keys)
+3. Open the extension popup, go to the **API** tab, paste your key
 
-1. Откройте сайт с видео (проверено на Кинопабе, архитектурно работает с любыми HLS-потоками)
-2. Запустите видео -- если для него есть субтитры на иностранном языке, над плеером появится панель выбора языка
-3. Нажмите на язык оригинальных субтитров (EN, DE, FR и т.д.)
-4. Если перевод есть в библиотеке -- субтитры появятся автоматически
+## 3. Open a video
 
-## Если перевода нет
+Go to any supported platform and start a video with foreign-language subtitles:
 
-Библиотека пополняется постепенно. Если нужного сериала пока нет:
+- YouTube
+- BBC iPlayer
+- ARTE
+- Plex
+- Filmzie
+- Any site with HLS/VTT/TTML subtitles
 
-- Напишите в [Telegram](https://t.me/podstrcc)
-- Или переведите сами -- см. [Как начать переводить](CONTRIBUTING.md)
+## 4. Pick a language
 
-## Двойные субтитры
+A language picker appears above the video player. Click the language of the original subtitles (EN, DE, FR, etc.) -- the extension translates them into your target language.
 
-Расширение поддерживает показ оригинала и перевода одновременно. Нажмите клавишу `v` во время просмотра, чтобы переключить режим.
-
-## Подстройка тайминга
-
-Если субтитры отстают или опережают звук:
-- `[` -- сдвинуть на 0.5 сек назад
-- `]` -- сдвинуть на 0.5 сек вперёд
-- `\` -- сбросить сдвиг
+If a cached translation exists, subtitles appear instantly. Otherwise, translation starts in real time and you see a progress badge.
 
 ## FAQ
 
-**На каких сайтах работает?**
-Проверено на Кинопабе. Архитектурно работает с любым сайтом, где видео использует HLS-поток с субтитрами (`.m3u8` + `.vtt`).
+**What if subtitles aren't detected?**
+Click the extension icon and make sure the current site is enabled. The extension needs permission to run on each site -- you can grant it from the popup.
 
-**Это бесплатно?**
-Да. Просмотр готовых переводов полностью бесплатный. Оплата нужна только если вы хотите переводить новые серии самостоятельно (через свою подписку или API).
+**What about auto-generated YouTube captions?**
+Auto-generated (ASR) captions are filtered out because their quality is too low for reliable translation. The extension only picks up manually authored subtitles. If a video only has auto-generated CC, subtitles won't appear in the picker.
 
-**Почему не в Chrome Web Store?**
-Скоро будет. Пока устанавливается вручную как распакованное расширение.
+**Is it free?**
+Watching cached translations is completely free. Translating new content costs a small amount through your OpenRouter API key.
+
+**How much does a translation cost?**
+Typically $0.005--0.05 per episode, depending on the model. The default model (Gemini 3.1 Flash Lite) costs around $0.02 for a 40-minute episode. See [podstr.cc/models](https://podstr.cc/en/models/) for current pricing.
+
+**Can I see the original and translated subtitles at the same time?**
+Press `v` during playback to toggle dual subtitles.
+
+**Can I adjust subtitle timing?**
+Yes. Press `[` to shift subtitles 0.5s earlier, `]` to shift 0.5s later, `\` to reset.
