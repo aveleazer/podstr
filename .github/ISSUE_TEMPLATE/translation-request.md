@@ -1,14 +1,14 @@
 ---
-name: Запрос перевода
-about: Хочу чтобы перевели конкретный сериал/фильм
+name: Translation request
+about: Request subtitles for a specific show or movie
 labels: translation-request
 ---
 
-**Что перевести:**
-Название, сезон, серии
+**What to translate:**
+Show/movie name, season, episodes
 
-**Где смотреть:**
-Ссылка на стриминг / название платформы
+**Where to watch:**
+Link to streaming platform or platform name
 
-**Язык оригинальных субтитров:**
-Английский / другой
+**Original subtitle language:**
+English / other

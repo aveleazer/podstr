@@ -1,22 +1,25 @@
 ---
-name: Баг
-about: Что-то не работает
+name: Bug report
+about: Something isn't working
 labels: bug
 ---
 
-**Что произошло:**
-Опишите проблему
+**What happened:**
+Describe the problem
 
-**Что ожидалось:**
-Как должно было работать
+**What was expected:**
+How it should have worked
 
-**Как воспроизвести:**
-1. Откройте...
-2. Нажмите...
-3. Результат...
+**Steps to reproduce:**
+1. Open...
+2. Click...
+3. Result...
 
-**Окружение:**
-- Браузер: Chrome / Edge / другой
-- Сайт с видео: Kinopub / другой
-- Провайдер: OpenRouter / Claude CLI
-- Модель: Claude Sonnet / другая
+**Environment:**
+- Browser: Chrome / Edge / other
+- Video site: YouTube / BBC iPlayer / ARTE / Plex / Filmzie / other
+- AI model: (e.g. google/gemini-3.1-flash-lite-preview)
+- Extension version: (see chrome://extensions/)
+
+**Console errors (if any):**
+F12 → Console → filter `[podstr.cc]`
