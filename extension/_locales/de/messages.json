@@ -95,7 +95,9 @@
   "badgeTranslatingCanWatch": {
     "message": "Übersetze... $PCT$% · Sie können schauen",
     "placeholders": {
-      "PCT": { "content": "$1" }
+      "PCT": {
+        "content": "$1"
+      }
     }
   },
   "badgeTranslating": {
@@ -143,7 +145,9 @@
   "viewerTranslate": {
     "message": "Übersetzen ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerTranslateBtn": {
@@ -152,7 +156,9 @@
   "viewerShow": {
     "message": "Anzeigen ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerShowBtn": {
@@ -166,16 +172,26 @@
   },
   "viewerCachedByModel": {
     "message": "Übersetzt mit $1",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerRetranslate": {
     "message": "Mit $1 übersetzen",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerSameLangHint": {
     "message": "Dieses Video hat bereits $1-Untertitel. Aktivieren Sie sie in den Player-Einstellungen",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerSignIn": {
@@ -190,8 +206,12 @@
   "viewerQuotaExhausted": {
     "message": "Limit erreicht · $1/$2",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
     }
   },
   "viewerUpgradePro": {
@@ -206,9 +226,15 @@
   "badgeCacheHitFree": {
     "message": "Aus Cache · $1 · −$2 von $3 (bei Pro kostenlos)",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" },
-      "3": { "content": "$3" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
     }
   },
   "badgeTrackLoading": {
@@ -295,6 +321,9 @@
   },
   "errorStartTranslation": {
     "message": "Fehler beim Starten der Übersetzung"
+  },
+  "errorFetchFailed": {
+    "message": "Download fehlgeschlagen"
   },
   "errorInvalidApiKey": {
     "message": "Ungültiger OpenRouter-API-Schlüssel"
@@ -525,7 +554,7 @@
     "message": "Untertitel"
   },
   "tabDev": {
-    "message": "Dev"
+    "message": "Übersetzer"
   },
   "accountSignInHint": {
     "message": "Anmelden — 5 Übersetzungen/Monat kostenlos"
@@ -633,5 +662,11 @@
   },
   "localizedLangNames": {
     "message": ""
+  },
+  "slowModelHint": {
+    "message": "Slow model — translation may take a while"
+  },
+  "infoCostFree": {
+    "message": "free"
   }
 }

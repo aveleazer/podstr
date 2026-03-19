@@ -1,49 +1,88 @@
-# Contributing
+# Как начать переводить
 
-## Reporting bugs
+Вы можете переводить сериалы, которые смотрите сами. Каждый перевод автоматически попадает в библиотеку и становится доступен всем пользователям.
 
-Open an [issue](https://github.com/aveleazer/podstr/issues) with:
-- Browser version
-- Site URL where the problem occurs
-- Steps to reproduce
-- Console errors (F12 → Console → filter `[podstr.cc]`)
+Есть два способа переводить: через подписку Claude Max с CLI-доступом (бесплатно) или через OpenRouter API (платно по токенам).
 
-## Translation requests
+---
 
-Use the [translation request](https://github.com/aveleazer/podstr/issues/new?template=translation-request.md) issue template.
+## Способ 1: Через Claude Code (бесплатно при наличии подписки)
 
-## How the extension works
+Если у вас есть подписка **Claude Max** -- вы уже платите за неё, а перевод одной серии занимает ~10 минут.
 
-1. Extension detects subtitle tracks on the page (HLS .m3u8/.vtt or YouTube timedtext)
-2. User selects a source language in the picker
-3. VTT is downloaded and split into batches (~200 lines each)
-4. Each batch is sent to the LLM API (OpenRouter) for translation
-5. Translated subtitles are rendered over the video
-6. Result is cached locally (gzip-compressed in chrome.storage.local)
+### Что нужно
 
-## Development setup
+- Установленное расширение Подстрочник ([инструкция](how-to-watch.md) или [README](../README.md#хочу-смотреть))
+- Подписка Claude Max
+- Терминал (командная строка)
 
-1. Clone the repo
-2. Load `extension/` as unpacked extension in Chrome
-3. Get an API key from [openrouter.ai](https://openrouter.ai/)
-4. Open a video with subtitles — the picker should appear
+### Настройка Claude Code
 
-## Code structure
+1. Установите [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview):
+   ```bash
+   npm install -g @anthropic-ai/claude-code
+   ```
+2. Авторизуйтесь:
+   ```bash
+   claude
+   ```
+   Следуйте инструкциям -- привяжите подписку Claude Max.
 
-```
-extension/
-  background.js    — translation engine, cache, API calls
-  content.js       — subtitle detection, picker UI, rendering
-  youtube-detect.js — YouTube caption track detection (MAIN world)
-  providers.js     — model definitions, VTT parser
-  popup.html/js    — settings UI
-  overlay.css      — subtitle and picker styles
-  _locales/        — 13 languages
-```
+3. Проверьте:
+   ```bash
+   claude -p "Привет, как дела?"
+   ```
+   Если ответил -- всё работает.
 
-## Guidelines
+### Запуск перевода
 
-- No build tools or bundlers — vanilla JS
-- All network requests go through background.js (content scripts can't fetch)
-- User-facing strings must use `chrome.i18n`
-- `textContent` only, never `innerHTML`
+1. Запустите воркер:
+   ```bash
+   python server/server.py
+   ```
+   Воркер будет опрашивать очередь на сервере каждые 30 секунд.
+
+2. В расширении: откройте настройки (иконка расширения) и переключите провайдер на **Claude CLI**.
+
+3. Откройте видео, выберите язык субтитров -- перевод отправится в очередь, воркер подхватит и переведёт.
+
+4. Результат автоматически сохранится в общий кеш и станет доступен всем.
+
+---
+
+## Способ 2: Через OpenRouter (по токенам)
+
+Если у вас нет подписки Claude Max, но вы хотите переводить -- можно использовать OpenRouter API. Оплата по факту использования.
+
+### Стоимость
+
+| Модель | ~Цена за серию (40 мин) | Качество |
+|--------|------------------------|----------|
+| Claude Opus 4.6 | $5--15 | Лучшее |
+| Claude Sonnet 4.6 | $1--3 | Отличное |
+| Gemini 2.5 Flash | $0.05--0.3 | Хорошее |
+| Llama 4 Maverick | $0.05--0.2 | Приемлемое |
+
+Цена зависит от длины субтитров. Серия (~300 строк) дешевле фильма (~1000 строк).
+
+### Настройка
+
+1. Зарегистрируйтесь на [openrouter.ai](https://openrouter.ai/) и пополните баланс
+2. Создайте API-ключ: [openrouter.ai/keys](https://openrouter.ai/keys)
+3. В расширении: откройте настройки, выберите провайдер **OpenRouter**, вставьте ключ
+4. Выберите модель (рекомендуем Claude Sonnet -- баланс цены и качества)
+5. Откройте видео, выберите язык -- перевод начнётся автоматически
+
+---
+
+## Как работает общий кеш
+
+Когда вы переводите серию, результат отправляется на сервер общего кеша. После этого **любой** пользователь с установленным расширением получит этот перевод мгновенно, без затрат.
+
+Лучшая модель побеждает: если серия уже переведена Haiku, а вы перевели Opus -- ваш перевод заменит старый (по рангу модели).
+
+## Что переводить
+
+Что угодно. Переводите то, что смотрите сами -- это и есть идея проекта. Не нужно переводить по заказу или по списку. Просто смотрите что нравится, и перевод станет доступен всем.
+
+Библиотека переводов: [Подстрочник](http://84.38.182.45:5001/#translations)

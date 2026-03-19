@@ -95,7 +95,9 @@
   "badgeTranslatingCanWatch": {
     "message": "Traduzindo... $PCT$% · pode assistir",
     "placeholders": {
-      "PCT": { "content": "$1" }
+      "PCT": {
+        "content": "$1"
+      }
     }
   },
   "badgeTranslating": {
@@ -143,7 +145,9 @@
   "viewerTranslate": {
     "message": "Traduzir ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerTranslateBtn": {
@@ -152,7 +156,9 @@
   "viewerShow": {
     "message": "Mostrar ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerShowBtn": {
@@ -166,16 +172,26 @@
   },
   "viewerCachedByModel": {
     "message": "Traduzido com $1",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerRetranslate": {
     "message": "Traduzir com $1",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerSameLangHint": {
     "message": "Este vídeo já tem legendas em $1. Ative nas configurações do player",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerSignIn": {
@@ -190,8 +206,12 @@
   "viewerQuotaExhausted": {
     "message": "Limite atingido · $1/$2",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
     }
   },
   "viewerUpgradePro": {
@@ -206,9 +226,15 @@
   "badgeCacheHitFree": {
     "message": "Do cache · $1 · −$2 de $3 (grátis no Pro)",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" },
-      "3": { "content": "$3" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
     }
   },
   "badgeTrackLoading": {
@@ -295,6 +321,9 @@
   },
   "errorStartTranslation": {
     "message": "Erro ao iniciar a tradução"
+  },
+  "errorFetchFailed": {
+    "message": "Falha no download"
   },
   "errorInvalidApiKey": {
     "message": "Chave API do OpenRouter inválida"
@@ -525,7 +554,7 @@
     "message": "Legendas"
   },
   "tabDev": {
-    "message": "Dev"
+    "message": "Tradutor"
   },
   "accountSignInHint": {
     "message": "Entre — 5 traduções/mês grátis"
@@ -633,5 +662,11 @@
   },
   "localizedLangNames": {
     "message": ""
+  },
+  "slowModelHint": {
+    "message": "Slow model — translation may take a while"
+  },
+  "infoCostFree": {
+    "message": "free"
   }
 }

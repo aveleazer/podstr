@@ -670,14 +670,19 @@ class Handler(BaseHTTPRequestHandler):
             if not url or not target_lang:
                 self._json_response(400, {'error': 'Missing url or target_lang'})
                 return
+            include_vtt = 'include_vtt' in qs
             conn = sqlite3.connect(DB_PATH)
+            cols = 'model, model_rank, vtt' if include_vtt else 'model, model_rank'
             row = conn.execute(
-                'SELECT model, model_rank FROM translations WHERE normalized_url = ? AND target_lang = ?',
+                f'SELECT {cols} FROM translations WHERE normalized_url = ? AND target_lang = ?',
                 (url, target_lang)
             ).fetchone()
             conn.close()
             if row:
-                self._json_response(200, {'model': row[0], 'model_rank': row[1]})
+                result = {'model': row[0], 'model_rank': row[1]}
+                if include_vtt and len(row) > 2:
+                    result['vtt'] = row[2]
+                self._json_response(200, result)
             else:
                 self.send_response(404)
                 self._cors()

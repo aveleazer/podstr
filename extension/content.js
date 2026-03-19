@@ -76,6 +76,48 @@
   };
 
 
+  // ── Find <video> element, including inside Shadow DOM ──
+  // Walk up from an element, crossing shadow root boundaries.
+  // Regular parentElement stops at shadow root; this continues via host element.
+  function parentAcrossShadow(el) {
+    if (el.parentElement) return el.parentElement;
+    const root = el.parentNode; // ShadowRoot
+    if (root && root.host) return root.host;
+    return null;
+  }
+
+  // Like el.contains(target), but crosses shadow root boundaries.
+  function containsAcrossShadow(ancestor, target) {
+    let el = target;
+    while (el) {
+      if (el === ancestor) return true;
+      el = parentAcrossShadow(el);
+    }
+    return false;
+  }
+
+  // Some players (BBC SMP) nest <video> behind multiple shadow roots:
+  // document > smp-toucan-player > #shadow > smp-playback > #shadow > video
+  function queryVideo() {
+    // Fast path: most players expose <video> in light DOM
+    const v = document.querySelector('video');
+    if (v) return v;
+    // Slow path: walk shadow roots (max depth 5 to avoid infinite loops)
+    function searchShadow(root, depth) {
+      if (depth > 5) return null;
+      const video = root.querySelector('video');
+      if (video) return video;
+      for (const el of root.querySelectorAll('*')) {
+        if (el.shadowRoot) {
+          const found = searchShadow(el.shadowRoot, depth + 1);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+    return searchShadow(document, 0);
+  }
+
   // Localized language names for same-language hint
   const _localizedLangCache = (() => {
     try {
@@ -95,6 +137,24 @@
     '[class*="subtitle-overlay"]', '[class*="captions-display"]',
     '.ytp-caption-window-container',
   ];
+
+  // ── Shadow DOM native subtitle hiding (BBC SMP) ──
+  // Path: smp-toucan-player > #shadow > smp-video-layout > #shadow > smp-subtitles
+  function findShadowSubtitles() {
+    const host = document.querySelector('smp-toucan-player');
+    if (!host?.shadowRoot) return null;
+    const layout = host.shadowRoot.querySelector('smp-video-layout');
+    if (!layout?.shadowRoot) return null;
+    return layout.shadowRoot.querySelector('smp-subtitles') || null;
+  }
+
+  function setShadowSubtitlesVisible(show) {
+    const el = findShadowSubtitles();
+    if (el) {
+      el.style.display = show ? '' : 'none';
+      console.log(`[podstr.cc] Shadow DOM subtitles: ${show ? 'shown' : 'hidden'}`);
+    }
+  }
 
   // ── Helpers ──
   function urlPath(url) {
@@ -132,6 +192,8 @@
   let mouseHideTimer = null;
   let cacheNotifyElement = null;
   let cacheNotifyTimer = null;
+  let costInfoElement = null;
+  let costInfoTimer = null;
   let subtitleOffset = 0; // seconds, adjusted with [ and ]
   let lastPositionCheck = 0; // throttle position detection to 1/sec
   let manualPosition = null; // 'top'|'bottom'|null (null = auto)
@@ -249,20 +311,30 @@
       } catch (e) {}
     }
 
+    if (msg.type === 'ttml_detected') {
+      if (!queryVideo()) return;
+      addDetectedTrack(null, msg.url, null);
+      // Mark track type for routing in startTranslation
+      const added = detectedTracks.find(t => t.url === msg.url);
+      if (added) added._type = 'ttml';
+    }
+
     if (msg.type === 'translation_progress') {
       lastProgressTime = Date.now(); // reset watchdog
       const pct = msg.total > 0 ? Math.round(msg.progress / msg.total * 100) : 0;
       // Progress bar + button text in picker
-      updateProgressBar(pct, pct > 0 ? 'active' : 'waiting');
+      updateProgressBar(pct, pct > 0 ? 'active' : 'indeterminate');
       const loadingBtn = pickerElement?.querySelector('.ai-sub-picker-btn.loading');
       if (loadingBtn) {
         if (msg.retry_info) {
-          loadingBtn.textContent = chrome.i18n.getMessage('retryProgress',
-            [String(msg.retry_info.attempt), String(msg.retry_info.max)]) || `Retry ${msg.retry_info.attempt}/${msg.retry_info.max}...`;
+          loadingBtn.textContent = msg.retry_info;
         } else {
-          loadingBtn.textContent = pct > 0
-            ? chrome.i18n.getMessage('badgeTranslatingCanWatch', [String(pct)])
-            : chrome.i18n.getMessage('badgeTranslatingSimple');
+          if (pct > 0) {
+            loadingBtn.textContent = chrome.i18n.getMessage('badgeTranslatingCanWatch', [String(pct)]);
+          } else {
+            const base = chrome.i18n.getMessage('badgeTranslatingSimple') || 'Translating...';
+            loadingBtn.textContent = isSlowModel(selectedModel) ? base + ' \u23F3' : base;
+          }
         }
       }
       // Keep picker visible during translation
@@ -311,6 +383,10 @@
       setTimeout(() => {
         hideProgressBar();
         updatePicker();
+        // Show cost info if available (not for cache hits)
+        if (msg.cost !== undefined) {
+          showCostInfo(msg.cost, msg.duration, msg.model || selectedModel);
+        }
         // Refresh config — quota may have changed after translation
         loadConfig();
       }, 3000);
@@ -327,6 +403,7 @@
       }
       // Don't clear activeTrackUrl — allow re-click resume
       translationDone = false;
+      hideProgressBar();
       updatePicker();
       showPickerNotification(errText, 'error');
     }
@@ -396,6 +473,10 @@
           });
           showPicker();
         } catch (e) {}
+      } else if (item.type === 'ttml_detected') {
+        addDetectedTrack(null, item.url, null);
+        const added = detectedTracks.find(t => t.url === item.url);
+        if (added) added._type = 'ttml';
       }
     }
   });
@@ -442,12 +523,12 @@
   }
 
   function findVideo() {
-    videoElement = document.querySelector('video');
+    videoElement = queryVideo();
     if (videoElement) {
       attachTrackListener(videoElement);
     } else {
       const obs = new MutationObserver(() => {
-        videoElement = document.querySelector('video');
+        videoElement = queryVideo();
         if (videoElement) {
           obs.disconnect();
           attachTrackListener(videoElement);
@@ -498,6 +579,8 @@
     lastProgressPct = 0;
     lastProgressState = 'waiting';
     processedPlaylists.clear();
+    hideProgressBar();
+    clearCostInfo();
     hidePicker();
     if (overlay) { overlay.remove(); overlay = null; }
     hideBadge();
@@ -505,7 +588,7 @@
 
   // ── Phase 1: Detect track and show picker ──
   function handlePlaylist(url) {
-    if (!document.querySelector('video')) return;
+    if (!queryVideo()) return;
 
     const path = urlPath(url);
     if (processedPlaylists.has(path)) return;
@@ -563,10 +646,16 @@
       pickerElement.remove();
       pickerElement = null;
     }
+    setShadowSubtitlesVisible(true); // Restore native subs
+  }
+
+  function trackCacheUrl(track) {
+    if (track._type === 'ttml') return 'ttml:' + track.url;
+    return track.url;
   }
 
   function checkCachedTracks() {
-    const urls = detectedTracks.map(t => t.url);
+    const urls = detectedTracks.map(t => trackCacheUrl(t));
     if (!urls.length) return;
     chrome.runtime.sendMessage({
       type: 'check_cache',
@@ -580,7 +669,7 @@
       let changed = false;
       for (const track of detectedTracks) {
         const was = track._hasCached;
-        track._hasCached = cachedSet.has(track.url);
+        track._hasCached = cachedSet.has(trackCacheUrl(track));
         if (was !== track._hasCached) changed = true;
       }
       if (changed) updatePicker();
@@ -588,7 +677,7 @@
   }
 
   function checkSharedCache() {
-    const urls = detectedTracks.map(t => t.url);
+    const urls = detectedTracks.map(t => trackCacheUrl(t));
     if (!urls.length) return;
     console.log(`[podstr.cc] checkSharedCache: ${urls.length} URLs, targetLang=${targetLang}`);
     chrome.runtime.sendMessage({
@@ -602,7 +691,7 @@
       let changed = false;
       if (resp.results?.length) {
         for (const hit of resp.results) {
-          const track = detectedTracks.find(t => t.url === hit.url);
+          const track = detectedTracks.find(t => trackCacheUrl(t) === hit.url);
           if (track && !track._hasSharedCached) {
             track._hasSharedCached = { model: hit.model, model_rank: hit.model_rank };
             changed = true;
@@ -625,7 +714,7 @@
     if (!hit) return;
 
     // Find video container (same logic as createPicker)
-    const video = document.querySelector('video');
+    const video = queryVideo();
     if (!video) return;
     let container = video.parentElement;
     while (container && container !== document.body) {
@@ -681,20 +770,77 @@
     if (cacheNotifyTimer) { clearTimeout(cacheNotifyTimer); cacheNotifyTimer = null; }
   }
 
+  function clearCostInfo() {
+    if (costInfoTimer) { clearTimeout(costInfoTimer); costInfoTimer = null; }
+    if (costInfoElement) { costInfoElement.remove(); costInfoElement = null; }
+  }
+
+  function showCostInfo(cost, duration, model) {
+    clearCostInfo();
+    if (cost === undefined || cost === null) return;
+
+    // Find container — same parent as picker/overlay
+    const video = queryVideo();
+    const container = pickerElement?.parentElement || overlay?.parentElement || video?.parentElement;
+    if (!container) return;
+    if (!container.style.position) container.style.position = 'relative';
+
+    costInfoElement = document.createElement('div');
+    costInfoElement.className = 'ai-sub-cost-info';
+
+    let text;
+    if (cost === 0) {
+      text = chrome.i18n.getMessage('infoCostFree') || 'free';
+    } else {
+      text = '$' + parseFloat(cost.toFixed(4));
+    }
+
+    if (devMode && model) {
+      const sec = duration ? Math.round(duration / 1000) : 0;
+      text = shortModelName(model) + ' · ' + text + (sec ? ' · ' + sec + 's' : '');
+    }
+
+    costInfoElement.textContent = text;
+    container.appendChild(costInfoElement);
+
+    // Auto-hide with hover delay
+    const hideDelay = devMode ? 15000 : 8000;
+    const scheduleHide = () => {
+      costInfoTimer = setTimeout(() => clearCostInfo(), hideDelay);
+    };
+    costInfoElement.addEventListener('mouseenter', () => {
+      if (costInfoTimer) { clearTimeout(costInfoTimer); costInfoTimer = null; }
+    });
+    costInfoElement.addEventListener('mouseleave', scheduleHide);
+    scheduleHide();
+  }
+
   function createPicker() {
-    const video = document.querySelector('video');
+    const video = queryVideo();
     if (!video) {
       setTimeout(createPicker, 500);
       return;
     }
 
-    let container = video.parentElement;
+    let container = parentAcrossShadow(video);
+    // Walk up to find a container that:
+    // 1. Is in light DOM (document.contains)
+    // 2. Has NO shadow root (elements with shadowRoot won't render our child without <slot>)
+    // 3. Has good dimensions (≥90% of video width)
     while (container && container !== document.body) {
       const rect = container.getBoundingClientRect();
-      if (rect.width >= video.clientWidth * 0.9 && rect.height > 0) break;
-      container = container.parentElement;
+      const usable = document.contains(container) && !container.shadowRoot
+        && rect.width >= video.clientWidth * 0.9 && rect.height > 0;
+      if (usable) break;
+      container = parentAcrossShadow(container);
     }
-    if (!container || container === document.body) container = video.parentElement;
+    if (!container || container === document.body) {
+      container = parentAcrossShadow(video);
+      while (container && (!document.contains(container) || container.shadowRoot)) {
+        container = parentAcrossShadow(container);
+      }
+      if (!container) container = document.body;
+    }
 
     if (container.getBoundingClientRect().width === 0) {
       setTimeout(createPicker, 500);
@@ -813,11 +959,13 @@
           link.remove();
           appendTranslateUI(translatableTracks);
           appendPathLabel();
+          appendSlowModelHint();
         });
         pickerElement.appendChild(link);
       } else {
         appendTranslateUI(translatableTracks);
         appendPathLabel();
+        appendSlowModelHint();
       }
       return;
     }
@@ -880,8 +1028,10 @@
   function appendTranslateUI(translatableTracks) {
     const isCached = (t) => t._hasCached || t._hasSharedCached;
     const cachedModel = (t) => {
-      if (t._hasCached) return selectedModel; // local cache = same model
+      // Shared cache knows the real model; local cache key includes model
+      // so _hasCached only means "cached with selectedModel"
       if (t._hasSharedCached) return t._hasSharedCached.model || '';
+      if (t._hasCached) return selectedModel;
       return '';
     };
     const isDifferentModel = (t) => {
@@ -905,7 +1055,7 @@
         showBtn.addEventListener('click', () => startTranslation(track));
         pickerElement.appendChild(showBtn);
         const reBtn = document.createElement('button');
-        reBtn.className = 'ai-sub-picker-link';
+        reBtn.className = 'ai-sub-picker-link ai-sub-retranslate-link';
         reBtn.textContent = chrome.i18n.getMessage('viewerRetranslate', [shortModelName(selectedModel)])
           || `Translate with ${shortModelName(selectedModel)}`;
         reBtn.addEventListener('click', () => startTranslation(track, { skipCache: true }));
@@ -951,12 +1101,19 @@
       });
       pickerElement.appendChild(btn);
 
-      // If selected track is cached by different model, show retranslate link
+      // If selected track is cached by different model, show info + retranslate link
       const addRetranslateLink = () => {
+        const oldInfo = pickerElement.querySelector('.ai-sub-cached-model-info');
+        if (oldInfo) oldInfo.remove();
         const old = pickerElement.querySelector('.ai-sub-retranslate-link');
         if (old) old.remove();
         const selected = translatableTracks.find(t => t.url === sel.value);
         if (selected && isDifferentModel(selected)) {
+          const info = document.createElement('span');
+          info.className = 'ai-sub-viewer-label ai-sub-cached-model-info';
+          info.textContent = chrome.i18n.getMessage('viewerCachedByModel', [shortModelName(cachedModel(selected))])
+            || `Translated by ${shortModelName(cachedModel(selected))}`;
+          pickerElement.appendChild(info);
           const reBtn = document.createElement('button');
           reBtn.className = 'ai-sub-picker-link ai-sub-retranslate-link';
           reBtn.textContent = chrome.i18n.getMessage('viewerRetranslate', [shortModelName(selectedModel)])
@@ -972,6 +1129,9 @@
 
   // ── Translation path label ──
   function appendPathLabel() {
+    // BYOK: skip if retranslate link already shows the model name (avoid duplicate)
+    if (extensionState === 'B' && pickerElement.querySelector('.ai-sub-retranslate-link')) return;
+
     const label = document.createElement('span');
     label.className = 'ai-sub-path-label';
 
@@ -984,6 +1144,21 @@
     }
 
     if (label.textContent) pickerElement.appendChild(label);
+  }
+
+  function isSlowModel(modelId) {
+    const id = (modelId || '').toLowerCase();
+    return id && !(/flash|lite|fast|mini(?!max)|haiku/.test(id));
+  }
+
+  function appendSlowModelHint() {
+    if (!isSlowModel(selectedModel)) return;
+    // Don't show if any translatable track is cached — user likely clicks that one
+    if (detectedTracks.some(t => !isTrackSameAsTarget(t) && (t._hasCached || t._hasSharedCached))) return;
+    const hint = document.createElement('span');
+    hint.className = 'ai-sub-slow-hint';
+    hint.textContent = chrome.i18n.getMessage('slowModelHint') || 'Slow model — translation may take a while';
+    pickerElement.appendChild(hint);
   }
 
   // ── Offset controls (shared between viewer and dev) ──
@@ -1012,13 +1187,23 @@
   }
 
   function renderDevPicker() {
+    // Translation done — show label + offset controls only
+    if (translationDone && translatedCues.length > 0) {
+      const label = document.createElement('span');
+      label.className = 'ai-sub-viewer-label';
+      label.textContent = chrome.i18n.getMessage('badgeSubtitlesCount', [String(translatedCues.length)]);
+      pickerElement.appendChild(label);
+      appendOffsetControls(pickerElement);
+      return;
+    }
+
     // Source language: select (2+) or single button (1)
     if (detectedTracks.length === 1) {
       const track = detectedTracks[0];
       const btn = document.createElement('button');
       btn.className = 'ai-sub-picker-btn ai-sub-viewer-available';
       btn.textContent = chrome.i18n.getMessage('viewerTranslate', [track.label]) || `Translate (${track.label})`;
-      if (track.url === activeTrackUrl) btn.classList.add(translationDone ? 'active' : 'loading');
+      if (track.url === activeTrackUrl) btn.classList.add('loading');
       btn.addEventListener('click', () => startTranslation(track));
       pickerElement.appendChild(btn);
     } else if (detectedTracks.length > 1) {
@@ -1038,7 +1223,7 @@
       const btn = document.createElement('button');
       btn.className = 'ai-sub-picker-btn ai-sub-viewer-available';
       btn.textContent = chrome.i18n.getMessage('viewerTranslateBtn') || 'Translate';
-      if (activeTrackUrl) btn.classList.add(translationDone ? 'active' : 'loading');
+      if (activeTrackUrl) btn.classList.add('loading');
       btn.addEventListener('click', () => {
         const track = detectedTracks.find(t => t.url === sel.value);
         if (track) startTranslation(track);
@@ -1124,7 +1309,10 @@
         }
         console.log(`[podstr.cc] Watchdog: no progress for 8 min, re-sending start_translation`);
         lastProgressTime = Date.now(); // prevent rapid re-sends
-        const watchdogUrl = track.url.startsWith('youtube:') ? track.url : 'playlist:' + track.url;
+        let watchdogUrl;
+        if (track.url.startsWith('youtube:')) watchdogUrl = track.url;
+        else if (track._type === 'ttml') watchdogUrl = 'ttml:' + track.url;
+        else watchdogUrl = 'playlist:' + track.url;
         chrome.runtime.sendMessage({
           type: 'start_translation',
           vtt: track._cachedVtt,
@@ -1140,6 +1328,7 @@
     // Reset state (skip on resume — keep existing cues)
     activeTrackUrl = track.url;
     hideCacheNotification();
+    clearCostInfo();
     activeTrackLabel = track.label || track.lang || 'sub';
     translationDone = false;
     if (!isResume) {
@@ -1150,6 +1339,7 @@
 
     updatePicker();
     createOverlay();
+    setShadowSubtitlesVisible(false); // Hide native subs in shadow DOM (BBC SMP)
     if (devMode) showBadge('translating', chrome.i18n.getMessage('devDownloading', [track.label]));
 
     try {
@@ -1157,8 +1347,9 @@
       if (track.url.startsWith('youtube:')) {
         const lang = track.url.split(':')[2];
 
-        // Cached: skip enable_cc dance — go straight to start_translation
-        if ((track._hasCached || track._hasSharedCached) && !opts.skipCache) {
+        // Local cache hit: skip enable_cc dance — go straight to start_translation
+        // (shared cache needs real VTT for hash lookup, so don't shortcut for _hasSharedCached)
+        if (track._hasCached && !opts.skipCache) {
           chrome.runtime.sendMessage({
             type: 'start_translation', vtt: '', url: track.url,
             target_lang: targetLang, provider: selectedProvider,
@@ -1233,6 +1424,62 @@
           }
         });
         return;
+      }
+
+      // ── TTML: fetch XML, convert to VTT, translate ──
+      if (track._type === 'ttml') {
+        if (devMode) showBadge('translating', chrome.i18n.getMessage('devDownloading', [track.label]));
+
+        const ttmlResult = await new Promise((resolve) => {
+          chrome.runtime.sendMessage(
+            { type: 'fetch_ttml', url: track.url },
+            resolve
+          );
+        });
+
+        if (chrome.runtime.lastError || !ttmlResult || ttmlResult.error) {
+          showBadge('error', chrome.i18n.getMessage('errorPrefix', [ttmlResult?.error || chrome.i18n.getMessage('errorFetchFailed')]));
+          activeTrackUrl = null;
+          updatePicker();
+          return;
+        }
+
+        if (track.url !== activeTrackUrl) return; // user switched track
+
+        // Update picker label with actual language from XML
+        if (ttmlResult.lang) {
+          const langCode = ttmlResult.lang.split('-')[0]; // en-GB → en
+          track.lang = langCode;
+          track.label = LANG_NAMES[langCode] || langCode.toUpperCase();
+          updatePicker();
+        }
+
+        console.log(`[podstr.cc] TTML: ${ttmlResult.cueCount} cues, lang=${ttmlResult.lang}`);
+        track._cachedVtt = ttmlResult.vtt;
+
+        if (devMode) showBadge('translating', chrome.i18n.getMessage('devTranslating', [String(ttmlResult.cueCount)]));
+
+        // Send to background for translation
+        const translationKey = 'ttml:' + track.url;
+        chrome.runtime.sendMessage({
+          type: 'start_translation',
+          vtt: ttmlResult.vtt,
+          url: translationKey,
+          target_lang: targetLang,
+          provider: selectedProvider,
+          model: selectedModel,
+          title: getPageTitle(),
+          page_url: location.href,
+          skipCache: !!opts.skipCache,
+        }, (resp) => {
+          if (chrome.runtime.lastError || resp?.error) {
+            showBadge('error', resp?.error || chrome.i18n.getMessage('errorStartTranslation'));
+            activeTrackUrl = null;
+            updatePicker();
+          }
+        });
+
+        return; // Don't fall through to HLS path
       }
 
       // Download segments via background (CORS)
@@ -1372,7 +1619,7 @@
   function detectNativeSubPosition() {
     if (manualPosition) return; // manual override active
 
-    const video = document.querySelector('video');
+    const video = queryVideo();
     let nativeVisible = false;
 
     // Check DOM-based subtitle containers
@@ -1504,10 +1751,10 @@
   // ── Render loop ──
   function startRenderLoop() {
     if (renderRAF) return;
-    if (!videoElement) videoElement = document.querySelector('video');
+    if (!videoElement) videoElement = queryVideo();
 
     function render() {
-      const fresh = document.querySelector('video');
+      const fresh = queryVideo();
       if (fresh && fresh !== videoElement) {
         videoElement = fresh;
         attachTrackListener(fresh);
@@ -1543,19 +1790,27 @@
   function createOverlay() {
     if (overlay) return;
 
-    const video = document.querySelector('video');
+    const video = queryVideo();
     if (!video) {
       setTimeout(createOverlay, 1000);
       return;
     }
 
-    let container = video.parentElement;
+    let container = parentAcrossShadow(video);
     while (container && container !== document.body) {
       const rect = container.getBoundingClientRect();
-      if (rect.width >= video.clientWidth * 0.9 && rect.height > 0) break;
-      container = container.parentElement;
+      const usable = document.contains(container) && !container.shadowRoot
+        && rect.width >= video.clientWidth * 0.9 && rect.height > 0;
+      if (usable) break;
+      container = parentAcrossShadow(container);
     }
-    if (!container) container = video.parentElement;
+    if (!container || container === document.body) {
+      container = parentAcrossShadow(video);
+      while (container && (!document.contains(container) || container.shadowRoot)) {
+        container = parentAcrossShadow(container);
+      }
+      if (!container) container = document.body;
+    }
 
     const pos = getComputedStyle(container).position;
     if (pos === 'static') container.style.position = 'relative';
@@ -1573,17 +1828,17 @@
 
   // ── Recheck containers — move overlay/picker if video moved ──
   function recheckContainers() {
-    const video = document.querySelector('video');
+    const video = queryVideo();
     if (!video) return;
 
-    if (overlay && (!overlay.isConnected || !overlay.parentElement.contains(video))) {
+    if (overlay && (!overlay.isConnected || !containsAcrossShadow(overlay.parentElement, video))) {
       console.log('[podstr.cc] Overlay container stale — recreating');
       overlay.remove();
       overlay = null;
       createOverlay();
     }
 
-    if (pickerElement && (!pickerElement.isConnected || !pickerElement.parentElement.contains(video))) {
+    if (pickerElement && (!pickerElement.isConnected || !containsAcrossShadow(pickerElement.parentElement, video))) {
       console.log('[podstr.cc] Picker container stale — recreating');
       pickerElement.remove();
       pickerElement = null;
@@ -1662,9 +1917,14 @@
     lastProgressState = state;
     const bar = getProgressBar();
     if (!bar) return;
-    bar.className = 'ai-sub-progress-bar ' + state;
     const fill = bar.querySelector('.ai-sub-progress-fill');
-    if (fill) fill.style.width = pct + '%';
+    if (state === 'indeterminate') {
+      bar.className = 'ai-sub-progress-bar indeterminate';
+      if (fill) fill.style.width = '';  // let CSS animation control width
+    } else {
+      bar.className = 'ai-sub-progress-bar ' + state;
+      if (fill) fill.style.width = pct + '%';
+    }
   }
 
   function hideProgressBar() {

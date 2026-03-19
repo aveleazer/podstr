@@ -95,7 +95,9 @@
   "badgeTranslatingCanWatch": {
     "message": "正在翻译... $PCT$% · 可以边看边等",
     "placeholders": {
-      "PCT": { "content": "$1" }
+      "PCT": {
+        "content": "$1"
+      }
     }
   },
   "badgeTranslating": {
@@ -143,7 +145,9 @@
   "viewerTranslate": {
     "message": "翻译（$1）",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerTranslateBtn": {
@@ -152,7 +156,9 @@
   "viewerShow": {
     "message": "显示（$1）",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerShowBtn": {
@@ -166,16 +172,26 @@
   },
   "viewerCachedByModel": {
     "message": "已由$1翻译",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerRetranslate": {
     "message": "用$1翻译",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerSameLangHint": {
     "message": "此视频已有$1字幕，请在播放器设置中启用",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerSignIn": {
@@ -190,8 +206,12 @@
   "viewerQuotaExhausted": {
     "message": "已达上限 · $1/$2",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
     }
   },
   "viewerUpgradePro": {
@@ -206,9 +226,15 @@
   "badgeCacheHitFree": {
     "message": "来自缓存 · $1 · −$2 / $3（Pro 免扣）",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" },
-      "3": { "content": "$3" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
     }
   },
   "badgeTrackLoading": {
@@ -295,6 +321,9 @@
   },
   "errorStartTranslation": {
     "message": "启动翻译时出错"
+  },
+  "errorFetchFailed": {
+    "message": "下载失败"
   },
   "errorInvalidApiKey": {
     "message": "OpenRouter API 密钥无效"
@@ -516,7 +545,7 @@
     "message": "字幕"
   },
   "tabDev": {
-    "message": "Dev"
+    "message": "翻译者"
   },
   "accountSignInHint": {
     "message": "登录即享每月 5 次免费翻译"
@@ -633,5 +662,11 @@
   },
   "localizedLangNames": {
     "message": ""
+  },
+  "slowModelHint": {
+    "message": "Slow model — translation may take a while"
+  },
+  "infoCostFree": {
+    "message": "free"
   }
 }

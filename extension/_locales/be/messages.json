@@ -95,7 +95,9 @@
   "badgeTranslatingCanWatch": {
     "message": "Перакладаю... $PCT$% · можна глядзець",
     "placeholders": {
-      "PCT": { "content": "$1" }
+      "PCT": {
+        "content": "$1"
+      }
     }
   },
   "badgeTranslating": {
@@ -143,7 +145,9 @@
   "viewerTranslate": {
     "message": "Перакласці ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerTranslateBtn": {
@@ -152,7 +156,9 @@
   "viewerShow": {
     "message": "Паказаць ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerShowBtn": {
@@ -166,16 +172,26 @@
   },
   "viewerCachedByModel": {
     "message": "Перакладзена ($1)",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerRetranslate": {
     "message": "Перакласці праз $1",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerSameLangHint": {
     "message": "Гэта відэа ўжо з субтытрамі «$1». Уключыце ў наладах плэера",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerSignIn": {
@@ -190,8 +206,12 @@
   "viewerQuotaExhausted": {
     "message": "Ліміт вычарпаны · $1/$2",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
     }
   },
   "viewerUpgradePro": {
@@ -206,9 +226,15 @@
   "badgeCacheHitFree": {
     "message": "З кэшу · $1 · −$2 з $3 (на Pro бясплатна)",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" },
-      "3": { "content": "$3" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
     }
   },
   "badgeTrackLoading": {
@@ -295,6 +321,9 @@
   },
   "errorStartTranslation": {
     "message": "Памылка запуску перакладу"
+  },
+  "errorFetchFailed": {
+    "message": "Памылка загрузкі"
   },
   "errorInvalidApiKey": {
     "message": "Няправільны API-ключ OpenRouter"
@@ -525,7 +554,7 @@
     "message": "Субтытры"
   },
   "tabDev": {
-    "message": "Dev"
+    "message": "Перакладчык"
   },
   "accountSignInHint": {
     "message": "Увайдзіце — 5 перакладаў/мес бясплатна"
@@ -633,5 +662,11 @@
   },
   "localizedLangNames": {
     "message": ""
+  },
+  "slowModelHint": {
+    "message": "Slow model — translation may take a while"
+  },
+  "infoCostFree": {
+    "message": "free"
   }
 }

@@ -95,7 +95,9 @@
   "badgeTranslatingCanWatch": {
     "message": "번역 중... $PCT$% · 시청 가능",
     "placeholders": {
-      "PCT": { "content": "$1" }
+      "PCT": {
+        "content": "$1"
+      }
     }
   },
   "badgeTranslating": {
@@ -143,7 +145,9 @@
   "viewerTranslate": {
     "message": "번역 ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerTranslateBtn": {
@@ -152,7 +156,9 @@
   "viewerShow": {
     "message": "보기 ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerShowBtn": {
@@ -166,16 +172,26 @@
   },
   "viewerCachedByModel": {
     "message": "$1로 번역됨",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerRetranslate": {
     "message": "$1로 번역하기",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerSameLangHint": {
     "message": "이 영상에는 이미 $1 자막이 있습니다. 플레이어 설정에서 활성화하세요",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerSignIn": {
@@ -190,8 +206,12 @@
   "viewerQuotaExhausted": {
     "message": "한도 도달 · $1/$2",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
     }
   },
   "viewerUpgradePro": {
@@ -206,9 +226,15 @@
   "badgeCacheHitFree": {
     "message": "캐시에서 · $1 · −$2 / $3 (Pro에서 무료)",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" },
-      "3": { "content": "$3" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
     }
   },
   "badgeTrackLoading": {
@@ -295,6 +321,9 @@
   },
   "errorStartTranslation": {
     "message": "번역 시작 오류"
+  },
+  "errorFetchFailed": {
+    "message": "다운로드 실패"
   },
   "errorInvalidApiKey": {
     "message": "잘못된 OpenRouter API 키"
@@ -525,7 +554,7 @@
     "message": "자막"
   },
   "tabDev": {
-    "message": "Dev"
+    "message": "번역가"
   },
   "accountSignInHint": {
     "message": "로그인 — 월 5회 무료 번역"
@@ -633,5 +662,11 @@
   },
   "localizedLangNames": {
     "message": ""
+  },
+  "slowModelHint": {
+    "message": "Slow model — translation may take a while"
+  },
+  "infoCostFree": {
+    "message": "free"
   }
 }

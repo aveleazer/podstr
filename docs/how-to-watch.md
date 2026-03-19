@@ -1,37 +1,48 @@
-# How to install
+# Как установить и смотреть
 
-## From Chrome Web Store
+Расширение показывает готовые переводы из библиотеки. Бесплатно, без регистрации, без API-ключей.
 
-Coming soon.
+## Установка
 
-## Manual install
+1. Скачайте [extension.zip](http://84.38.182.45:5001/extension.zip) и распакуйте в папку
+2. Откройте `chrome://extensions/` в Chrome
+3. Включите **Режим разработчика** (переключатель в правом верхнем углу)
+4. Нажмите **Загрузить распакованное расширение** и выберите распакованную папку
 
-1. Download [extension.zip](https://podstr.cc/extension.zip) and unpack
-2. Open `chrome://extensions/` in Chrome
-3. Enable **Developer mode** (toggle in top-right corner)
-4. Click **Load unpacked** and select the unpacked folder
+Готово. Расширение установлено.
 
-## How to use
+## Как смотреть
 
-1. Click the extension icon → API tab → enter your [OpenRouter](https://openrouter.ai/) API key
-2. Open a video with subtitles (YouTube, ARTE, Plex, Filmzie, or any HLS site)
-3. A language picker appears above the video — select a language and click **Translate**
-4. Subtitles appear over the video
+1. Откройте сайт с видео (проверено на Кинопабе, архитектурно работает с любыми HLS-потоками)
+2. Запустите видео -- если для него есть субтитры на иностранном языке, над плеером появится панель выбора языка
+3. Нажмите на язык оригинальных субтитров (EN, DE, FR и т.д.)
+4. Если перевод есть в библиотеке -- субтитры появятся автоматически
 
-## Keyboard shortcuts
+## Если перевода нет
 
-- `B` — toggle subtitle position (top/bottom)
-- `[` — shift subtitles back 0.5s
-- `]` — shift subtitles forward 0.5s
-- `\` — reset offset
+Библиотека пополняется постепенно. Если нужного сериала пока нет:
+
+- Напишите в [Telegram](https://t.me/podstrcc)
+- Или переведите сами -- см. [Как начать переводить](CONTRIBUTING.md)
+
+## Двойные субтитры
+
+Расширение поддерживает показ оригинала и перевода одновременно. Нажмите клавишу `v` во время просмотра, чтобы переключить режим.
+
+## Подстройка тайминга
+
+Если субтитры отстают или опережают звук:
+- `[` -- сдвинуть на 0.5 сек назад
+- `]` -- сдвинуть на 0.5 сек вперёд
+- `\` -- сбросить сдвиг
 
 ## FAQ
 
-**Which sites are supported?**
-YouTube (any video with manual CC), ARTE, Plex, Filmzie, and any site with HLS subtitles (.m3u8 + .vtt).
+**На каких сайтах работает?**
+Проверено на Кинопабе. Архитектурно работает с любым сайтом, где видео использует HLS-поток с субтитрами (`.m3u8` + `.vtt`).
 
-**Is it free?**
-The extension is free. You need your own API key from [OpenRouter](https://openrouter.ai/) for translations. Cost: $0.01–0.20 per episode depending on model.
+**Это бесплатно?**
+Да. Просмотр готовых переводов полностью бесплатный. Оплата нужна только если вы хотите переводить новые серии самостоятельно (через свою подписку или API).
 
-**Which model should I use?**
-See [podstr.cc/models](https://podstr.cc/en/models/) for a comparison. Default: Gemini 3.1 Flash Lite (~$0.02/episode).
+**Почему не в Chrome Web Store?**
+Скоро будет. Пока устанавливается вручную как распакованное расширение.

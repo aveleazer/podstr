@@ -81,7 +81,7 @@
     "message": "Model"
   },
   "placeholderModel": {
-    "message": "vendor/model-name"
+    "message": "e.g. google/gemini-3-flash-preview"
   },
   "fontSizeAuto": {
     "message": "auto"
@@ -95,7 +95,9 @@
   "badgeTranslatingCanWatch": {
     "message": "Translating... $PCT$% · you can watch",
     "placeholders": {
-      "PCT": { "content": "$1" }
+      "PCT": {
+        "content": "$1"
+      }
     }
   },
   "badgeTranslating": {
@@ -143,7 +145,9 @@
   "viewerTranslate": {
     "message": "Translate ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerTranslateBtn": {
@@ -152,7 +156,9 @@
   "viewerShow": {
     "message": "Show ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerShowBtn": {
@@ -166,16 +172,26 @@
   },
   "viewerCachedByModel": {
     "message": "Translated by $1",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerRetranslate": {
     "message": "Translate with $1",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerSameLangHint": {
     "message": "This video already has $1 subtitles. Enable them in player settings",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerSignIn": {
@@ -190,8 +206,12 @@
   "viewerQuotaExhausted": {
     "message": "Limit reached · $1/$2",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
     }
   },
   "viewerUpgradePro": {
@@ -206,9 +226,15 @@
   "badgeCacheHitFree": {
     "message": "From cache · $1 · −$2 of $3 (free on Pro)",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" },
-      "3": { "content": "$3" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
     }
   },
   "badgeTrackLoading": {
@@ -295,6 +321,9 @@
   },
   "errorStartTranslation": {
     "message": "Translation start error"
+  },
+  "errorFetchFailed": {
+    "message": "Download failed"
   },
   "errorInvalidApiKey": {
     "message": "Invalid OpenRouter API key"
@@ -482,9 +511,6 @@
   "placeholderModelCustom": {
     "message": "or enter model name..."
   },
-  "placeholderModel": {
-    "message": "e.g. google/gemini-3-flash-preview"
-  },
   "modelCustomOption": {
     "message": "Other model..."
   },
@@ -519,7 +545,7 @@
     "message": "Subtitles"
   },
   "tabDev": {
-    "message": "Dev"
+    "message": "Translator"
   },
   "accountSignInHint": {
     "message": "Sign in for 5 free translations/month"
@@ -578,17 +604,29 @@
   "accountQuotaText": {
     "message": "$1 / $2 this month",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
     }
   },
   "accountQuotaResets": {
     "message": "Resets $1",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "accountQuotaExhausted": {
     "message": "You've used all $1 translations this month",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "accountUpgrade": {
     "message": "Upgrade to Pro"
@@ -601,7 +639,11 @@
   },
   "accountResendIn": {
     "message": "Resend in $1s",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "accountLoginError": {
     "message": "Could not sign in. Try again later."
@@ -620,5 +662,11 @@
   },
   "localizedLangNames": {
     "message": ""
+  },
+  "slowModelHint": {
+    "message": "Slow model — translation may take a while"
+  },
+  "infoCostFree": {
+    "message": "free"
   }
 }

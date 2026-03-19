@@ -81,7 +81,7 @@
     "message": "Модель"
   },
   "placeholderModel": {
-    "message": "vendor/model-name"
+    "message": "например: google/gemini-3-flash-preview"
   },
   "fontSizeAuto": {
     "message": "авто"
@@ -95,7 +95,9 @@
   "badgeTranslatingCanWatch": {
     "message": "Перевожу... $PCT$% · можно смотреть",
     "placeholders": {
-      "PCT": { "content": "$1" }
+      "PCT": {
+        "content": "$1"
+      }
     }
   },
   "badgeTranslating": {
@@ -143,7 +145,9 @@
   "viewerTranslate": {
     "message": "Перевести ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerTranslateBtn": {
@@ -152,7 +156,9 @@
   "viewerShow": {
     "message": "Показать ($1)",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerShowBtn": {
@@ -166,16 +172,26 @@
   },
   "viewerCachedByModel": {
     "message": "Переведено ($1)",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerRetranslate": {
     "message": "Перевести через $1",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "viewerSameLangHint": {
     "message": "Уже с $1 субтитрами — включите в плеере",
     "placeholders": {
-      "1": { "content": "$1" }
+      "1": {
+        "content": "$1"
+      }
     }
   },
   "viewerSignIn": {
@@ -190,8 +206,12 @@
   "viewerQuotaExhausted": {
     "message": "Лимит исчерпан · $1/$2",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
     }
   },
   "viewerUpgradePro": {
@@ -206,9 +226,15 @@
   "badgeCacheHitFree": {
     "message": "Из кеша · $1 · −$2 из $3 (на Pro не тратит)",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" },
-      "3": { "content": "$3" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
     }
   },
   "badgeTrackLoading": {
@@ -295,6 +321,9 @@
   },
   "errorStartTranslation": {
     "message": "Ошибка запуска перевода"
+  },
+  "errorFetchFailed": {
+    "message": "Ошибка загрузки"
   },
   "errorInvalidApiKey": {
     "message": "Невалидный API-ключ OpenRouter"
@@ -482,9 +511,6 @@
   "placeholderModelCustom": {
     "message": "или введите название модели..."
   },
-  "placeholderModel": {
-    "message": "например: google/gemini-3-flash-preview"
-  },
   "modelCustomOption": {
     "message": "Другая модель..."
   },
@@ -519,7 +545,7 @@
     "message": "Субтитры"
   },
   "tabDev": {
-    "message": "Dev"
+    "message": "Переводчик"
   },
   "accountSignInHint": {
     "message": "Войдите — 5 переводов/мес бесплатно"
@@ -578,17 +604,29 @@
   "accountQuotaText": {
     "message": "$1 / $2 в этом месяце",
     "placeholders": {
-      "1": { "content": "$1" },
-      "2": { "content": "$2" }
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
     }
   },
   "accountQuotaResets": {
     "message": "Сброс $1",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "accountQuotaExhausted": {
     "message": "Использовано все $1 переводов в этом месяце",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "accountUpgrade": {
     "message": "Перейти на Pro"
@@ -601,7 +639,11 @@
   },
   "accountResendIn": {
     "message": "Повторить через $1с",
-    "placeholders": { "1": { "content": "$1" } }
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
   },
   "accountLoginError": {
     "message": "Не удалось войти. Попробуйте позже."
@@ -620,5 +662,11 @@
   },
   "localizedLangNames": {
     "message": "{\"English\":\"английскими\",\"German\":\"немецкими\",\"French\":\"французскими\",\"Spanish\":\"испанскими\",\"Italian\":\"итальянскими\",\"Portuguese\":\"португальскими\",\"Japanese\":\"японскими\",\"Korean\":\"корейскими\",\"Chinese\":\"китайскими\",\"Dutch\":\"нидерландскими\",\"Polish\":\"польскими\",\"Swedish\":\"шведскими\",\"Danish\":\"датскими\",\"Finnish\":\"финскими\",\"Norwegian\":\"норвежскими\",\"Czech\":\"чешскими\",\"Hungarian\":\"венгерскими\",\"Turkish\":\"турецкими\",\"Arabic\":\"арабскими\",\"Hebrew\":\"ивритскими\",\"Hindi\":\"хинди\",\"Thai\":\"тайскими\",\"Ukrainian\":\"украинскими\",\"Romanian\":\"румынскими\",\"Russian\":\"русскими\",\"Serbian\":\"сербскими\",\"Belarusian\":\"белорусскими\",\"Vietnamese\":\"вьетнамскими\",\"Indonesian\":\"индонезийскими\",\"Greek\":\"греческими\"}"
+  },
+  "slowModelHint": {
+    "message": "Медленная модель — перевод может занять время"
+  },
+  "infoCostFree": {
+    "message": "бесплатно"
   }
 }
