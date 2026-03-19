@@ -14,7 +14,7 @@ const API_PROVIDERS = {
     label: 'Polza',
     baseUrl: 'https://polza.ai/api/v1',
     keyPrefix: 'pza_',
-    getKeyUrl: 'https://polza.ai?referral=dxELJYpePd',
+    getKeyUrl: 'https://polza.ai?referral=dxELJYpePd', // affiliate — helps fund development
   },
 };
 

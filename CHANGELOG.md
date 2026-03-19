@@ -173,7 +173,7 @@ Versioning: [Semver](https://semver.org/). Source of truth — `extension/manife
 - "Translated with Podstr" credit at end of subtitles — visible cue after last subtitle (site downloads, CLI translations, extension)
 - Series pages `/ru/subtitles/{slug}/` — dedicated HTML page for each series/movie from cache. TMDB metadata (poster, description, year, genres, rating). Bilingual titles. Optional Markdown reviews. SEO: unique title/description, canonical, OG tags, sitemap
 - Three-tier SQLite backups: local .db on laptop (server.py), .db rotation on VPS (7 copies), SQL dump → private GitHub repo
-- `scripts/backup-db.sh` — backup script with configurable paths via env vars
+- `scripts/backup-db.sh` — backup script with configurable paths via env vars (internal, not in public repo)
 - Backup hook in shared_cache.py — auto-runs after DB write (1h debounce)
 - Local SQLite backup in server.py — each successful translation saved to `server/local_cache.db` on local machine (worker and translate mode)
 
