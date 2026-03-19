@@ -681,7 +681,10 @@ class Handler(BaseHTTPRequestHandler):
             if row:
                 result = {'model': row[0], 'model_rank': row[1]}
                 if include_vtt and len(row) > 2:
-                    result['vtt'] = row[2]
+                    vtt = row[2]
+                    if isinstance(vtt, bytes):
+                        vtt = zlib.decompress(vtt).decode()
+                    result['vtt'] = vtt
                 self._json_response(200, result)
             else:
                 self.send_response(404)

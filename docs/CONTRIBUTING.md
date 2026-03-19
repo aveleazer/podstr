@@ -4,8 +4,6 @@
 
 The easiest way to contribute is to simply use the extension. Every time you translate an episode, the result is automatically uploaded to the shared cache at [podstr.cc](https://podstr.cc). After that, anyone else watching the same episode gets your translation instantly and for free.
 
-Better models win: if an episode was previously translated with a cheaper model and you translate it with a higher-quality one, your translation replaces the old one.
-
 Translate whatever you watch -- that's the whole idea.
 
 ## Contribute code

@@ -363,7 +363,7 @@
     }
   },
   "retryProgress": {
-    "message": "Retry $ATTEMPT$/$MAX$ ($CODE$)...",
+    "message": "Повтор $ATTEMPT$/$MAX$ ($CODE$)...",
     "placeholders": {
       "attempt": {
         "content": "$1"
