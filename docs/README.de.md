@@ -66,7 +66,7 @@ Das sind keine Fehler — das sind inhärente Grenzen einer reinen Text-Überset
 
 ## Datenschutz
 - Dein API-Key bleibt auf deinem Gerät — wird niemals an einen Server gesendet, außer an den KI-Anbieter deiner Wahl
-- Kein Tracking und keine Werbung in der Erweiterung (die Website verwendet Yandex.Metrika für anonyme Besuchsstatistiken)
+- Kein Tracking und keine Werbung in der Erweiterung (die Website verwendet anonyme Besuchsanalysen)
 - [Datenschutzerklärung](https://podstr.cc/en/privacy/)
 
 ## Mitwirken

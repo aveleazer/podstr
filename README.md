@@ -74,7 +74,7 @@ These aren't bugs — they're inherent limits of text-only translation. A human 
 ## Privacy
 
 - Your API key stays on your device — never sent to any server except the AI provider you choose
-- No tracking or ads in the extension (website uses Yandex.Metrika for anonymous visit stats)
+- No tracking or ads in the extension (website uses anonymous visit analytics)
 - [Privacy policy](https://podstr.cc/en/privacy/)
 
 ## Contributing

@@ -66,7 +66,7 @@ Esses não são bugs — são limitações inerentes à tradução baseada apena
 
 ## Privacidade
 - Sua chave de API fica no seu dispositivo — nunca é enviada a nenhum servidor exceto o provedor de IA que você escolher
-- Sem rastreamento ou anúncios na extensão (o site usa Yandex.Metrika para estatísticas anônimas de visitas)
+- Sem rastreamento ou anúncios na extensão (o site usa analytics anônimos de visitas)
 - [Política de privacidade](https://podstr.cc/en/privacy/)
 
 ## Contribuindo

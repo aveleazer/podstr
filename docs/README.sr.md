@@ -66,7 +66,7 @@ To nisu bagovi — to su inherentna ograničenja prevoda samo na osnovu teksta. 
 
 ## Privatnost
 - Tvoj API ključ ostaje na tvom uređaju — nikada se ne šalje ni na jedan server osim AI provajderu koji izabereš
-- Bez praćenja i reklama u ekstenziji (sajt koristi Yandex.Metriku za anonimnu statistiku poseta)
+- Bez praćenja i reklama u ekstenziji (sajt koristi anonimnu analitiku poseta)
 - [Politika privatnosti](https://podstr.cc/en/privacy/)
 
 ## Doprinos

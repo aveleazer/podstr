@@ -64,7 +64,7 @@ Bunlar hata değildir — yalnızca metne dayalı çevirinin doğal sınırları
 
 ## Gizlilik
 - API anahtarınız cihazınızda kalır — seçtiğiniz yapay zeka sağlayıcısı dışında hiçbir sunucuya gönderilmez
-- Uzantıda izleme veya reklam yoktur (web sitesi anonim ziyaret istatistikleri için Yandex.Metrika kullanır)
+- Uzantıda izleme veya reklam yoktur (web sitesi anonim ziyaret analizleri kullanır)
 - [Gizlilik politikası](https://podstr.cc/en/privacy/)
 
 ## Katkıda Bulunma

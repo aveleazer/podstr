@@ -66,7 +66,7 @@ Ce ne sont pas des bugs — ce sont des limites inhérentes à la traduction tex
 
 ## Confidentialité
 - Votre clé API reste sur votre appareil — jamais envoyée à aucun serveur autre que le fournisseur d'IA que vous choisissez
-- Aucun tracking ni publicité dans l'extension (le site utilise Yandex.Metrika pour des statistiques de visite anonymes)
+- Aucun tracking ni publicité dans l'extension (le site utilise des statistiques de visite anonymes)
 - [Politique de confidentialité](https://podstr.cc/en/privacy/)
 
 ## Contribuer

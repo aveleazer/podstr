@@ -66,7 +66,7 @@ Nämä eivät ole bugeja — ne ovat pelkän tekstin käännöksen luontaisia ra
 
 ## Yksityisyys
 - API-avaimesi pysyy laitteellasi — sitä ei koskaan lähetetä mihinkään palvelimeen paitsi valitsemallesi tekoälypalveluntarjoajalle
-- Ei seurantaa tai mainoksia laajennuksessa (verkkosivusto käyttää Yandex.Metrikaa anonyymeissä kävijätilastoissa)
+- Ei seurantaa tai mainoksia laajennuksessa (verkkosivusto käyttää anonyymiä kävijäanalytiikkaa)
 - [Tietosuojakäytäntö](https://podstr.cc/en/privacy/)
 
 ## Osallistuminen
