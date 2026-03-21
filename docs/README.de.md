@@ -1,80 +1,76 @@
-<div align="center">
+[English](../README.md)
 
-# Podstr — KI-Untertitelübersetzung
+# Podstr
 
-**Übersetze Untertitel in jede Sprache mit KI.**
-Chrome-Erweiterung: erkennt Untertitel auf Videoplattformen und übersetzt sie in Echtzeit.
+**Synchronisation zerstört die schauspielerische Leistung. Eingebaute Untertitel haben Google-Translate-Qualität. Du verdienst Besseres.**
+
+Podstr ist eine Chrome-Erweiterung, die Untertitel mit KI übersetzt — Claude, Gemini, DeepSeek — direkt in deinem Browser. Du hörst die Originalstimmen. Du liest Untertitel, die Kontext, Humor und Slang tatsächlich verstehen.
 
 [Website](https://podstr.cc) · [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) · [Telegram](https://t.me/podstrcc)
 
-</div>
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/iophagcapjpmkcpdjkfndpdakipokeih?label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/aveleazer/podstr)](https://github.com/aveleazer/podstr/stargazers)
+
+🇷🇺 [Русский](README.ru.md) · 🇺🇦 [Українська](README.uk.md) · 🇧🇾 [Беларуская](README.be.md) · 🇷🇸 [Srpski](README.sr.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇩🇪 [Deutsch](README.de.md) · 🇧🇷 [Português](README.pt-BR.md) · 🇨🇳 [中文](README.zh-CN.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md) · 🇹🇷 [Türkçe](README.tr.md)
 
 ---
 
-## Was ist das
+## So funktioniert es
+1. Installiere die Erweiterung aus dem Chrome Web Store
+2. Öffne ein Video auf YouTube, ARTE oder einer anderen unterstützten Seite
+3. Wähle deine Sprache im Untertitel-Picker über dem Video
+4. Untertitel erscheinen über dem Video — von KI übersetzt
 
-Eine Chrome-Erweiterung, die Untertitel auf Videoseiten abfängt und sie mithilfe von KI-Modellen übersetzt (Claude, Gemini, DeepSeek u.a. über OpenRouter). Funktioniert mit englischen, spanischen, deutschen, finnischen — beliebigen Untertiteln. Übersetzt in jede Sprache.
+Wenn jemand dieselbe Folge bereits übersetzt hat, wird sie aus einem gemeinsamen Cache geladen — sofort und kostenlos.
 
-Wenn jemand dieselbe Episode bereits übersetzt hat, wird die Übersetzung sofort und kostenlos aus dem gemeinsamen Cache geladen.
+## Warum nicht einfach die Plattform-Untertitel nutzen
+| | Plattform-Untertitel / Google Translate | Podstr |
+|---|---|---|
+| **Kontext** | Zeile für Zeile, kein Bewusstsein für den Dialog | Batch-Übersetzung mit vollständigem Kontext |
+| **Humor & Slang** | Wörtlich, oft falsch | Versteht Witze, Redewendungen, kulturelle Anspielungen |
+| **Sprachpaare** | Begrenzt auf das Angebot der Plattform | Jede Sprache → jede von 30 Sprachen |
+| **Qualitätskontrolle** | Nimm, was du kriegst | Wähle dein Modell: Claude für Qualität, Gemini für Geschwindigkeit, DeepSeek für niedrige Kosten |
+| **Zweisprachige Untertitel** | Selten verfügbar | Original + Übersetzung gleichzeitig auf dem Bildschirm |
+| **Kosten** | Kostenlos (und das merkt man) | Ab $0,007 pro Folge. Kostenlose Modelle verfügbar |
 
-## Ich will schauen
-
-1. Installiere aus dem [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
-2. Öffne ein Video mit Untertiteln → wähle die Sprache im Picker → fertig
-
-## Ich will übersetzen
-
-### Über OpenRouter API (Bezahlung pro Token)
-
-1. Hol dir einen Schlüssel auf [openrouter.ai](https://openrouter.ai/)
-2. Füge den Schlüssel in den Erweiterungseinstellungen ein
-3. Wähle ein Modell und eine Sprache → die Übersetzung startet automatisch
-
-> Die Kosten hängen vom Modell ab: DeepSeek V3 — ab $0,01 pro Episode, Claude Opus — $5–15 pro Stunden-Episode.
-
-### Über Claude CLI (kostenlos mit Max-Abo)
-
-Ausführliche Anleitung: [CONTRIBUTING.md](CONTRIBUTING.md)
-
-## Getestete Plattformen
-
+## Unterstützte Plattformen
 | Plattform | Untertitel | Status |
 |-----------|------------|--------|
 | **YouTube** | Manuelle CC (nicht automatisch generiert) | Getestet |
-| **Kinopab** | HLS-Untertitel | Getestet |
-| **ARTE** | HLS-Untertitel | Getestet |
-| **Filmzie** | HLS-Untertitel | Getestet |
 | **BBC iPlayer** | TTML/EBU-TT-D | Getestet |
+| **ARTE** | HLS-Untertitel | Getestet |
+| **Plex** | HLS-Untertitel | Getestet |
+| **Filmzie** | HLS-Untertitel | Getestet |
+| **Netflix** | — | Funktioniert möglicherweise, nicht getestet |
 
-Andere Seiten mit HLS-Untertiteln können ebenfalls funktionieren — klicke auf **Enable** im Popup der Erweiterung.
+Andere Seiten mit HLS/VTT/TTML-Untertiteln könnten funktionieren — klicke auf **Aktivieren** im Erweiterungs-Popup.
+
+## Schnellstart
+**Einfach nur schauen** — installiere aus dem [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih), öffne ein Video, wähle eine Sprache. Wenn die Folge im gemeinsamen Cache ist, wird sie sofort abgespielt.
+**Neue Inhalte übersetzen** — füge einen [OpenRouter API-Key](https://openrouter.ai/keys) in den Erweiterungseinstellungen ein. Kostenlose Keys verfügbar. Wähle ein Modell, öffne ein Video — die Übersetzung startet automatisch.
 
 ## Funktionen
+- **30 Übersetzungssprachen**, Oberfläche in 13 Sprachen
+- **Zweisprachige Untertitel** — Original + Übersetzung gleichzeitig
+- **Mehrere KI-Modelle** — Claude Sonnet für Qualität, Gemini Flash für Geschwindigkeit, DeepSeek für niedrige Kosten. Kostenlose Modelle verfügbar
+- **Gemeinsamer Cache** — einer übersetzt, alle profitieren
+- **Übersetzungskosten** werden direkt auf dem Video angezeigt, bevor du startest
+- **Tastenkürzel** — `[` / `]` Timing ±0,5s verschieben, `B` Position umschalten, `\` Offset zurücksetzen
+- **Stil-Anpassung** — Schriftart, Farbe, Transparenz, Position
 
-- **Mehrsprachig** — übersetzt von jeder Sprache in jede andere. Deutsch als Standard
-- **Auswahl des KI-Modells** — DeepSeek, Gemini, Claude Sonnet/Opus, Llama über OpenRouter
-- **Gemeinsamer Cache** — einer übersetzt, alle anderen schauen kostenlos
-- **Übersetzungskosten** — die Kosten werden direkt im Video angezeigt
-- **Timing-Anpassung** — `[` / `]` zum Verschieben um ±0,5s
-- **Darstellung anpassen** — Schriftart, Farbe, Deckkraft, Position
+## Ehrliche Einschränkungen
+Das KI-Modell sieht nur Text — nicht das Video. Es weiß nicht, ob ein Mann oder eine Frau spricht, daher können geschlechtsspezifische Formen falsch sein. Es kann nicht immer zwischen formellem „Sie" und informellem „du" unterscheiden. Neologismen werden möglicherweise wörtlich übersetzt.
+Das sind keine Fehler — das sind inhärente Grenzen einer reinen Text-Übersetzung. Ein menschlicher Übersetzer, der nur mit einem Transkript arbeitet, hätte dieselben Probleme.
+**Was es gut kann:** Claude Sonnet liefert Übersetzungen, die mit guten Fansubs vergleichbar sind — Humor, Slang und Kontext bleiben erhalten. Bei den meisten Inhalten wirst du vergessen, dass du KI-generierte Untertitel liest.
 
-## FAQ
+## Datenschutz
+- Dein API-Key bleibt auf deinem Gerät — wird niemals an einen Server gesendet, außer an den KI-Anbieter deiner Wahl
+- Kein Tracking und keine Werbung in der Erweiterung (die Website verwendet Yandex.Metrika für anonyme Besuchsstatistiken)
+- [Datenschutzerklärung](https://podstr.cc/en/privacy/)
 
-### Brauche ich einen API-Schlüssel?
-
-Nein, wenn die Episode bereits von jemandem übersetzt wurde (gemeinsamer Cache). Für eine neue Übersetzung brauchst du einen OpenRouter-Schlüssel oder ein Claude-Max-Abo.
-
-### Ist es kostenlos?
-
-Die Erweiterung ist kostenlos. Übersetzungen aus dem gemeinsamen Cache sind kostenlos. Bezahlt wird nur für die Übersetzung neuer Inhalte über die OpenRouter API.
-
-### Wie ist die Übersetzungsqualität?
-
-Hängt vom Modell ab. Claude Opus ist auf dem Niveau guter Fansubs — mit Humor, Slang und Kontext. DeepSeek und Gemini Flash sind günstiger, aber trotzdem gut lesbar.
-
-## Website
-
-[podstr.cc](https://podstr.cc) — Modellvergleich, Plattformen, Installationsanleitung.
+## Mitwirken
+Fehlerberichte, Plattform-Anfragen und Pull Requests sind willkommen. Siehe [docs/CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Lizenz
-
-MIT
+MIT — [Anabasis Media DOO](https://podstr.cc)

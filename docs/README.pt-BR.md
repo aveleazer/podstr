@@ -1,89 +1,76 @@
-<div align="center">
+[English](../README.md)
 
-# Podstr — Tradução de Legendas com IA
+# Podstr
 
-**Traduza legendas para qualquer idioma com IA.**
-Extensão para Chrome: detecta legendas em plataformas de vídeo e traduz em tempo real.
+**Dublagem mata a atuação. Legendas embutidas têm qualidade de Google Tradutor. Você merece coisa melhor.**
+
+Podstr é uma extensão para Chrome que traduz legendas usando IA — Claude, Gemini, DeepSeek — direto no seu navegador. Você ouve as vozes originais. Você lê legendas que realmente entendem contexto, humor e gírias.
 
 [Site](https://podstr.cc) · [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) · [Telegram](https://t.me/podstrcc)
 
-</div>
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/iophagcapjpmkcpdjkfndpdakipokeih?label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/aveleazer/podstr)](https://github.com/aveleazer/podstr/stargazers)
+
+🇷🇺 [Русский](README.ru.md) · 🇺🇦 [Українська](README.uk.md) · 🇧🇾 [Беларуская](README.be.md) · 🇷🇸 [Srpski](README.sr.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇩🇪 [Deutsch](README.de.md) · 🇧🇷 [Português](README.pt-BR.md) · 🇨🇳 [中文](README.zh-CN.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md) · 🇹🇷 [Türkçe](README.tr.md)
 
 ---
 
-## O que é
+## Como Funciona
+1. Instale a extensão pela Chrome Web Store
+2. Abra um vídeo no YouTube, ARTE ou qualquer site compatível
+3. Escolha seu idioma no seletor de legendas acima do vídeo
+4. As legendas aparecem sobre o vídeo — traduzidas por IA
 
-Uma extensão para Chrome que intercepta legendas em sites de vídeo e as traduz usando modelos de IA (Claude, Gemini, DeepSeek, etc. via OpenRouter). Funciona com legendas em inglês, espanhol, alemão, finlandês — qualquer idioma. Traduz para qualquer idioma.
+Se alguém já traduziu o mesmo episódio, ele carrega de um cache compartilhado — instantaneamente e de graça.
 
-Se alguém já traduziu o mesmo episódio, a tradução é carregada do cache compartilhado — instantaneamente e de graça.
+## Por Que Não Usar as Legendas da Plataforma
+| | Legendas da plataforma / Google Tradutor | Podstr |
+|---|---|---|
+| **Contexto** | Linha por linha, sem noção do diálogo | Tradução em lotes com contexto completo |
+| **Humor e gírias** | Literal, frequentemente errado | Entende piadas, expressões idiomáticas, referências culturais |
+| **Pares de idiomas** | Limitado ao que a plataforma oferece | Qualquer idioma → qualquer um de 30 idiomas |
+| **Controle de qualidade** | Aceite o que vier | Escolha seu modelo: Claude para qualidade, Gemini para velocidade, DeepSeek para custo |
+| **Legendas duplas** | Raramente disponível | Original + tradução na tela ao mesmo tempo |
+| **Custo** | Grátis (e dá pra perceber) | A partir de $0,007 por episódio. Modelos gratuitos disponíveis |
 
-## Início Rápido
-
-1. Instale pela [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
-2. Abra um vídeo com legendas → escolha o idioma → pronto
-
-Para traduzir conteúdo novo, você precisa de uma [chave de API do OpenRouter](https://openrouter.ai/keys) (chaves gratuitas disponíveis).
-
-## Plataformas Suportadas
-
+## Plataformas Compatíveis
 | Plataforma | Legendas | Status |
 |------------|----------|--------|
-| **YouTube** | CC manuais (não geradas automaticamente) | Testado |
+| **YouTube** | CC manual (não gerado automaticamente) | Testado |
 | **BBC iPlayer** | TTML/EBU-TT-D | Testado |
 | **ARTE** | Legendas HLS | Testado |
 | **Plex** | Legendas HLS | Testado |
 | **Filmzie** | Legendas HLS | Testado |
+| **Netflix** | — | Pode funcionar, não testado |
 
-Outros sites com legendas HLS/VTT/TTML também podem funcionar — clique em **Enable** no popup da extensão.
+Outros sites com legendas HLS/VTT/TTML podem funcionar — clique em **Ativar** no popup da extensão.
 
-## Funcionalidades
+## Início Rápido
+**Só quer assistir** — instale pela [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih), abra um vídeo, escolha um idioma. Se o episódio estiver no cache compartilhado, ele toca imediatamente.
+**Quer traduzir conteúdo novo** — cole uma [chave de API do OpenRouter](https://openrouter.ai/keys) nas configurações da extensão. Chaves gratuitas disponíveis. Escolha um modelo, abra um vídeo — a tradução começa automaticamente.
 
-- **Qualquer idioma** — traduz de qualquer idioma de legenda para qualquer idioma de destino
-- **Vários modelos de IA** — escolha por qualidade e preço. Modelos gratuitos disponíveis
-- **Custo da tradução** — veja quanto cada tradução custou diretamente no vídeo
-- **Cache compartilhado** — uma pessoa traduz, todos os outros assistem de graça
-- **Cache local inteligente** — legendas traduzidas carregam instantaneamente ao rever
-- **Ajuste de timing** — `[` / `]` para deslocar ±0,5s
-- **Personalização visual** — fonte, cor, opacidade, posição
-- **Atalhos de teclado** — `B` alterna posição, `\` reseta offset
-- **13 idiomas de interface** — EN, RU, UK, BE, SR, ES, FR, DE, PT, ZH, JA, KO, TR
+## Recursos
+- **30 idiomas de tradução**, interface em 13 idiomas
+- **Legendas duplas** — original + tradução simultaneamente
+- **Vários modelos de IA** — Claude Sonnet para qualidade, Gemini Flash para velocidade, DeepSeek para custo. Modelos gratuitos disponíveis
+- **Cache compartilhado** — uma pessoa traduz, todo mundo se beneficia
+- **Custo da tradução** exibido direto no vídeo antes de começar
+- **Atalhos de teclado** — `[` / `]` ajustam o timing em ±0,5s, `B` alterna posição, `\` reseta o offset
+- **Personalização de estilo** — fonte, cor, opacidade, posição
 
-## Como funciona
-
-1. **Detecção** — o service worker intercepta requisições de legendas via `chrome.webRequest`
-2. **Download** — o background script baixa as legendas, contornando CORS
-3. **Tradução** — em lotes via API do OpenRouter (sua chave, sua escolha de modelo)
-4. **Cache** — VTT traduzido comprimido com gzip, armazenado localmente + cache compartilhado
-5. **Renderização** — o content script exibe as legendas sincronizadas com a reprodução do vídeo
-
-## FAQ
-
-**Preciso de uma chave de API?** Não, se o episódio já estiver no cache compartilhado. Para novas traduções — você precisa de uma chave OpenRouter.
-
-**É gratuito?** A extensão é gratuita. Traduções em cache são gratuitas. Você só paga para traduzir conteúdo novo pelo provedor de IA.
-
-**Qualidade da tradução?** Depende do modelo. Claude Opus está no nível de bons fansubs. DeepSeek e Gemini Flash são mais baratos, mas ainda legíveis.
-
-**Custo típico?** $0,005–0,05 por episódio dependendo do modelo. Modelos gratuitos disponíveis.
+## Limitações Honestas
+O modelo de IA vê apenas texto — não o vídeo. Ele não sabe se quem está falando é homem ou mulher, então formas de gênero podem sair erradas. Nem sempre consegue distinguir "você" formal de informal. Neologismos podem ser traduzidos literalmente.
+Esses não são bugs — são limitações inerentes à tradução baseada apenas em texto. Um tradutor humano trabalhando só com a transcrição enfrentaria os mesmos problemas.
+**O que ele faz bem:** Claude Sonnet produz traduções comparáveis a boas fansubs — humor, gírias e contexto preservados. Para a maioria dos conteúdos, você vai esquecer que está lendo legendas geradas por IA.
 
 ## Privacidade
-
-- Sua chave de API fica no seu dispositivo — nunca é enviada a nenhum servidor
-- Sem rastreamento, sem analytics, sem anúncios
-- O texto das legendas é enviado apenas ao provedor de IA que você escolher
+- Sua chave de API fica no seu dispositivo — nunca é enviada a nenhum servidor exceto o provedor de IA que você escolher
+- Sem rastreamento ou anúncios na extensão (o site usa Yandex.Metrika para estatísticas anônimas de visitas)
 - [Política de privacidade](https://podstr.cc/en/privacy/)
 
 ## Contribuindo
-
-Veja [CONTRIBUTING.md](CONTRIBUTING.md)
+Relatórios de bugs, pedidos de plataformas e PRs são bem-vindos. Veja [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licença
-
-MIT
-
-## Links
-
-- [podstr.cc](https://podstr.cc) — site
-- [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
-- [GitHub](https://github.com/aveleazer/podstr)
-- [Telegram](https://t.me/podstrcc)
+MIT — [Anabasis Media DOO](https://podstr.cc)

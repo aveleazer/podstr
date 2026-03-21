@@ -1,89 +1,76 @@
-<div align="center">
+[English](../README.md)
 
-# Podstr — AI 字幕翻訳
+# Podstr
 
-**AIで字幕をあらゆる言語に翻訳。**
-Chrome拡張機能：動画プラットフォームの字幕を検出し、リアルタイムで翻訳します。
+**吹き替えは演技を殺す。内蔵字幕はGoogle翻訳レベル。もっと良いものがあるはず。**
 
-[ウェブサイト](https://podstr.cc) · [Chrome ウェブストア](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) · [Telegram](https://t.me/podstrcc)
+Podstrは、AI（Claude、Gemini、DeepSeek）を使って字幕を翻訳するChrome拡張機能です。ブラウザ上でそのまま動作します。オリジナルの声を聴きながら、文脈・ユーモア・スラングをちゃんと理解した字幕を読めます。
 
-</div>
+[ウェブサイト](https://podstr.cc) · [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) · [Telegram](https://t.me/podstrcc)
+
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/iophagcapjpmkcpdjkfndpdakipokeih?label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/aveleazer/podstr)](https://github.com/aveleazer/podstr/stargazers)
+
+🇷🇺 [Русский](README.ru.md) · 🇺🇦 [Українська](README.uk.md) · 🇧🇾 [Беларуская](README.be.md) · 🇷🇸 [Srpski](README.sr.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇩🇪 [Deutsch](README.de.md) · 🇧🇷 [Português](README.pt-BR.md) · 🇨🇳 [中文](README.zh-CN.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md) · 🇹🇷 [Türkçe](README.tr.md)
 
 ---
 
-## これは何？
+## 仕組み
+1. Chrome Web Storeから拡張機能をインストール
+2. YouTube、ARTE、その他の対応サイトで動画を開く
+3. 動画の上に表示される字幕ピッカーから言語を選択
+4. AIが翻訳した字幕が動画の上に表示される
 
-動画サイトの字幕をインターセプトし、AIモデル（Claude、Gemini、DeepSeekなど、OpenRouter経由）で翻訳するChrome拡張機能です。英語、スペイン語、ドイツ語、フィンランド語など、あらゆる言語の字幕に対応。任意の言語に翻訳できます。
+同じエピソードを既に誰かが翻訳していれば、共有キャッシュから即座に無料で読み込まれます。
 
-同じエピソードを誰かが既に翻訳済みなら、共有キャッシュから即座に無料で読み込まれます。
-
-## クイックスタート
-
-1. [Chrome ウェブストア](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)からインストール
-2. 字幕付きの動画を開く → 言語を選択 → 完了
-
-新しいコンテンツを翻訳するには、[OpenRouter APIキー](https://openrouter.ai/keys)が必要です（無料キーあり）。
+## プラットフォームの字幕ではダメな理由
+| | プラットフォーム字幕 / Google翻訳 | Podstr |
+|---|---|---|
+| **文脈** | 一行ずつ、会話の流れを無視 | 文脈を把握したバッチ翻訳 |
+| **ユーモアとスラング** | 直訳、誤訳が多い | ジョーク、慣用句、文化的な表現を理解 |
+| **言語ペア** | プラットフォームが提供するものに限定 | あらゆる言語から30言語へ翻訳可能 |
+| **品質管理** | 出されたものをそのまま使う | モデルを選択可能：品質ならClaude、速度ならGemini、コストならDeepSeek |
+| **二言語字幕** | ほとんど利用不可 | 原文と翻訳を同時に画面表示 |
+| **コスト** | 無料（品質相応） | 1エピソードあたり$0.007から。無料モデルもあり |
 
 ## 対応プラットフォーム
-
-| プラットフォーム | 字幕形式 | 状態 |
-|-----------------|----------|------|
-| **YouTube** | 手動CC（自動生成は非対応） | テスト済み |
+| プラットフォーム | 字幕形式 | ステータス |
+|----------|-----------|--------|
+| **YouTube** | 手動CC（自動生成ではない） | テスト済み |
 | **BBC iPlayer** | TTML/EBU-TT-D | テスト済み |
 | **ARTE** | HLS字幕 | テスト済み |
 | **Plex** | HLS字幕 | テスト済み |
 | **Filmzie** | HLS字幕 | テスト済み |
+| **Netflix** | — | 動作する可能性あり、未テスト |
 
-HLS/VTT/TTML字幕のある他のサイトでも動作する場合があります。拡張機能のポップアップで **Enable** をクリックしてお試しください。
+HLS/VTT/TTML字幕のある他のサイトでも動作する場合があります。拡張機能のポップアップで**Enable**をクリックしてください。
+
+## クイックスタート
+**ただ観たいだけなら** — [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)からインストールし、動画を開いて言語を選択。そのエピソードが共有キャッシュにあれば、すぐに再生されます。
+**新しいコンテンツを翻訳したいなら** — [OpenRouter APIキー](https://openrouter.ai/keys)を拡張機能の設定に貼り付けてください。無料キーも利用可能です。モデルを選んで動画を開けば、翻訳が自動的に始まります。
 
 ## 機能
-
-- **あらゆる言語に対応** — 任意の字幕言語から任意のターゲット言語へ翻訳
-- **複数のAIモデル** — 品質と価格で選択可能。無料モデルあり
-- **翻訳コスト表示** — 動画上で各翻訳のコストを確認
-- **共有キャッシュ** — 一人が翻訳すれば、他の全員が無料で視聴
-- **スマートローカルキャッシュ** — 再視聴時は翻訳済み字幕が瞬時に読み込み
-- **タイミング調整** — `[` / `]` で±0.5秒シフト
+- **30の翻訳言語**、13言語のインターフェース
+- **二言語字幕** — 原文と翻訳を同時表示
+- **複数のAIモデル** — 品質重視ならClaude Sonnet、速度重視ならGemini Flash、コスト重視ならDeepSeek。無料モデルもあり
+- **共有キャッシュ** — 一人が翻訳すれば、みんなが恩恵を受ける
+- **翻訳コスト** が開始前に動画上に表示
+- **キーボードショートカット** — `[` / `]` でタイミングを±0.5秒調整、`B` で位置切替、`\` でオフセットリセット
 - **スタイルカスタマイズ** — フォント、色、透明度、位置
-- **キーボードショートカット** — `B` で位置切り替え、`\` でオフセットリセット
-- **13のインターフェース言語** — EN、RU、UK、BE、SR、ES、FR、DE、PT、ZH、JA、KO、TR
 
-## 仕組み
-
-1. **検出** — Service Workerが `chrome.webRequest` で字幕リクエストをインターセプト
-2. **ダウンロード** — バックグラウンドスクリプトがCORSを回避して字幕を取得
-3. **翻訳** — OpenRouter API経由でバッチ処理（あなたのキー、あなたが選んだモデル）
-4. **キャッシュ** — 翻訳済みVTTをgzip圧縮し、ローカル＋共有キャッシュに保存
-5. **レンダリング** — コンテンツスクリプトが動画再生に同期して字幕を表示
-
-## FAQ
-
-**APIキーは必要？** そのエピソードが共有キャッシュにあれば不要です。新規翻訳にはOpenRouterキーが必要です。
-
-**無料？** 拡張機能は無料です。キャッシュ済みの翻訳も無料です。新しいコンテンツをAIプロバイダー経由で翻訳する場合のみ料金が発生します。
-
-**翻訳の品質は？** モデルによります。Claude Opusは質の高いファンサブと同等です。DeepSeekやGemini Flashはより安価ですが、十分に読めます。
-
-**一般的なコストは？** モデルによって1エピソードあたり$0.005〜0.05。無料モデルもあります。
+## 正直な制限事項
+AIモデルはテキストのみを処理し、映像は見ていません。話しているのが男性か女性かわからないため、性別に依存する表現が間違うことがあります。敬語とカジュアルな表現の区別が常に正しいとは限りません。新語がそのまま直訳されることもあります。
+これらはバグではなく、テキストのみの翻訳に固有の限界です。台本だけで作業する人間の翻訳者でも同じ問題に直面します。
+**得意なこと：** Claude Sonnetは、良質なファンサブに匹敵する翻訳を生成します。ユーモア、スラング、文脈がしっかり保たれます。ほとんどのコンテンツで、AI生成の字幕を読んでいることを忘れるでしょう。
 
 ## プライバシー
-
-- APIキーはあなたのデバイスに保存 — サーバーに送信されることはありません
-- トラッキング、アナリティクス、広告なし
-- 字幕テキストはあなたが選んだAIプロバイダーにのみ送信
+- APIキーはお使いのデバイスに保存され、選択したAIプロバイダー以外のサーバーには一切送信されません
+- 拡張機能にトラッキングや広告はありません（ウェブサイトでは匿名のアクセス統計にYandex.Metrikaを使用）
 - [プライバシーポリシー](https://podstr.cc/en/privacy/)
 
-## コントリビューション
-
-[CONTRIBUTING.md](CONTRIBUTING.md)をご覧ください
+## コントリビュート
+バグ報告、プラットフォーム対応リクエスト、PRを歓迎します。[docs/CONTRIBUTING.md](CONTRIBUTING.md)をご覧ください。
 
 ## ライセンス
-
-MIT
-
-## リンク
-
-- [podstr.cc](https://podstr.cc) — ウェブサイト
-- [Chrome ウェブストア](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
-- [GitHub](https://github.com/aveleazer/podstr)
-- [Telegram](https://t.me/podstrcc)
+MIT — [Anabasis Media DOO](https://podstr.cc)

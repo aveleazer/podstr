@@ -1,89 +1,76 @@
-<div align="center">
+[English](../README.md)
 
-# Podstr — AI 字幕翻译
+# Podstr
 
-**用 AI 将字幕翻译成任何语言。**
-Chrome 扩展程序：自动检测视频平台上的字幕并实时翻译。
+**配音毁掉了表演。内置字幕不过是谷歌翻译的水平。你值得更好的。**
 
-[网站](https://podstr.cc) · [Chrome 应用商店](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) · [Telegram](https://t.me/podstrcc)
+Podstr 是一款 Chrome 扩展，使用 AI（Claude、Gemini、DeepSeek）直接在浏览器中翻译字幕。你听到的是原声。你读到的字幕真正理解上下文、幽默和俚语。
 
-</div>
+[官网](https://podstr.cc) · [Chrome 应用商店](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) · [Telegram](https://t.me/podstrcc)
+
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/iophagcapjpmkcpdjkfndpdakipokeih?label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/aveleazer/podstr)](https://github.com/aveleazer/podstr/stargazers)
+
+🇷🇺 [Русский](docs/README.ru.md) · 🇺🇦 [Українська](docs/README.uk.md) · 🇧🇾 [Беларуская](docs/README.be.md) · 🇷🇸 [Srpski](docs/README.sr.md) · 🇪🇸 [Español](docs/README.es.md) · 🇫🇷 [Français](docs/README.fr.md) · 🇩🇪 [Deutsch](docs/README.de.md) · 🇧🇷 [Português](docs/README.pt-BR.md) · 🇨🇳 [中文](docs/README.zh-CN.md) · 🇯🇵 [日本語](docs/README.ja.md) · 🇰🇷 [한국어](docs/README.ko.md) · 🇹🇷 [Türkçe](docs/README.tr.md)
 
 ---
 
-## 这是什么
+## 工作原理
+1. 从 Chrome 应用商店安装扩展
+2. 在 YouTube、ARTE 或任何支持的网站上打开视频
+3. 从视频上方的字幕选择器中选择你的语言
+4. AI 翻译的字幕出现在视频上
 
-一个 Chrome 扩展程序，能拦截视频网站上的字幕，并通过 AI 模型（Claude、Gemini、DeepSeek 等，经由 OpenRouter）进行翻译。支持英语、西班牙语、德语、芬兰语等任何语言的字幕，可翻译成任意目标语言。
+如果已经有人翻译过同一集，会从共享缓存中即时免费加载。
 
-如果有人已经翻译过同一集，翻译会从共享缓存中即时免费加载。
-
-## 快速开始
-
-1. 从 [Chrome 应用商店](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) 安装
-2. 打开有字幕的视频 → 选择语言 → 完成
-
-要翻译新内容，需要一个 [OpenRouter API 密钥](https://openrouter.ai/keys)（有免费密钥可用）。
+## 为什么不直接用平台自带字幕
+| | 平台字幕 / 谷歌翻译 | Podstr |
+|---|---|---|
+| **上下文** | 逐行翻译，不理解对话 | 批量翻译，完整上下文 |
+| **幽默和俚语** | 直译，经常出错 | 理解笑话、习语和文化梗 |
+| **语言对** | 受限于平台提供的选项 | 任意语言 → 30 种语言 |
+| **质量控制** | 给什么用什么 | 自选模型：Claude 重质量，Gemini 重速度，DeepSeek 重性价比 |
+| **双语字幕** | 很少提供 | 原文 + 译文同时显示 |
+| **费用** | 免费（一分钱一分货） | 每集低至 $0.007，也有免费模型可用 |
 
 ## 支持的平台
-
-| 平台 | 字幕类型 | 状态 |
-|------|----------|------|
-| **YouTube** | 手动 CC（非自动生成） | 已测试 |
+| 平台 | 字幕格式 | 状态 |
+|----------|-----------|--------|
+| **YouTube** | 手动 CC 字幕（非自动生成） | 已测试 |
 | **BBC iPlayer** | TTML/EBU-TT-D | 已测试 |
 | **ARTE** | HLS 字幕 | 已测试 |
 | **Plex** | HLS 字幕 | 已测试 |
 | **Filmzie** | HLS 字幕 | 已测试 |
+| **Netflix** | — | 可能可用，未测试 |
 
-其他提供 HLS/VTT/TTML 字幕的网站也可能支持——在扩展弹窗中点击 **Enable** 即可尝试。
+其他使用 HLS/VTT/TTML 字幕的网站也可能支持——在扩展弹窗中点击 **Enable** 即可。
+
+## 快速开始
+**只想看字幕** — 从 [Chrome 应用商店](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)安装，打开视频，选择语言。如果该集已在共享缓存中，立即播放。
+**想翻译新内容** — 在扩展设置中粘贴 [OpenRouter API key](https://openrouter.ai/keys)。可申请免费 key。选择模型，打开视频——翻译自动开始。
 
 ## 功能特性
-
-- **任意语言** — 支持任何字幕语言到任何目标语言的翻译
-- **多种 AI 模型** — 按质量和价格自由选择，有免费模型可用
-- **翻译费用** — 直接在视频上查看每次翻译的花费
-- **共享缓存** — 一人翻译，所有人免费观看
-- **智能本地缓存** — 重复观看时字幕即时加载
-- **时间轴调整** — `[` / `]` 前后偏移 ±0.5 秒
+- **30 种翻译语言**，界面支持 13 种语言
+- **双语字幕** — 原文 + 译文同时显示
+- **多种 AI 模型** — Claude Sonnet 重质量，Gemini Flash 重速度，DeepSeek 重性价比。也有免费模型
+- **共享缓存** — 一人翻译，所有人受益
+- **翻译费用**在开始前直接显示在视频上
+- **快捷键** — `[` / `]` 调整时间轴 ±0.5 秒，`B` 切换位置，`\` 重置偏移
 - **样式自定义** — 字体、颜色、透明度、位置
-- **快捷键** — `B` 切换位置，`\` 重置偏移
-- **13 种界面语言** — EN、RU、UK、BE、SR、ES、FR、DE、PT、ZH、JA、KO、TR
 
-## 工作原理
-
-1. **检测** — Service Worker 通过 `chrome.webRequest` 拦截字幕请求
-2. **下载** — 后台脚本绕过 CORS 获取字幕
-3. **翻译** — 通过 OpenRouter API 批量翻译（使用你的密钥和你选择的模型）
-4. **缓存** — 翻译后的 VTT 经 gzip 压缩，同时保存到本地和共享缓存
-5. **渲染** — 内容脚本将字幕与视频播放同步显示
-
-## 常见问题
-
-**需要 API 密钥吗？** 如果该集已在共享缓存中，则不需要。翻译新内容需要 OpenRouter 密钥。
-
-**免费吗？** 扩展本身免费。缓存中的翻译免费。仅在通过 AI 服务商翻译新内容时需要付费。
-
-**翻译质量如何？** 取决于模型。Claude Opus 的水平堪比优质字幕组。DeepSeek 和 Gemini Flash 更便宜，但仍然可读。
-
-**一般要花多少钱？** 每集 $0.005–0.05 不等，取决于所选模型。有免费模型可用。
+## 坦诚的局限性
+AI 模型只能看到文本，看不到视频画面。它不知道说话的是男是女，因此涉及性别的表达可能有误。它也不一定能区分敬语和非敬语。新词可能被直译。
+这些不是 bug，而是纯文本翻译固有的局限。即使是人工译者仅凭文稿翻译，也会遇到同样的问题。
+**它的优势：** Claude Sonnet 的翻译质量堪比优秀的字幕组——幽默、俚语和上下文都能拿捏到位。对于大多数内容，你会忘了自己在看 AI 生成的字幕。
 
 ## 隐私
-
-- API 密钥仅保存在你的设备上——从不发送到任何服务器
-- 无追踪、无数据分析、无广告
-- 字幕文本仅发送给你选择的 AI 服务商
+- 你的 API key 保留在本地设备上，绝不会发送到你选择的 AI 提供商之外的任何服务器
+- 扩展中没有跟踪或广告（网站使用 Yandex.Metrika 进行匿名访问统计）
 - [隐私政策](https://podstr.cc/en/privacy/)
 
 ## 参与贡献
-
-请查看 [CONTRIBUTING.md](CONTRIBUTING.md)
+欢迎提交 bug 报告、平台适配请求和 PR。详见 [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)。
 
 ## 许可证
-
-MIT
-
-## 链接
-
-- [podstr.cc](https://podstr.cc) — 网站
-- [Chrome 应用商店](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
-- [GitHub](https://github.com/aveleazer/podstr)
-- [Telegram](https://t.me/podstrcc)
+MIT — [Anabasis Media DOO](https://podstr.cc)
