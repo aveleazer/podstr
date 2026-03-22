@@ -5,11 +5,25 @@ Versioning: [Semver](https://semver.org/). Source of truth — `extension/manife
 
 ## [Unreleased]
 
+### Added
+- **Player translate mode (AS-214)** — podstr.cc/player accepts .srt/.vtt files for translation without video. OAuth PKCE for OpenRouter (no extension required), "Translate for free" with `openrouter/free`, download .srt/.vtt. Extension detected = upgrade path (bridge via postMessage)
+- **Standalone translation engine** — `translate-engine.js` extracted from extension for use on website. parseVtt/buildVtt/batching/prompt/shared cache
+
+## [0.6.2] — 2026-03-22
+
+### Added
+- **bg-settings.js module (AS-153)** — extracted settings, settingsReady, getActiveModel from background.js
+- **Bridge protocol for podstr.cc (AS-226)** — `get_settings` handler returns full extension status (provider, model, canTranslate, auth, version) to website pages via postMessage bridge
+
+### Fixed
+- **settingsReady race condition** — now awaits both sync and local storage reads before resolving
+- **Bridge origin check** — accepts *.podstr.cc subdomains (was hardcoded to exact podstr.cc)
+
 ## [0.6.1] — 2026-03-19
 
 ### Added
 - **BBC iPlayer support (AS-203)** — TTML/EBU-TT-D subtitle format detection via content-type and URL pattern. Shadow DOM traversal for video element access. Native BBC subtitle auto-hiding
-- **Translation cost display (AS-181)** — shows translation cost ($) in top-right corner of video after completion. Dev mode shows model + cost + duration
+- **Translation cost in picker (AS-181, AS-208)** — shows cost inline in picker after translation (e.g. "523 subtitles · $0.04"). Removed separate floating overlay
 - **Slow model warning (AS-205)** — picker shows hint for non-flash/lite/fast/mini/haiku models
 - **Indeterminate progress bar** — animated progress bar while waiting for first translation batch
 
@@ -21,6 +35,7 @@ Versioning: [Semver](https://semver.org/). Source of truth — `extension/manife
 ### Fixed
 - **Shared cache shows wrong model (AS-179)** — hash-based lookup now returns actual translation model
 - **Duplicate model in picker (AS-180)** — retranslate link and path label no longer duplicate
+- **Picker layout cleanup (AS-209)** — flex-wrap, info elements on separate rows, max-width constraint
 - **Shared cache hit saved under wrong model key** — VTT no longer cached under user's model when loaded from shared cache of different model
 - **Literal \\n in subtitles** — LLM double-escaped newlines in non-first batches now unescaped
 - **Retry message shows undefined** — retry_info used as pre-formatted string

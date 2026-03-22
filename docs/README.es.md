@@ -1,76 +1,80 @@
-[English](../README.md)
+<div align="center">
 
-# Podstr
+# Podstr — Traducción de subtítulos con IA
 
-**El doblaje mata la actuación. Los subtítulos integrados tienen calidad de Google Translate. Te mereces algo mejor.**
-
-Podstr es una extensión de Chrome que traduce subtítulos usando IA — Claude, Gemini, DeepSeek — directamente en tu navegador. Escuchas las voces originales. Lees subtítulos que realmente entienden el contexto, el humor y la jerga.
+**Traduce subtítulos a cualquier idioma con IA.**
+Extensión de Chrome: detecta subtítulos en plataformas de vídeo y los traduce en tiempo real.
 
 [Sitio web](https://podstr.cc) · [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) · [Telegram](https://t.me/podstrcc)
 
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/iophagcapjpmkcpdjkfndpdakipokeih?label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/aveleazer/podstr)](https://github.com/aveleazer/podstr/stargazers)
-
-🇷🇺 [Русский](README.ru.md) · 🇺🇦 [Українська](README.uk.md) · 🇧🇾 [Беларуская](README.be.md) · 🇷🇸 [Srpski](README.sr.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇩🇪 [Deutsch](README.de.md) · 🇧🇷 [Português](README.pt-BR.md) · 🇨🇳 [中文](README.zh-CN.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md) · 🇹🇷 [Türkçe](README.tr.md)
+</div>
 
 ---
 
-## Cómo funciona
-1. Instala la extensión desde Chrome Web Store
-2. Abre un vídeo en YouTube, ARTE o cualquier sitio compatible
-3. Elige tu idioma en el selector de subtítulos sobre el vídeo
-4. Los subtítulos aparecen sobre el vídeo — traducidos por IA
+## Qué es
 
-Si alguien ya tradujo el mismo episodio, se carga desde una caché compartida — al instante y gratis.
+Una extensión de Chrome que intercepta subtítulos en sitios de vídeo y los traduce mediante modelos de IA (Claude, Gemini, DeepSeek, etc. a través de OpenRouter). Funciona con subtítulos en inglés, español, alemán, finés o cualquier otro idioma. Traduce a cualquier idioma.
 
-## Por qué no usar los subtítulos de la plataforma
-| | Subs de la plataforma / Google Translate | Podstr |
-|---|---|---|
-| **Contexto** | Línea por línea, sin noción del diálogo | Traducción por lotes con contexto completo |
-| **Humor y jerga** | Literal, a menudo incorrecto | Capta chistes, modismos y referencias culturales |
-| **Pares de idiomas** | Limitado a lo que ofrece la plataforma | Cualquier idioma → cualquiera de 30 idiomas |
-| **Control de calidad** | Lo que hay es lo que hay | Elige tu modelo: Claude para calidad, Gemini para velocidad, DeepSeek para ahorro |
-| **Subtítulos duales** | Rara vez disponibles | Original + traducción en pantalla a la vez |
-| **Coste** | Gratis (y se nota) | Desde $0.007 por episodio. Modelos gratuitos disponibles |
+Si alguien ya tradujo el mismo episodio, la traducción se carga desde la caché compartida de forma instantánea y gratuita.
 
-## Plataformas compatibles
+## Quiero ver
+
+1. Instala desde [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
+2. Abre un vídeo con subtítulos → elige el idioma en el selector → listo
+
+## Quiero traducir
+
+### A través de OpenRouter API (pago por tokens)
+
+1. Obtén una clave en [openrouter.ai](https://openrouter.ai/)
+2. Pega la clave en los ajustes de la extensión
+3. Elige un modelo e idioma → la traducción se inicia automáticamente
+
+> El coste depende del modelo: DeepSeek V3 — desde $0.01 por episodio, Claude Opus — $5–15 por episodio de una hora.
+
+### A través de Claude CLI (gratis con suscripción Max)
+
+Instrucciones detalladas: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Plataformas verificadas
+
 | Plataforma | Subtítulos | Estado |
 |------------|------------|--------|
-| **YouTube** | CC manuales (no autogenerados) | Probado |
-| **BBC iPlayer** | TTML/EBU-TT-D | Probado |
-| **ARTE** | Subtítulos HLS | Probado |
-| **Plex** | Subtítulos HLS | Probado |
-| **Filmzie** | Subtítulos HLS | Probado |
-| **Netflix** | — | Podría funcionar, no probado |
+| **YouTube** | CC manuales (no autogenerados) | Verificado |
+| **Kinopab** | Subtítulos HLS | Verificado |
+| **ARTE** | Subtítulos HLS | Verificado |
+| **Filmzie** | Subtítulos HLS | Verificado |
+| **BBC iPlayer** | TTML/EBU-TT-D | Verificado |
 
-Otros sitios con subtítulos HLS/VTT/TTML podrían funcionar — haz clic en **Enable** en el popup de la extensión.
+Otros sitios con subtítulos HLS pueden funcionar — haz clic en **Enable** en el popup de la extensión.
 
-## Inicio rápido
-**Solo quieres ver** — instala desde [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih), abre un vídeo, elige un idioma. Si el episodio está en la caché compartida, se reproduce de inmediato.
-**Quieres traducir contenido nuevo** — pega una [clave API de OpenRouter](https://openrouter.ai/keys) en los ajustes de la extensión. Hay claves gratuitas disponibles. Elige un modelo, abre un vídeo — la traducción comienza automáticamente.
+## Funcionalidades
 
-## Características
-- **30 idiomas de traducción**, interfaz en 13 idiomas
-- **Subtítulos duales** — original + traducción simultáneamente
-- **Múltiples modelos de IA** — Claude Sonnet para calidad, Gemini Flash para velocidad, DeepSeek para ahorro. Modelos gratuitos disponibles
-- **Caché compartida** — una persona traduce, todos se benefician
-- **Coste de traducción** mostrado directamente sobre el vídeo antes de empezar
-- **Atajos de teclado** — `[` / `]` ajustan el timing ±0.5s, `B` cambia la posición, `\` restablece el offset
-- **Personalización de estilo** — fuente, color, opacidad, posición
+- **Multilingüe** — traduce de cualquier idioma a cualquier otro. Español por defecto
+- **Elección de modelo IA** — DeepSeek, Gemini, Claude Sonnet/Opus, Llama a través de OpenRouter
+- **Caché compartida** — una persona traduce, el resto lo ve gratis
+- **Coste de traducción** — se muestra cuánto costó la traducción directamente sobre el vídeo
+- **Ajuste de sincronización** — `[` / `]` para desplazar ±0.5s
+- **Personalización visual** — fuente, color, opacidad, posición
 
-## Limitaciones honestas
-El modelo de IA solo ve texto — no el vídeo. No sabe si habla un hombre o una mujer, así que las formas de género pueden ser incorrectas. No siempre distingue entre el "tú" y el "usted". Los neologismos pueden traducirse literalmente.
-Esto no son bugs — son limitaciones inherentes de la traducción basada solo en texto. Un traductor humano trabajando únicamente con la transcripción tendría los mismos problemas.
-**Lo que hace bien:** Claude Sonnet produce traducciones comparables a buenos fansubs — humor, jerga y contexto intactos. Con la mayoría del contenido, olvidarás que estás leyendo subtítulos generados por IA.
+## FAQ
 
-## Privacidad
-- Tu clave API se queda en tu dispositivo — nunca se envía a ningún servidor excepto al proveedor de IA que elijas
-- Sin rastreo ni anuncios en la extensión (el sitio web usa analíticas anónimas de visitas)
-- [Política de privacidad](https://podstr.cc/en/privacy/)
+### ¿Necesito una clave API?
 
-## Contribuir
-Reportes de bugs, solicitudes de plataformas y PRs son bienvenidos. Consulta [docs/CONTRIBUTING.md](CONTRIBUTING.md).
+No, si el episodio ya fue traducido por alguien (caché compartida). Para una traducción nueva necesitas una clave de OpenRouter o una suscripción a Claude Max.
+
+### ¿Es gratis?
+
+La extensión es gratuita. Las traducciones de la caché compartida son gratuitas. Solo se paga por traducir contenido nuevo a través de OpenRouter API.
+
+### ¿Qué calidad tiene la traducción?
+
+Depende del modelo. Claude Opus está al nivel de un buen fansub, con humor, jerga y contexto. DeepSeek y Gemini Flash son más baratos pero igualmente legibles.
+
+## Sitio web
+
+[podstr.cc](https://podstr.cc) — comparación de modelos, plataformas, instrucciones de instalación.
 
 ## Licencia
-MIT — [Anabasis Media DOO](https://podstr.cc)
+
+MIT

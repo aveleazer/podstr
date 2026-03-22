@@ -3,7 +3,7 @@
   "default_locale": "en",
   "minimum_chrome_version": "116",
   "name": "__MSG_extensionName__",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "__MSG_extensionDescription__",
   "permissions": ["storage", "webRequest", "webNavigation", "sidePanel", "scripting", "activeTab"],
   "host_permissions": [

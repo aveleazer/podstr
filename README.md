@@ -1,8 +1,9 @@
-# Podstr
+<div align="center">
 
-**Dubbing kills the performance. Built-in subtitles are Google Translate quality. You deserve better.**
+# Podstr — AI Subtitle Translation
 
-Podstr is a Chrome extension that translates subtitles using AI — Claude, Gemini, DeepSeek — right in your browser. You hear the original voices. You read subtitles that actually understand context, humor, and slang.
+**Translate subtitles into any language with AI.**
+Chrome extension: detects subtitles on video platforms and translates them in real time.
 
 [Website](https://podstr.cc) · [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih) · [Telegram](https://t.me/podstrcc)
 
@@ -10,29 +11,24 @@ Podstr is a Chrome extension that translates subtitles using AI — Claude, Gemi
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/aveleazer/podstr)](https://github.com/aveleazer/podstr/stargazers)
 
+</div>
+
 🇷🇺 [Русский](docs/README.ru.md) · 🇺🇦 [Українська](docs/README.uk.md) · 🇧🇾 [Беларуская](docs/README.be.md) · 🇷🇸 [Srpski](docs/README.sr.md) · 🇪🇸 [Español](docs/README.es.md) · 🇫🇷 [Français](docs/README.fr.md) · 🇩🇪 [Deutsch](docs/README.de.md) · 🇧🇷 [Português](docs/README.pt-BR.md) · 🇨🇳 [中文](docs/README.zh-CN.md) · 🇯🇵 [日本語](docs/README.ja.md) · 🇰🇷 [한국어](docs/README.ko.md) · 🇹🇷 [Türkçe](docs/README.tr.md)
 
 ---
 
-## How It Works
+## What is it
 
-1. Install the extension from Chrome Web Store
-2. Open a video on YouTube, ARTE, or any supported site
-3. Pick your language from the subtitle picker above the video
-4. Subtitles appear over the video — translated by AI
+A Chrome extension that intercepts subtitles on video sites and translates them using AI models (Claude, Gemini, DeepSeek, etc. via OpenRouter). Works with English, Spanish, German, Finnish — any subtitles. Translates into any language.
 
-If someone already translated the same episode, it loads from a shared cache — instantly and for free.
+If someone has already translated the same episode, the translation loads from a shared cache — instantly and for free.
 
-## Why Not Just Use Platform Subtitles
+## Quick Start
 
-| | Platform subs / Google Translate | Podstr |
-|---|---|---|
-| **Context** | Line-by-line, no awareness of dialogue | Batched translation with full context |
-| **Humor & slang** | Literal, often wrong | Gets jokes, idioms, cultural references |
-| **Language pairs** | Limited by what the platform offers | Any language → any of 30 languages |
-| **Quality control** | Take what you get | Choose your model: Claude for quality, Gemini for speed, DeepSeek for cost |
-| **Dual subtitles** | Rarely available | Original + translation on screen together |
-| **Cost** | Free (and it shows) | From $0.007 per episode. Free models available |
+1. Install from [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
+2. Open a video with subtitles → pick a language → done
+
+To translate new content, you need an [OpenRouter API key](https://openrouter.ai/keys) (free keys available).
 
 ## Supported Platforms
 
@@ -43,44 +39,59 @@ If someone already translated the same episode, it loads from a shared cache —
 | **ARTE** | HLS subtitles | Tested |
 | **Plex** | HLS subtitles | Tested |
 | **Filmzie** | HLS subtitles | Tested |
-| **Netflix** | — | May work, not tested |
+| **Netflix** | HLS subtitles | Experimental |
 
 Other sites with HLS/VTT/TTML subtitles may work — click **Enable** in the extension popup.
 
-## Quick Start
-
-**Just want to watch** — install from [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih), open a video, pick a language. If the episode is in the shared cache, it plays immediately.
-
-**Want to translate new content** — paste an [OpenRouter API key](https://openrouter.ai/keys) into extension settings. Free keys available. Choose a model, open a video — translation starts automatically.
-
 ## Features
 
-- **30 translation languages**, interface in 13 languages
-- **Dual subtitles** — original + translation simultaneously
-- **Multiple AI models** — Claude Sonnet for quality, Gemini Flash for speed, DeepSeek for cost. Free models available
-- **Shared cache** — one person translates, everyone benefits
-- **Translation cost** shown right on the video before you start
-- **Keyboard shortcuts** — `[` / `]` shift timing ±0.5s, `B` toggle position, `\` reset offset
+- **Any language** — translates from any subtitle language to any target language
+- **Multiple AI models** — choose by quality and price. Free models available
+- **Translation cost** — see how much each translation costs right on the video
+- **Shared cache** — one person translates, everyone else watches for free
+- **Smart local cache** — translated subtitles load instantly on repeat viewing
+- **Timing adjustment** — `[` / `]` to shift ±0.5s
 - **Style customization** — font, color, opacity, position
+- **Keyboard shortcuts** — `B` toggle position, `\` reset offset
+- **13 interface languages** — EN, RU, UK, BE, SR, ES, FR, DE, PT, ZH, JA, KO, TR
 
-## Honest Limitations
+## How it works
 
-The AI model sees text only — not the video. It doesn't know if a man or a woman is speaking, so gendered forms may be wrong. It can't always distinguish formal "you" from informal. Neologisms may get translated literally.
+1. **Detection** — service worker intercepts subtitle requests via `chrome.webRequest`
+2. **Download** — background script fetches subtitles, bypassing CORS
+3. **Translation** — batched via OpenRouter API (your key, your choice of model)
+4. **Cache** — translated VTT compressed with gzip, stored locally + shared cache
+5. **Render** — content script displays subtitles synced with video playback
 
-These aren't bugs — they're inherent limits of text-only translation. A human translator working from a transcript alone would face the same issues.
+## FAQ
 
-**What it does well:** Claude Sonnet produces translations comparable to good fansubs — humor, slang, and context intact. For most content, you'll forget you're reading AI-generated subtitles.
+**Do I need an API key?** No, if the episode is already in the shared cache. For new translations — you need an OpenRouter key.
+
+**Is it free?** The extension is free. Cached translations are free. You only pay for translating new content via the AI provider.
+
+**Translation quality?** Depends on the model. Claude Opus is on par with good fansubs. DeepSeek and Gemini Flash are cheaper but still readable.
+
+**Typical cost?** $0.005–0.05 per episode depending on the model. Free models available.
 
 ## Privacy
 
-- Your API key stays on your device — never sent to any server except the AI provider you choose
-- No tracking or ads in the extension (website uses anonymous visit analytics)
+- Your API key stays on your device — never sent to any server
+- No tracking, no analytics, no ads
+- Subtitle text is sent only to the AI provider you choose
 - [Privacy policy](https://podstr.cc/en/privacy/)
 
 ## Contributing
 
-Bug reports, platform requests, and PRs welcome. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md)
 
 ## License
 
-MIT — [Anabasis Media DOO](https://podstr.cc)
+MIT
+
+## Links
+
+- [podstr.cc](https://podstr.cc) — website
+- [Translate subtitles online](https://podstr.cc/en/translate/) — no extension needed
+- [Chrome Web Store](https://chromewebstore.google.com/detail/iophagcapjpmkcpdjkfndpdakipokeih)
+- [GitHub](https://github.com/aveleazer/podstr)
+- [Telegram](https://t.me/podstrcc)

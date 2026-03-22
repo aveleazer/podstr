@@ -45,6 +45,40 @@
         }
       } catch (e) {}
     }
+
+    // ── Translate bridge: podstr.cc/player can request file translation ──
+    window.postMessage({ type: 'podstr_extension_ready' }, window.location.origin);
+
+    window.addEventListener('message', (e) => {
+      if (e.origin !== 'https://podstr.cc' && !e.origin.endsWith('.podstr.cc')) return;
+
+      if (e.data?.type === 'podstr_translate_request') {
+        const { vtt, target_lang, model } = e.data;
+        chrome.runtime.sendMessage({
+          type: 'start_translation',
+          vtt,
+          url: 'file://translate-' + Date.now(), // unique URL for cache key
+          target_lang,
+          provider: 'openrouter',
+          model: model || '',
+          title: 'File translation',
+          page_url: location.href,
+        });
+      }
+
+      if (e.data?.type === 'podstr_translate_abort') {
+        chrome.runtime.sendMessage({ type: 'abort_translation' });
+      }
+
+      if (e.data?.type === 'podstr_get_config') {
+        chrome.runtime.sendMessage({ type: 'get_settings' }, (resp) => {
+          window.postMessage({
+            type: 'podstr_config',
+            config: resp || {},
+          }, window.location.origin);
+        });
+      }
+    });
   }
 
   // ── Language mappings ──
@@ -192,8 +226,8 @@
   let mouseHideTimer = null;
   let cacheNotifyElement = null;
   let cacheNotifyTimer = null;
-  let costInfoElement = null;
-  let costInfoTimer = null;
+  let lastCostInfo = null; // { cost, duration, model } — survives picker re-render
+  let lastFromCache = false;
   let subtitleOffset = 0; // seconds, adjusted with [ and ]
   let lastPositionCheck = 0; // throttle position detection to 1/sec
   let manualPosition = null; // 'top'|'bottom'|null (null = auto)
@@ -343,6 +377,12 @@
         showBadge('translating', chrome.i18n.getMessage('badgeTranslating', [String(pct), String(msg.batch || msg.progress), String(msg.total_batches || msg.total)]));
       }
       if (msg.partial_vtt) updateTranslatedCues(msg.partial_vtt);
+      if (location.hostname === 'podstr.cc' || location.hostname.endsWith('.podstr.cc')) {
+        window.postMessage({
+          type: 'podstr_translate_progress',
+          progress: msg.progress, total: msg.total, partial_vtt: msg.partial_vtt,
+        }, window.location.origin);
+      }
     }
 
     if (msg.type === 'translation_done') {
@@ -380,16 +420,24 @@
         loadingBtn.textContent = doneText;
         loadingBtn.className = 'ai-sub-picker-btn active';
       }
+      // Store cost info for picker to display as chip
+      lastFromCache = !!msg.fromCache;
+      if (msg.cost !== undefined) {
+        lastCostInfo = { cost: msg.cost, duration: msg.duration, model: msg.model || selectedModel };
+      }
       setTimeout(() => {
         hideProgressBar();
         updatePicker();
-        // Show cost info if available (not for cache hits)
-        if (msg.cost !== undefined) {
-          showCostInfo(msg.cost, msg.duration, msg.model || selectedModel);
-        }
         // Refresh config — quota may have changed after translation
         loadConfig();
       }, 3000);
+      if (location.hostname === 'podstr.cc' || location.hostname.endsWith('.podstr.cc')) {
+        window.postMessage({
+          type: 'podstr_translate_done',
+          vtt: msg.vtt, cost: msg.cost, model: msg.model,
+          cue_count: msg.cue_count, duration: msg.duration, fromCache: msg.fromCache,
+        }, window.location.origin);
+      }
     }
 
     if (msg.type === 'translation_error') {
@@ -406,6 +454,12 @@
       hideProgressBar();
       updatePicker();
       showPickerNotification(errText, 'error');
+      if (location.hostname === 'podstr.cc' || location.hostname.endsWith('.podstr.cc')) {
+        window.postMessage({
+          type: 'podstr_translate_error',
+          error: msg.error,
+        }, window.location.origin);
+      }
     }
   });
 
@@ -580,7 +634,8 @@
     lastProgressState = 'waiting';
     processedPlaylists.clear();
     hideProgressBar();
-    clearCostInfo();
+    lastCostInfo = null;
+    lastFromCache = false;
     hidePicker();
     if (overlay) { overlay.remove(); overlay = null; }
     hideBadge();
@@ -770,51 +825,6 @@
     if (cacheNotifyTimer) { clearTimeout(cacheNotifyTimer); cacheNotifyTimer = null; }
   }
 
-  function clearCostInfo() {
-    if (costInfoTimer) { clearTimeout(costInfoTimer); costInfoTimer = null; }
-    if (costInfoElement) { costInfoElement.remove(); costInfoElement = null; }
-  }
-
-  function showCostInfo(cost, duration, model) {
-    clearCostInfo();
-    if (cost === undefined || cost === null) return;
-
-    // Find container — same parent as picker/overlay
-    const video = queryVideo();
-    const container = pickerElement?.parentElement || overlay?.parentElement || video?.parentElement;
-    if (!container) return;
-    if (!container.style.position) container.style.position = 'relative';
-
-    costInfoElement = document.createElement('div');
-    costInfoElement.className = 'ai-sub-cost-info';
-
-    let text;
-    if (cost === 0) {
-      text = chrome.i18n.getMessage('infoCostFree') || 'free';
-    } else {
-      text = '$' + parseFloat(cost.toFixed(4));
-    }
-
-    if (devMode && model) {
-      const sec = duration ? Math.round(duration / 1000) : 0;
-      text = shortModelName(model) + ' · ' + text + (sec ? ' · ' + sec + 's' : '');
-    }
-
-    costInfoElement.textContent = text;
-    container.appendChild(costInfoElement);
-
-    // Auto-hide with hover delay
-    const hideDelay = devMode ? 15000 : 8000;
-    const scheduleHide = () => {
-      costInfoTimer = setTimeout(() => clearCostInfo(), hideDelay);
-    };
-    costInfoElement.addEventListener('mouseenter', () => {
-      if (costInfoTimer) { clearTimeout(costInfoTimer); costInfoTimer = null; }
-    });
-    costInfoElement.addEventListener('mouseleave', scheduleHide);
-    scheduleHide();
-  }
-
   function createPicker() {
     const video = queryVideo();
     if (!video) {
@@ -904,15 +914,34 @@
     return LANG_TO_TARGET[track.lang] === targetLang;
   }
 
+  function createCostChip(costInfo, fromCache) {
+    const chip = document.createElement('span');
+    if (fromCache) {
+      chip.className = 'ai-sub-cost-chip';
+      chip.textContent = '\uD83D\uDCE6 cache';
+    } else if (!costInfo || costInfo.cost === undefined) {
+      return null;
+    } else if (costInfo.cost === 0) {
+      chip.className = 'ai-sub-cost-chip free';
+      chip.textContent = '\uD83E\uDE99 free';
+    } else {
+      chip.className = 'ai-sub-cost-chip';
+      chip.textContent = '\uD83E\uDE99 $' + parseFloat(costInfo.cost.toFixed(4));
+    }
+    return chip;
+  }
+
   function renderViewerPicker() {
     const translatableTracks = detectedTracks.filter(t => !isTrackSameAsTarget(t));
 
-    // ── Translation done: subtitle count + offset controls ──
+    // ── Translation done: subtitle count + cost chip + offset controls ──
     if (translationDone && translatedCues.length > 0) {
       const label = document.createElement('span');
       label.className = 'ai-sub-viewer-label';
       label.textContent = chrome.i18n.getMessage('badgeSubtitlesCount', [String(translatedCues.length)]);
       pickerElement.appendChild(label);
+      const chip = createCostChip(lastCostInfo, lastFromCache);
+      if (chip) pickerElement.appendChild(chip);
 
       appendOffsetControls(pickerElement);
       return;
@@ -1043,15 +1072,12 @@
     if (translatableTracks.length === 1) {
       const track = translatableTracks[0];
       if (isDifferentModel(track)) {
-        // Cached by different model — show choice
-        const info = document.createElement('span');
-        info.className = 'ai-sub-viewer-label';
-        info.textContent = chrome.i18n.getMessage('viewerCachedByModel', [shortModelName(cachedModel(track))])
-          || `Translated by ${shortModelName(cachedModel(track))}`;
-        pickerElement.appendChild(info);
+        // Cached by different model — show + retranslate
         const showBtn = document.createElement('button');
         showBtn.className = 'ai-sub-picker-btn ai-sub-viewer-available';
-        showBtn.textContent = chrome.i18n.getMessage('viewerShowBtn') || 'Show';
+        const showLabel = chrome.i18n.getMessage('viewerCachedByModel', [shortModelName(cachedModel(track))])
+          || `Translated by ${shortModelName(cachedModel(track))}`;
+        showBtn.textContent = showLabel;
         showBtn.addEventListener('click', () => startTranslation(track));
         pickerElement.appendChild(showBtn);
         const reBtn = document.createElement('button');
@@ -1101,25 +1127,26 @@
       });
       pickerElement.appendChild(btn);
 
-      // If selected track is cached by different model, show info + retranslate link
+      // If selected track is cached by different model, show info row
       const addRetranslateLink = () => {
-        const oldInfo = pickerElement.querySelector('.ai-sub-cached-model-info');
-        if (oldInfo) oldInfo.remove();
-        const old = pickerElement.querySelector('.ai-sub-retranslate-link');
-        if (old) old.remove();
+        const oldRow = pickerElement.querySelector('.ai-sub-info-row');
+        if (oldRow) oldRow.remove();
         const selected = translatableTracks.find(t => t.url === sel.value);
         if (selected && isDifferentModel(selected)) {
+          const row = document.createElement('div');
+          row.className = 'ai-sub-info-row';
           const info = document.createElement('span');
           info.className = 'ai-sub-viewer-label ai-sub-cached-model-info';
           info.textContent = chrome.i18n.getMessage('viewerCachedByModel', [shortModelName(cachedModel(selected))])
             || `Translated by ${shortModelName(cachedModel(selected))}`;
-          pickerElement.appendChild(info);
+          row.appendChild(info);
           const reBtn = document.createElement('button');
           reBtn.className = 'ai-sub-picker-link ai-sub-retranslate-link';
           reBtn.textContent = chrome.i18n.getMessage('viewerRetranslate', [shortModelName(selectedModel)])
             || `Translate with ${shortModelName(selectedModel)}`;
           reBtn.addEventListener('click', () => startTranslation(selected, { skipCache: true }));
-          pickerElement.appendChild(reBtn);
+          row.appendChild(reBtn);
+          pickerElement.appendChild(row);
         }
       };
       addRetranslateLink();
@@ -1187,12 +1214,20 @@
   }
 
   function renderDevPicker() {
-    // Translation done — show label + offset controls only
+    // Translation done — show label + cost chip + offset controls
     if (translationDone && translatedCues.length > 0) {
       const label = document.createElement('span');
       label.className = 'ai-sub-viewer-label';
-      label.textContent = chrome.i18n.getMessage('badgeSubtitlesCount', [String(translatedCues.length)]);
+      let text = chrome.i18n.getMessage('badgeSubtitlesCount', [String(translatedCues.length)]);
+      if (lastCostInfo) {
+        const model = lastCostInfo.model ? shortModelName(lastCostInfo.model) : null;
+        const sec = lastCostInfo.duration ? Math.round(lastCostInfo.duration / 1000) + 's' : null;
+        if (model || sec) text += ' · ' + [model, sec].filter(Boolean).join(' · ');
+      }
+      label.textContent = text;
       pickerElement.appendChild(label);
+      const chip = createCostChip(lastCostInfo, lastFromCache);
+      if (chip) pickerElement.appendChild(chip);
       appendOffsetControls(pickerElement);
       return;
     }
@@ -1328,7 +1363,8 @@
     // Reset state (skip on resume — keep existing cues)
     activeTrackUrl = track.url;
     hideCacheNotification();
-    clearCostInfo();
+    lastCostInfo = null;
+    lastFromCache = false;
     activeTrackLabel = track.label || track.lang || 'sub';
     translationDone = false;
     if (!isResume) {
@@ -1780,6 +1816,19 @@
           }
         }
         showSubtitle(found);
+
+        // Fix: if overlay is below viewport, switch to fixed positioning
+        if (overlay) {
+          const vRect = videoElement.getBoundingClientRect();
+          const belowViewport = vRect.bottom > window.innerHeight + 10;
+          if (belowViewport && overlay.style.position !== 'fixed') {
+            overlay.style.position = 'fixed';
+            overlay.style.bottom = '40px';
+          } else if (!belowViewport && overlay.style.position === 'fixed') {
+            overlay.style.position = '';
+            overlay.style.bottom = '';
+          }
+        }
       }
       renderRAF = requestAnimationFrame(render);
     }

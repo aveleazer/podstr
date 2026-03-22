@@ -17,12 +17,10 @@
 // - scripting: dynamic content script registration (registerContentScripts) for per-site
 //   activation instead of static content_scripts in manifest.
 
-importScripts('parsers.js', 'detectors.js', 'providers.js', 'bg-cache.js', 'bg-translate.js');
+importScripts('parsers.js', 'detectors.js', 'providers.js', 'bg-settings.js', 'bg-cache.js', 'bg-translate.js');
 
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
-const SHARED_CACHE_KEY = '';  // Set via popup settings or env
-const SHARED_CACHE_DEFAULT_URL = 'https://podstr.cc';
 const seenUrls = new Set();
 const detectedByTab = {}; // tabId -> [{type, url}]
 
@@ -190,72 +188,7 @@ ensurePredefinedScripts().catch(e => console.error('[podstr.cc] Failed to regist
 // ── Translation state (in-memory, lost on SW restart) ──
 const activeTranslations = {}; // tabId -> { abort, url }
 
-// ── Settings (reloaded from storage on SW wake) ──
-let settings = {
-  provider: DEFAULT_PROVIDER,
-  model: DEFAULT_MODEL,
-  cliModel: 'sonnet',
-  targetLang: 'Russian',
-  apiKey: null,
-  sharedCacheUrl: SHARED_CACHE_DEFAULT_URL,
-  sharedCacheApiKey: SHARED_CACHE_KEY,
-  session_token: null,
-  user: null,
-};
-
-const settingsReady = new Promise(resolve => {
-  chrome.storage.sync.get(['provider', 'model', 'cliModel', 'targetLang', 'sharedCacheUrl'], (data) => {
-    if (data.provider && PROVIDERS[data.provider]) settings.provider = data.provider;
-    if (data.model) settings.model = data.model;
-    if (data.cliModel) settings.cliModel = data.cliModel;
-    if (data.targetLang) settings.targetLang = data.targetLang;
-    if (data.sharedCacheUrl) settings.sharedCacheUrl = data.sharedCacheUrl;
-    resolve();
-  });
-});
-
-function getActiveModel() {
-  if (settings.provider === 'claude-cli') return settings.cliModel || 'sonnet';
-  return settings.model;
-}
-chrome.storage.local.get(['apiKey', 'sharedCacheApiKey', 'session_token', 'user'], (data) => {
-  if (data.apiKey) settings.apiKey = data.apiKey;
-  if (data.sharedCacheApiKey) settings.sharedCacheApiKey = data.sharedCacheApiKey;
-  if (data.session_token) settings.session_token = data.session_token;
-  if (data.user) settings.user = data.user;
-});
-
-// Migration: move sharedCacheApiKey from sync to local (one-time)
-settingsReady.then(() => {
-  chrome.storage.sync.get(['sharedCacheApiKey'], (syncData) => {
-    if (syncData.sharedCacheApiKey) {
-      chrome.storage.local.get(['sharedCacheApiKey'], (localData) => {
-        if (!localData.sharedCacheApiKey) {
-          chrome.storage.local.set({ sharedCacheApiKey: syncData.sharedCacheApiKey });
-          settings.sharedCacheApiKey = syncData.sharedCacheApiKey;
-          console.log('[podstr.cc] Migrated sharedCacheApiKey from sync to local');
-        }
-        chrome.storage.sync.remove('sharedCacheApiKey');
-      });
-    }
-  });
-});
-
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'sync') {
-    if (changes.provider) settings.provider = changes.provider.newValue || DEFAULT_PROVIDER;
-    if (changes.model) settings.model = changes.model.newValue || DEFAULT_MODEL;
-    if (changes.cliModel) settings.cliModel = changes.cliModel.newValue || 'sonnet';
-    if (changes.targetLang) settings.targetLang = changes.targetLang.newValue || 'Russian';
-    if (changes.sharedCacheUrl !== undefined) settings.sharedCacheUrl = changes.sharedCacheUrl.newValue || null;
-  }
-  if (area === 'local') {
-    if (changes.apiKey) settings.apiKey = changes.apiKey.newValue || null;
-    if (changes.sharedCacheApiKey !== undefined) settings.sharedCacheApiKey = changes.sharedCacheApiKey.newValue || '';
-    if (changes.session_token) settings.session_token = changes.session_token.newValue || null;
-    if (changes.user) settings.user = changes.user.newValue || null;
-  }
-});
+// ── Settings — see bg-settings.js ──
 
 // ── URL detection via webRequest ──
 // Detection logic in detectors.js (SUBTITLE_DETECTORS array + detectSubtitle())
@@ -715,6 +648,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         sendResponse({ vtt, lang: result.lang, cueCount: result.cues.length });
       })
       .catch(e => sendResponse({ error: e.message }));
+    return true;
+  }
+
+  // ── Bridge: extension status for podstr.cc pages ──
+
+  if (msg.type === 'get_settings') {
+    getExtensionStatus().then(status => sendResponse(status));
     return true;
   }
 
