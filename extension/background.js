@@ -32,6 +32,7 @@ const PREDEFINED_SITES = [
   { id: 'plex',     matches: ['*://*.plex.tv/*'] },
   { id: 'netflix',  matches: ['*://*.netflix.com/*'] },
   { id: 'bbc',      matches: ['*://*.bbc.co.uk/*', '*://*.bbc.com/*'] },
+  { id: 'raiplay',  matches: ['*://*.raiplay.it/*'] },
   { id: 'podstr',   matches: ['*://*.podstr.cc/*', '*://podstr.cc/*'] },
 ];
 
@@ -57,7 +58,7 @@ function isPredefinedOrigin(origin) {
 }
 
 // Script registration version — bump to force re-registration
-const SCRIPT_REG_VERSION = 4; // v4: added BBC to predefined sites
+const SCRIPT_REG_VERSION = 6; // v6: added RaiPlay MAIN world fetch interceptor
 
 async function ensurePredefinedScripts() {
   // Force re-register if version changed (e.g. allFrames added)
@@ -112,6 +113,20 @@ async function ensurePredefinedScripts() {
       matches: ['*://*.youtube.com/*'],
       js: ['youtube-detect.js'],
       runAt: 'document_idle',
+      world: 'MAIN',
+      allFrames: true,
+      persistAcrossSessions: true,
+    });
+  }
+
+  // RaiPlay MAIN world script for fetch interception (SRT via Service Worker)
+  const raiplayDisabled = disabledSites.some(o => { try { return new URL(o).hostname.endsWith('raiplay.it'); } catch { return false; } });
+  if (!raiplayDisabled && !existingIds.has('site-raiplay-main')) {
+    toRegister.push({
+      id: 'site-raiplay-main',
+      matches: ['*://*.raiplay.it/*'],
+      js: ['raiplay-detect.js'],
+      runAt: 'document_start',
       world: 'MAIN',
       allFrames: true,
       persistAcrossSessions: true,
@@ -219,7 +234,9 @@ chrome.webRequest.onCompleted.addListener(
       // BBC iPlayer subtitle CDNs (TTML/EBU-TT-D format)
       '*://vod-sub-uk-live.akamaized.net/iplayer/subtitles/*',
       '*://vod-sub-uk.live.cf.md.bbci.co.uk/iplayer/subtitles/*',
-      '*://*.cloudfront.net/iplayer/subtitles/*'
+      '*://*.cloudfront.net/iplayer/subtitles/*',
+      // RaiPlay subtitle files (SRT format)
+      '*://www.raiplay.it/dl/video/stl/*.srt*'
     ]
   },
   ['responseHeaders'] // Needed for content-type detection (TTML)
@@ -651,6 +668,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
+  if (msg.type === 'fetch_srt') {
+    fetch(msg.url)
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      })
+      .then(text => {
+        const result = parseSRT(text);
+        if (!result.cues.length) {
+          sendResponse({ error: 'no_cues' });
+          return;
+        }
+        const vtt = buildVtt(result.cues, null, { credit: false });
+        sendResponse({ vtt, lang: result.lang, cueCount: result.cues.length });
+      })
+      .catch(e => sendResponse({ error: e.message }));
+    return true;
+  }
+
   // ── Bridge: extension status for podstr.cc pages ──
 
   if (msg.type === 'get_settings') {
@@ -761,7 +797,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const provider = msg.provider || settings.provider;
     const model = msg.model || getActiveModel();
     Promise.all(urls.map(async (url) => {
-      const prefix = url.startsWith('youtube:') ? '' : url.startsWith('ttml:') ? '' : 'playlist:';
+      const prefix = url.startsWith('youtube:') ? '' : url.startsWith('ttml:') ? '' : url.startsWith('srt:') ? '' : 'playlist:';
       const key = buildCacheKey(prefix + url, targetLang, provider, model);
       const cached = await cacheGet(key);
       return cached ? url : null;

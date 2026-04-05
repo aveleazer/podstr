@@ -170,6 +170,7 @@
     '.shaka-text-container', '.plyr__captions', '.subtitle-text',
     '[class*="subtitle-overlay"]', '[class*="captions-display"]',
     '.ytp-caption-window-container',
+    '.rai-custom-panel-subtitle-subs', // RaiPlay
   ];
 
   // ── Shadow DOM native subtitle hiding (BBC SMP) ──
@@ -187,6 +188,14 @@
     if (el) {
       el.style.display = show ? '' : 'none';
       console.log(`[podstr.cc] Shadow DOM subtitles: ${show ? 'shown' : 'hidden'}`);
+    }
+  }
+
+  // ── Native subtitle hiding (Video.js, RaiPlay, etc.) ──
+  function setNativeSubtitlesVisible(show) {
+    const vjs = document.querySelector('.vjs-text-track-display');
+    if (vjs) {
+      vjs.style.display = show ? '' : 'none';
     }
   }
 
@@ -351,6 +360,14 @@
       // Mark track type for routing in startTranslation
       const added = detectedTracks.find(t => t.url === msg.url);
       if (added) added._type = 'ttml';
+    }
+
+    if (msg.type === 'srt_detected') {
+      if (!queryVideo()) return;
+      addDetectedTrack(null, msg.url, null);
+      const added = detectedTracks.find(t => t.url === msg.url)
+        || detectedTracks.find(t => subtitleId(t.url) === subtitleId(msg.url));
+      if (added) added._type = 'srt';
     }
 
     if (msg.type === 'translation_progress') {
@@ -531,6 +548,11 @@
         addDetectedTrack(null, item.url, null);
         const added = detectedTracks.find(t => t.url === item.url);
         if (added) added._type = 'ttml';
+      } else if (item.type === 'srt_detected') {
+        addDetectedTrack(null, item.url, null);
+        const added = detectedTracks.find(t => t.url === item.url)
+          || detectedTracks.find(t => subtitleId(t.url) === subtitleId(item.url));
+        if (added) added._type = 'srt';
       }
     }
   });
@@ -623,6 +645,23 @@
     if (detectedTracks.length > 0) showPicker();
   });
 
+  // ── RaiPlay: receive SRT URL from raiplay-detect.js (MAIN world) ──
+  // RaiPlay's Service Worker intercepts fetch() before chrome.webRequest can
+  // see it.  The MAIN world script patches window.fetch and posts the URL here.
+  window.addEventListener('message', (e) => {
+    if (e.origin !== window.location.origin) return;
+    if (e.data?.type !== '__podstr_srt_detected') return;
+    if (!queryVideo()) return;
+    const url = e.data.url;
+    if (!url || detectedTracks.some(t => t.url === url)) return;
+    addDetectedTrack(null, url, null);
+    // Find track by exact URL, or fallback to subtitleId match
+    // (addDetectedTrack may dedup by subtitleId when URLs differ slightly)
+    const added = detectedTracks.find(t => t.url === url)
+      || detectedTracks.find(t => subtitleId(t.url) === subtitleId(url));
+    if (added) added._type = 'srt';
+  });
+
   // ── YouTube SPA navigation: full state reset ──
   document.addEventListener('yt-navigate-finish', () => {
     detectedTracks.length = 0;
@@ -702,10 +741,12 @@
       pickerElement = null;
     }
     setShadowSubtitlesVisible(true); // Restore native subs
+    setNativeSubtitlesVisible(true); // Restore native subs (Video.js / RaiPlay)
   }
 
   function trackCacheUrl(track) {
     if (track._type === 'ttml') return 'ttml:' + track.url;
+    if (track._type === 'srt') return 'srt:' + track.url;
     return track.url;
   }
 
@@ -1347,6 +1388,7 @@
         let watchdogUrl;
         if (track.url.startsWith('youtube:')) watchdogUrl = track.url;
         else if (track._type === 'ttml') watchdogUrl = 'ttml:' + track.url;
+        else if (track._type === 'srt') watchdogUrl = 'srt:' + track.url;
         else watchdogUrl = 'playlist:' + track.url;
         chrome.runtime.sendMessage({
           type: 'start_translation',
@@ -1376,6 +1418,7 @@
     updatePicker();
     createOverlay();
     setShadowSubtitlesVisible(false); // Hide native subs in shadow DOM (BBC SMP)
+    setNativeSubtitlesVisible(false); // Hide native subs (Video.js / RaiPlay)
     if (devMode) showBadge('translating', chrome.i18n.getMessage('devDownloading', [track.label]));
 
     try {
@@ -1459,6 +1502,57 @@
             activeTrackUrl = null; updatePicker();
           }
         });
+        return;
+      }
+
+      // ── SRT: fetch file, convert to VTT, translate ──
+      // Fallback: if _type wasn't set (e.g. race condition), detect from URL
+      if (!track._type && track.url.includes('.srt')) {
+        track._type = 'srt';
+      }
+      if (track._type === 'srt') {
+        if (devMode) showBadge('translating', chrome.i18n.getMessage('devDownloading', [track.label]));
+
+        const srtResult = await new Promise((resolve) => {
+          chrome.runtime.sendMessage(
+            { type: 'fetch_srt', url: track.url },
+            resolve
+          );
+        });
+
+        if (chrome.runtime.lastError || !srtResult || srtResult.error) {
+          showBadge('error', chrome.i18n.getMessage('errorPrefix', [srtResult?.error || chrome.i18n.getMessage('errorFetchFailed')]));
+          activeTrackUrl = null;
+          updatePicker();
+          return;
+        }
+
+        if (track.url !== activeTrackUrl) return;
+
+        console.log(`[podstr.cc] SRT: ${srtResult.cueCount} cues`);
+        track._cachedVtt = srtResult.vtt;
+
+        if (devMode) showBadge('translating', chrome.i18n.getMessage('devTranslating', [String(srtResult.cueCount)]));
+
+        const translationKey = 'srt:' + track.url;
+        chrome.runtime.sendMessage({
+          type: 'start_translation',
+          vtt: srtResult.vtt,
+          url: translationKey,
+          target_lang: targetLang,
+          provider: selectedProvider,
+          model: selectedModel,
+          title: getPageTitle(),
+          page_url: location.href,
+          skipCache: !!opts.skipCache,
+        }, (resp) => {
+          if (chrome.runtime.lastError || resp?.error) {
+            showBadge('error', resp?.error || chrome.i18n.getMessage('errorStartTranslation'));
+            activeTrackUrl = null;
+            updatePicker();
+          }
+        });
+
         return;
       }
 
@@ -2032,10 +2126,12 @@
       if (manualPosition === 'top' || (!manualPosition && isTop)) {
         manualPosition = 'bottom';
         overlay.classList.remove('ai-sub-position-top');
+        setNativeSubtitlesVisible(false); // Hide native when ours are at bottom
         showBadge('ready', chrome.i18n.getMessage('badgePositionBottom'));
       } else if (manualPosition === 'bottom' || (!manualPosition && !isTop)) {
         manualPosition = 'top';
         overlay.classList.add('ai-sub-position-top');
+        setNativeSubtitlesVisible(true); // Show native when ours are at top
         showBadge('ready', chrome.i18n.getMessage('badgePositionTop'));
       }
       setTimeout(hideBadge, 2000);

@@ -137,7 +137,33 @@ async function translateBatch(texts, targetLang, model, apiKey, signal, onRetryP
     ? (attempt, max, code) => onRetryProgress(chrome.i18n.getMessage('retryProgress', [String(attempt), String(max), String(code)]))
     : null;
   const { content, usage } = await callOpenRouter(prompt, model, apiKey, signal, onRetry);
-  return { texts: parseJsonTranslations(content, texts), usage };
+  let { texts: translated, missedIds } = parseJsonTranslations(content, texts);
+
+  // One retry for missed lines (model skipped them)
+  if (missedIds.length > 0) {
+    console.warn(`[podstr.cc] Model skipped ${missedIds.length}/${texts.length} lines, retrying missed. IDs: ${missedIds.join(',')}`);
+
+    const missedTexts = missedIds.map(id => texts[id - 1]);
+    try {
+      const retryPrompt = buildJsonTranslationPrompt(missedTexts, targetLang);
+      const { content: retryContent, usage: retryUsage } = await callOpenRouter(retryPrompt, model, apiKey, signal, onRetry);
+      const { texts: retryTranslated, missedIds: stillMissed } = parseJsonTranslations(retryContent, missedTexts);
+      translated = retryMissedLines(missedIds, translated, retryTranslated);
+      if (retryUsage) {
+        if (usage) {
+          usage.total_tokens = (usage.total_tokens || 0) + (retryUsage.total_tokens || 0);
+          usage.cost = (Number(usage.cost) || 0) + (Number(retryUsage.cost) || 0);
+        }
+      }
+      if (stillMissed.length > 0) {
+        console.warn(`[podstr.cc] Retry still missed ${stillMissed.length} lines — giving up`);
+      }
+    } catch (e) {
+      console.warn(`[podstr.cc] Retry for missed lines failed: ${e.message}`);
+    }
+  }
+
+  return { texts: translated, usage };
 }
 
 // ══════════════════════════════════════════════════

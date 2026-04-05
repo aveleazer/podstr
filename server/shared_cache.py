@@ -919,11 +919,7 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if self.path.startswith('/cache/'):
-            # Auth check
-            if self.headers.get('X-API-Key') != API_KEY:
-                self._json_response(401, {'error': 'Invalid API key'})
-                return
-
+            # No auth required — protected by rate limit + VTT validation
             # Rate limit
             ip = self.client_address[0]
             if is_rate_limited(ip, limit=RATE_LIMIT, prefix='put'):

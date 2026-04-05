@@ -111,6 +111,42 @@ function _fmtVttTime(secs) {
   return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${s.toFixed(3).padStart(6,'0')}`;
 }
 
+// ── SRT parser ──
+
+/**
+ * Parse SubRip (.srt) format into cues compatible with buildVtt().
+ * Handles: HTML tags (font color), Windows line endings, duplicate cue IDs,
+ * comma timecodes (SRT standard: HH:MM:SS,mmm → VTT: HH:MM:SS.mmm).
+ * Returns { lang: null, cues: [{ num, timing, text }] }
+ */
+function parseSRT(text) {
+  const cues = [];
+  const blocks = text.replace(/\r\n/g, '\n').split(/\n\n+/);
+  let id = 1;
+
+  for (const block of blocks) {
+    const lines = block.trim().split('\n');
+    const tcIdx = lines.findIndex(l => l.includes('-->'));
+    if (tcIdx === -1) continue;
+
+    const [start, end] = lines[tcIdx].split('-->').map(t => t.trim());
+    const cueText = lines.slice(tcIdx + 1)
+      .join('\n')
+      .replace(/<[^>]+>/g, '')  // Strip HTML tags (e.g. <font color="#ffff00">)
+      .trim();
+
+    if (!cueText) continue;
+
+    cues.push({
+      num: String(id++),
+      timing: `${start.replace(',', '.')} --> ${end.replace(',', '.')}`,
+      text: cueText
+    });
+  }
+
+  return { lang: null, cues };
+}
+
 // ── TTML timecode normalization ──
 
 /**

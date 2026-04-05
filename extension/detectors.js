@@ -28,6 +28,13 @@ const SUBTITLE_DETECTORS = [
     }
   },
   {
+    id: 'srt',
+    match(url) {
+      if (url.includes('.srt')) return 'srt_detected';
+      return null;
+    }
+  },
+  {
     id: 'ttml',
     match(url, contentType) {
       // content-type is the most stable signal for TTML

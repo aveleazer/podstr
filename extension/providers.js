@@ -42,7 +42,7 @@ const DEFAULT_MODEL = 'google/gemini-3.1-flash-lite-preview';
 const API_BASE_URL = 'https://api.podstr.cc';
 
 const FIRST_BATCH_SIZE = 50;
-const BATCH_SIZE = 100;
+const BATCH_SIZE = 50;
 const PARALLEL_WORKERS = 1;
 const MAX_LINE_LENGTH = 500;
 
@@ -144,14 +144,29 @@ function parseJsonTranslations(output, originalTexts) {
   throw new Error(chrome.i18n.getMessage('errorJsonParse'));
 }
 
+// Re-translate only missed lines and merge back into existing results
+function retryMissedLines(missedIds, allTexts, retryTranslatedTexts) {
+  const result = [...allTexts];
+  for (let i = 0; i < missedIds.length; i++) {
+    const idx = missedIds[i] - 1; // missedIds are 1-based
+    result[idx] = retryTranslatedTexts[i];
+  }
+  return result;
+}
+
 function _mapJsonResults(jsonArr, originalTexts) {
   const byId = {};
   for (const obj of jsonArr) byId[obj.id] = obj.tr;
 
-  return originalTexts.map((orig, i) => {
+  const missedIds = [];
+  const texts = originalTexts.map((orig, i) => {
     const tr = byId[i + 1];
-    return (tr !== undefined && tr !== null) ? String(tr).replace(/\\n/g, '\n') : orig;
+    if (tr !== undefined && tr !== null) return String(tr).replace(/\\n/g, '\n');
+    missedIds.push(i + 1);
+    return orig;
   });
+
+  return { texts, missedIds };
 }
 
 // ── Normalize cache key (ported from server.py) ──
@@ -163,6 +178,9 @@ function normalizeCacheKey(url) {
   } else if (url.startsWith('ttml:')) {
     prefix = 'ttml:';
     url = url.slice('ttml:'.length);
+  } else if (url.startsWith('srt:')) {
+    prefix = 'srt:';
+    url = url.slice('srt:'.length);
   }
   if (url.startsWith('youtube:')) {
     return prefix + url;
@@ -172,6 +190,9 @@ function normalizeCacheKey(url) {
     // BBC iPlayer: extract pips-pid-{pid} as stable identifier
     const pipsMatch = path.match(/pips-pid-([a-z0-9]+)/);
     if (pipsMatch) return prefix + 'bbc:' + pipsMatch[1];
+    // RaiPlay: extract filename from /dl/video/stl/{filename}.srt
+    const raiMatch = path.match(/\/dl\/video\/stl\/([^/]+\.srt)/);
+    if (raiMatch) return prefix + 'raiplay:' + raiMatch[1];
     // Kinopub/generic: /subtitles/... path
     const subMatch = path.match(/\/subtitles\/.+/);
     if (subMatch) return prefix + subMatch[0];

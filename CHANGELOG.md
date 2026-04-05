@@ -5,9 +5,16 @@ Versioning: [Semver](https://semver.org/). Source of truth — `extension/manife
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-04-05
+
 ### Added
+- **RaiPlay support (AS-204, AS-230)** — SRT subtitle format detection, `parseSRT()` parser (handles HTML tags, comma timecodes, Windows line endings), RaiPlay added to predefined sites. MAIN world fetch interceptor (`raiplay-detect.js`) bypasses RaiPlay's Service Worker that blocks `chrome.webRequest`. Native subtitle hiding via Video.js `.vjs-text-track-display`
 - **Player translate mode (AS-214)** — podstr.cc/player accepts .srt/.vtt files for translation without video. OAuth PKCE for OpenRouter (no extension required), "Translate for free" with `openrouter/free`, download .srt/.vtt. Extension detected = upgrade path (bridge via postMessage)
 - **Standalone translation engine** — `translate-engine.js` extracted from extension for use on website. parseVtt/buildVtt/batching/prompt/shared cache
+
+### Fixed
+- **Retry untranslated lines (AS-231)** — when LLM skips subtitle lines, automatically retries missed lines once. Reduced batch size from 100→50 to prevent output truncation on cheaper models. Shared cache PUT no longer requires API key (was silently failing for CWS users)
+- **Overlay below viewport (AS-227)** — subtitle overlay now uses position:fixed when video extends below viewport (Arte.tv and similar players)
 
 ## [0.6.2] — 2026-03-22
 
