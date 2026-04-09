@@ -1,9 +1,9 @@
 {
   "extensionName": {
-    "message": "podstr.cc"
+    "message": "Podstr — Traducción de subtítulos con IA"
   },
   "extensionDescription": {
-    "message": "Traducción de subtítulos con IA — series, películas, vídeos"
+    "message": "¿No hay subtítulos en tu idioma? La extensión los traduce en tiempo real — con contexto, no línea por línea."
   },
   "headerTitle": {
     "message": "podstr.cc"

@@ -687,6 +687,18 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
+  // ── Native <track>: fetch VTT file for AS-232 ──
+  if (msg.type === 'fetch_vtt') {
+    fetch(msg.url)
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      })
+      .then(vtt => sendResponse({ vtt }))
+      .catch(e => sendResponse({ error: e.message }));
+    return true;
+  }
+
   // ── Bridge: extension status for podstr.cc pages ──
 
   if (msg.type === 'get_settings') {

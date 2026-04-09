@@ -1,9 +1,9 @@
 {
   "extensionName": {
-    "message": "podstr.cc"
+    "message": "Podstr — Tradução de legendas com IA"
   },
   "extensionDescription": {
-    "message": "Tradução de legendas com IA — séries, filmes, vídeos"
+    "message": "Sem legendas no seu idioma? A extensão traduz em tempo real — com contexto, não linha por linha."
   },
   "headerTitle": {
     "message": "podstr.cc"

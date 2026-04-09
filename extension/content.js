@@ -199,6 +199,37 @@
     }
   }
 
+  // ── Native <track> support: build VTT from TextTrack cues ──
+  // Inline time formatter — parsers.js is only available in background (importScripts)
+  function fmtCueTime(secs) {
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${s.toFixed(3).padStart(6,'0')}`;
+  }
+
+  function buildVttFromCues(textTrack) {
+    // mode: "disabled" → cues === null in most browsers.
+    // Temporarily set to "hidden" for cue access (no visual effect).
+    const origMode = textTrack.mode;
+    if (origMode === 'disabled') textTrack.mode = 'hidden';
+
+    const cues = textTrack.cues;
+    if (!cues || !cues.length) {
+      textTrack.mode = origMode;
+      return null;
+    }
+    let vtt = 'WEBVTT\n\n';
+    for (let i = 0; i < cues.length; i++) {
+      const cue = cues[i];
+      vtt += `${i + 1}\n`;
+      vtt += `${fmtCueTime(cue.startTime)} --> ${fmtCueTime(cue.endTime)}\n`;
+      vtt += `${cue.text}\n\n`;
+    }
+    textTrack.mode = origMode;
+    return vtt;
+  }
+
   // ── Helpers ──
   function urlPath(url) {
     try { return new URL(url).pathname; } catch(e) { return url; }
@@ -568,6 +599,109 @@
       if (translationDone && translatedCues.length > 0) {
         moveOursToTop();
       }
+    });
+    scanNativeTracks(video);
+  }
+
+  // ── Generic HTML5 <track> detector (AS-232) ──
+  // Scans video.textTracks for subtitle/caption tracks that webRequest didn't catch.
+  // Fallback for sites using <track> elements (e.g. dash.js, video.js players).
+  function scanNativeTracks(video) {
+    if (!video.textTracks || video._nativeTracksScanned) return;
+    video._nativeTracksScanned = true;
+
+    function findTrackEl(tt) {
+      return Array.from(video.querySelectorAll('track')).find(el =>
+        el.track === tt || (el.srclang && el.srclang === tt.language)
+      );
+    }
+
+    // readyState and 'load' event live on HTMLTrackElement, NOT on TextTrack.
+    // TextTrack has no readyState and doesn't emit 'load'.
+    function waitForLoad(tt, trackEl) {
+      const canFetch = trackEl && trackEl.src && !trackEl.src.startsWith('blob:');
+
+      // Path A shortcut: fetchable src → process immediately, background will fetch
+      if (canFetch) {
+        processTrack(tt, trackEl);
+        return;
+      }
+
+      // Path B: need cues. Force browser to load by setting mode=hidden.
+      const origMode = tt.mode;
+      if (tt.mode === 'disabled') tt.mode = 'hidden';
+
+      if (trackEl) {
+        const onLoad = () => {
+          trackEl.removeEventListener('load', onLoad);
+          tt.mode = origMode;
+          processTrack(tt, trackEl);
+        };
+        trackEl.addEventListener('load', onLoad);
+        setTimeout(() => {
+          trackEl.removeEventListener('load', onLoad);
+          tt.mode = origMode;
+          if (trackEl.readyState >= 2) processTrack(tt, trackEl);
+        }, 30000);
+      } else {
+        // No trackEl — poll for cues
+        setTimeout(() => {
+          tt.mode = origMode;
+          processTrack(tt, null);
+        }, 3000);
+      }
+    }
+
+    function processTrack(textTrack, trackEl) {
+      const lang = textTrack.language || (trackEl && trackEl.srclang) || textTrack.label || 'unknown';
+      const label = textTrack.label || null;
+      const canFetch = trackEl && trackEl.src && !trackEl.src.startsWith('blob:');
+      const url = canFetch ? trackEl.src : `cues:${location.hostname}${location.pathname}:${lang}`;
+
+      // Dedup: skip if already detected via webRequest
+      const sid = subtitleId(url);
+      if (detectedTracks.some(t => subtitleId(t.url) === sid)) return;
+
+      // Path B: need cues but they're unavailable
+      if (!canFetch) {
+        const vtt = buildVttFromCues(textTrack);
+        if (!vtt) return; // no src, no cues → skip
+        addDetectedTrack(lang, url, label);
+        const added = detectedTracks.find(t => t.url === url)
+          || detectedTracks.find(t => subtitleId(t.url) === sid);
+        if (added) {
+          added._type = 'native_track';
+          added._cachedVtt = vtt;
+        }
+        return;
+      }
+
+      // Path A: fetchable src
+      addDetectedTrack(lang, url, label);
+      const added = detectedTracks.find(t => t.url === url)
+        || detectedTracks.find(t => subtitleId(t.url) === sid);
+      if (added) {
+        added._type = 'native_track';
+        added._trackSrc = trackEl.src;
+      }
+    }
+
+    // Scan existing tracks — use trackEl.readyState (NOT tt.readyState)
+    for (let i = 0; i < video.textTracks.length; i++) {
+      const tt = video.textTracks[i];
+      if (tt.kind !== 'subtitles' && tt.kind !== 'captions') continue;
+      const trackEl = findTrackEl(tt);
+      if (trackEl && trackEl.readyState >= 2) processTrack(tt, trackEl);
+      else waitForLoad(tt, trackEl);
+    }
+
+    // Listen for tracks added later
+    video.textTracks.addEventListener('addtrack', (e) => {
+      const tt = e.track;
+      if (tt.kind !== 'subtitles' && tt.kind !== 'captions') return;
+      const trackEl = findTrackEl(tt);
+      if (trackEl && trackEl.readyState >= 2) processTrack(tt, trackEl);
+      else waitForLoad(tt, trackEl);
     });
   }
 
@@ -1389,6 +1523,7 @@
         if (track.url.startsWith('youtube:')) watchdogUrl = track.url;
         else if (track._type === 'ttml') watchdogUrl = 'ttml:' + track.url;
         else if (track._type === 'srt') watchdogUrl = 'srt:' + track.url;
+        else if (track._type === 'native_track') watchdogUrl = 'native:' + track.url;
         else watchdogUrl = 'playlist:' + track.url;
         chrome.runtime.sendMessage({
           type: 'start_translation',
@@ -1610,6 +1745,44 @@
         });
 
         return; // Don't fall through to HLS path
+      }
+
+      // ── Native <track>: fetch src or use cached VTT from cues (AS-232) ──
+      if (track._type === 'native_track') {
+        if (!track._cachedVtt && track._trackSrc) {
+          // Path A: fetch VTT via background
+          if (devMode) showBadge('translating', chrome.i18n.getMessage('devDownloading', [track.label]));
+          const result = await new Promise(resolve =>
+            chrome.runtime.sendMessage({ type: 'fetch_vtt', url: track._trackSrc }, resolve)
+          );
+          if (chrome.runtime.lastError || !result || result.error) {
+            showBadge('error', chrome.i18n.getMessage('errorPrefix', [result?.error || chrome.i18n.getMessage('errorFetchFailed')]));
+            activeTrackUrl = null; updatePicker(); return;
+          }
+          if (track.url !== activeTrackUrl) return;
+          track._cachedVtt = result.vtt;
+        }
+        if (!track._cachedVtt) {
+          showBadge('error', chrome.i18n.getMessage('errorNoSubtitles'));
+          activeTrackUrl = null; updatePicker(); return;
+        }
+        const cueCount = (track._cachedVtt.match(/-->/g) || []).length;
+        console.log(`[podstr.cc] Native track: ${cueCount} cues`);
+        if (devMode) showBadge('translating', chrome.i18n.getMessage('devTranslating', [String(cueCount)]));
+
+        const cacheUrl = 'native:' + track.url;
+        chrome.runtime.sendMessage({
+          type: 'start_translation', vtt: track._cachedVtt, url: cacheUrl,
+          target_lang: targetLang, provider: selectedProvider,
+          model: selectedModel, title: getPageTitle(), page_url: location.href,
+          skipCache: !!opts.skipCache,
+        }, (resp) => {
+          if (chrome.runtime.lastError || resp?.error) {
+            showBadge('error', resp?.error || chrome.i18n.getMessage('errorStartTranslation'));
+            activeTrackUrl = null; updatePicker();
+          }
+        });
+        return;
       }
 
       // Download segments via background (CORS)

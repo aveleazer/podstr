@@ -5,6 +5,9 @@ Versioning: [Semver](https://semver.org/). Source of truth — `extension/manife
 
 ## [Unreleased]
 
+### Added
+- **Native `<track>` detection (AS-232)** — generic HTML5 subtitle detector. Scans `video.textTracks` for subtitle/caption tracks that webRequest doesn't catch. Works on any site with `<track>` elements (dash.js, video.js players, etc.). Two paths: fetch track.src via background, or build VTT from cues in memory. Tested on RTS Planeta (rtsplaneta.rs)
+
 ## [0.7.0] — 2026-04-05
 
 ### Added

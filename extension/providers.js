@@ -181,6 +181,9 @@ function normalizeCacheKey(url) {
   } else if (url.startsWith('srt:')) {
     prefix = 'srt:';
     url = url.slice('srt:'.length);
+  } else if (url.startsWith('native:')) {
+    prefix = 'native:';
+    url = url.slice('native:'.length);
   }
   if (url.startsWith('youtube:')) {
     return prefix + url;

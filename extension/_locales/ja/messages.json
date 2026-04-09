@@ -1,9 +1,9 @@
 {
   "extensionName": {
-    "message": "podstr.cc"
+    "message": "Podstr — AI字幕翻訳"
   },
   "extensionDescription": {
-    "message": "AI字幕翻訳 — ドラマ、映画、動画"
+    "message": "字幕がない？拡張機能がリアルタイムで翻訳します。一行ずつではなく、文脈を理解して翻訳。"
   },
   "headerTitle": {
     "message": "podstr.cc"

@@ -1,9 +1,9 @@
 {
   "extensionName": {
-    "message": "podstr.cc"
+    "message": "Podstr — AI 자막 번역"
   },
   "extensionDescription": {
-    "message": "AI 자막 번역 — 드라마, 영화, 동영상"
+    "message": "자막이 없나요? 확장 프로그램이 실시간으로 번역합니다. 한 줄씩이 아니라 맥락을 이해하며 번역."
   },
   "headerTitle": {
     "message": "podstr.cc"

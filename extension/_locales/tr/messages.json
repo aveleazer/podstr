@@ -1,9 +1,9 @@
 {
   "extensionName": {
-    "message": "podstr.cc"
+    "message": "Podstr — Yapay zeka ile altyazı çevirisi"
   },
   "extensionDescription": {
-    "message": "Yapay zeka ile altyazı çevirisi — diziler, filmler, videolar"
+    "message": "Dilinizde altyazı yok mu? Eklenti gerçek zamanlı çeviri yapar — satır satır değil, bağlamı anlayarak."
   },
   "headerTitle": {
     "message": "podstr.cc"
