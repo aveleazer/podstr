@@ -120,14 +120,32 @@
     return null;
   }
 
-  // Like el.contains(target), but crosses shadow root boundaries.
-  function containsAcrossShadow(ancestor, target) {
-    let el = target;
-    while (el) {
-      if (el === ancestor) return true;
-      el = parentAcrossShadow(el);
+  // Find a stable ancestor of `video` to mount picker/overlay into.
+  // Skips: shadow-root hosts (children won't render without <slot>),
+  // custom-elements (web-components like <media-provider> rebuild their innards on
+  // state changes — Vidstack/kino.pub case), zero-size or detached nodes.
+  // Falls back to document.body if nothing usable is found.
+  function findStableContainer(video) {
+    const isUsable = (el) => {
+      if (!el || !document.contains(el)) return false;
+      if (el.shadowRoot) return false;
+      if (el.tagName && el.tagName.includes('-')) return false; // skip custom-elements
+      const rect = el.getBoundingClientRect();
+      return rect.width >= video.clientWidth * 0.9 && rect.height > 0;
+    };
+    let container = parentAcrossShadow(video);
+    while (container && container !== document.body) {
+      if (isUsable(container)) return container;
+      container = parentAcrossShadow(container);
     }
-    return false;
+    // Fallback: any non-shadow non-custom-element ancestor, ignoring size
+    container = parentAcrossShadow(video);
+    while (container) {
+      if (document.contains(container) && !container.shadowRoot
+          && !(container.tagName && container.tagName.includes('-'))) return container;
+      container = parentAcrossShadow(container);
+    }
+    return document.body;
   }
 
   // Some players (BBC SMP) nest <video> behind multiple shadow roots:
@@ -164,6 +182,19 @@
     return _localizedLangCache[targetLangName] || targetLangName;
   }
 
+  // ── Player control container detection ──
+  // Netflix Cadmium toggles classes (passive/active/inactive) on a container,
+  // controlling opacity of all children. We sync picker visibility to this.
+  function _findControlContainer(el) {
+    let node = el;
+    while (node && node !== document.body) {
+      const cls = node.className || '';
+      if (typeof cls === 'string' && /\b(passive|inactive)\b/.test(cls)) return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
   // ── Native subtitle selectors (for position detection & chameleon) ──
   const NATIVE_SUB_SELECTORS = [
     '.kp-subtitles', '.jw-captions', '.vjs-text-track-display',
@@ -171,6 +202,7 @@
     '[class*="subtitle-overlay"]', '[class*="captions-display"]',
     '.ytp-caption-window-container',
     '.rai-custom-panel-subtitle-subs', // RaiPlay
+    '.player-timedtext', // Netflix (Cadmium player)
   ];
 
   // ── Shadow DOM native subtitle hiding (BBC SMP) ──
@@ -191,11 +223,16 @@
     }
   }
 
-  // ── Native subtitle hiding (Video.js, RaiPlay, etc.) ──
+  // ── Native subtitle hiding (Video.js, RaiPlay, Netflix, etc.) ──
   function setNativeSubtitlesVisible(show) {
     const vjs = document.querySelector('.vjs-text-track-display');
     if (vjs) {
       vjs.style.display = show ? '' : 'none';
+    }
+    // Netflix renders subtitles via .player-timedtext (Cadmium player)
+    const nfx = document.querySelector('.player-timedtext');
+    if (nfx) {
+      nfx.style.display = show ? '' : 'none';
     }
   }
 
@@ -263,8 +300,78 @@
   let keepaliveInterval = null;
   let lastProgressTime = Date.now();
   const ytUrlResolvers = {}; // youtube:videoId:lang -> resolve(webRequestUrl)
-  let mouseHideTimer = null;
   let cacheNotifyElement = null;
+  // pickerVisibility: encapsulates show/hide strategy (control-class for Netflix-style,
+  // mouse for everyone else). attach() on createPicker, detach() on stale-recreate.
+  // Closes over pickerElement, activeTrackUrl, translationDone via outer scope.
+  const pickerVisibility = (() => {
+    let controlObserver = null;
+    let mouseHandlers = null;
+    let attachedTo = null;
+    let hideTimer = null;
+    let isOpen = false;
+
+    const isBusy = () => activeTrackUrl && !translationDone;
+
+    function show() {
+      if (!pickerElement) return;
+      pickerElement.classList.remove('hidden');
+      isOpen = true;
+    }
+    function hide() {
+      if (!pickerElement) return;
+      pickerElement.classList.add('hidden');
+      isOpen = false;
+    }
+    function getOpen() { return isOpen; }
+
+    function scheduleAutoHide(ms = 3000, requireNoHover = true) {
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => {
+        if (!pickerElement || isBusy()) return;
+        if (requireNoHover && pickerElement.matches(':hover')) return;
+        hide();
+      }, ms);
+    }
+
+    function attach(container) {
+      detach();
+      attachedTo = container;
+      const ctl = _findControlContainer(container);
+      if (ctl) {
+        const sync = () => {
+          if (!pickerElement) return;
+          if (/\bactive\b/.test(ctl.className || '')) show();
+          else if (!isBusy()) hide();
+        };
+        controlObserver = new MutationObserver(sync);
+        controlObserver.observe(ctl, { attributes: true, attributeFilter: ['class'] });
+        sync();
+      } else {
+        const onMove = () => { show(); scheduleAutoHide(); };
+        const onLeave = () => { scheduleAutoHide(1000, false); };
+        container.addEventListener('mousemove', onMove);
+        container.addEventListener('mouseleave', onLeave);
+        mouseHandlers = { mousemove: onMove, mouseleave: onLeave };
+        show();
+        scheduleAutoHide();
+      }
+    }
+
+    function detach() {
+      if (controlObserver) { controlObserver.disconnect(); controlObserver = null; }
+      if (mouseHandlers && attachedTo) {
+        attachedTo.removeEventListener('mousemove', mouseHandlers.mousemove);
+        attachedTo.removeEventListener('mouseleave', mouseHandlers.mouseleave);
+      }
+      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+      mouseHandlers = null;
+      attachedTo = null;
+    }
+
+    return { attach, detach, show, hide, getOpen };
+  })();
+
   let cacheNotifyTimer = null;
   let lastCostInfo = null; // { cost, duration, model } — survives picker re-render
   let lastFromCache = false;
@@ -367,7 +474,6 @@
         const trackUrl = `youtube:${videoId}:${lang}`;
         const existing = detectedTracks.find(t => t.url === trackUrl);
         if (existing) {
-          // Update with real webRequest URL (works for fetching)
           existing._ytTimedTextUrl = msg.url;
           if (ytUrlResolvers[trackUrl]) {
             ytUrlResolvers[trackUrl](msg.url);
@@ -386,6 +492,9 @@
     }
 
     if (msg.type === 'ttml_detected') {
+      // Netflix is handled via MAIN-world (AS-245) — skip legacy detector to
+      // avoid duplicate "SUB" track in picker alongside real Cadmium track list.
+      if (location.hostname.endsWith('.netflix.com')) return;
       if (!queryVideo()) return;
       addDetectedTrack(null, msg.url, null);
       // Mark track type for routing in startTranslation
@@ -420,7 +529,7 @@
         }
       }
       // Keep picker visible during translation
-      if (pickerElement) pickerElement.classList.remove('hidden');
+      pickerVisibility.show();
       if (devMode) {
         showBadge('translating', chrome.i18n.getMessage('badgeTranslating', [String(pct), String(msg.batch || msg.progress), String(msg.total_batches || msg.total)]));
       }
@@ -576,6 +685,8 @@
           showPicker();
         } catch (e) {}
       } else if (item.type === 'ttml_detected') {
+        // Netflix is handled via MAIN-world (AS-245) — skip legacy detector.
+        if (location.hostname.endsWith('.netflix.com')) continue;
         addDetectedTrack(null, item.url, null);
         const added = detectedTracks.find(t => t.url === item.url);
         if (added) added._type = 'ttml';
@@ -796,6 +907,178 @@
     if (added) added._type = 'srt';
   });
 
+  // ── Netflix (AS-245): receive init/tracks/ttml/navigation from netflix-detect.js (MAIN world) ──
+  // Lock onto the first nonce we see with the correct prefix (init may have been
+  // dispatched before content.js registered this listener — content.js loads at
+  // document_idle, MAIN-world script at document_start). The nonce is module-
+  // scoped per page-load and not secret from the page itself; this lock only
+  // defends against late-arriving messages from a different page-injection.
+  let _netflixNonce = null;
+
+  window.addEventListener('message', (e) => {
+    if (e.source !== window) return;
+    if (e.origin !== location.origin) return;
+    const data = e.data;
+    if (!data || typeof data !== 'object') return;
+    const t = data.type;
+    if (t !== '__podstr_netflix_init' && t !== '__podstr_netflix_tracks' &&
+        t !== '__podstr_netflix_ttml' && t !== '__podstr_netflix_navigation') return;
+    if (typeof data.nonce !== 'string' || !data.nonce.startsWith('__podstr_nf_')) return;
+
+    if (_netflixNonce === null) _netflixNonce = data.nonce;
+    if (data.nonce !== _netflixNonce) return;
+
+    // init message itself carries no payload — just bumps the nonce above.
+    if (t === '__podstr_netflix_init') return;
+
+    if (t === '__podstr_netflix_navigation') {
+      // SPA-navigation reset (path-change). Reset all per-page state.
+      detectedTracks.length = 0;
+      activeTrackUrl = null;
+      translationDone = false;
+      translatedCues = [];
+      hidePicker();
+      if (overlay) { overlay.remove(); overlay = null; }
+      hideBadge();
+      return;
+    }
+
+    if (!queryVideo()) return;
+
+    if (t === '__podstr_netflix_tracks') {
+      for (const tr of data.tracks || []) {
+        const url = 'netflix:trackId:' + tr.trackId;
+        if (detectedTracks.some(x => x.url === url)) continue;
+        const langCode = (tr.bcp47 || '').split('-')[0] || null;
+        const label = LANG_NAMES[langCode] || tr.label || (langCode || 'sub').toUpperCase();
+        addDetectedTrack(langCode, url, label);
+        const added = detectedTracks.find(x => x.url === url);
+        if (added) {
+          added._type = 'netflix_pending';
+          added._netflixTrackId = tr.trackId;
+          added._netflixBcp47 = tr.bcp47;
+        }
+      }
+      return;
+    }
+
+    if (t === '__podstr_netflix_ttml') {
+      const { ttml, lang, uuid } = data;
+      if (!ttml || typeof ttml !== 'string' || ttml.length > 10 * 1024 * 1024) return;
+      handleNetflixTtml(ttml, lang, uuid);
+    }
+  });
+
+  async function handleNetflixTtml(ttml, lang, uuid) {
+    // Stable URL: nttm:uuid → SHA-256(full ttml) → trackId fallback.
+    // Suffix bcp47 lang to defend against hypothetical case where Netflix
+    // ships the same TTML for multiple languages.
+    const langTag = (lang || '').toLowerCase();
+    let url;
+    if (uuid && /^[a-f0-9-]{8,}$/i.test(uuid)) {
+      url = `netflix:uuid:${uuid}:${langTag}`;
+    } else {
+      const hash = await sha256Hex(ttml);
+      url = `netflix:hash:${hash}:${langTag}`;
+    }
+    const langCode = langTag.split('-')[0] || null;
+
+    // Match logic: prefer same bcp47, else same lang prefix.
+    let track = detectedTracks.find(x =>
+      x._type === 'netflix_pending' && (x._netflixBcp47 || '').toLowerCase() === langTag);
+    if (!track) {
+      track = detectedTracks.find(x =>
+        x._type === 'netflix_pending' && (x.lang || '').toLowerCase() === langCode);
+    }
+    if (track) {
+      // Upgrade pending → ttml_inline. Replace synthetic trackId-URL with stable hash/uuid-URL.
+      track.url = url;
+      track._type = 'ttml_inline';
+      track._cachedTtml = ttml;
+    } else {
+      const label = LANG_NAMES[langCode] || (lang || langCode || 'sub').toUpperCase();
+      addDetectedTrack(langCode, url, label);
+      const added = detectedTracks.find(x => x.url === url);
+      if (added) { added._type = 'ttml_inline'; added._cachedTtml = ttml; }
+    }
+    // If user already clicked this (or a pending precursor) — resume.
+    if (activeTrackUrl === url || (activeTrackUrl && activeTrackUrl.startsWith('netflix:trackId:'))) {
+      const target = detectedTracks.find(x => x.url === url);
+      if (target) startTranslation(target);
+    } else {
+      showPicker();
+    }
+  }
+
+  async function sha256Hex(str) {
+    const buf = new TextEncoder().encode(str);
+    const digest = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(digest))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // ── HBO Max (AS-244): receive DASH manifest from hbo-detect.js (MAIN world) ──
+  let _hboNonce = null;
+  let _hboLastPath = location.pathname;
+
+  window.addEventListener('message', (e) => {
+    if (e.source !== window) return;
+    if (e.origin !== location.origin) return;
+    const data = e.data;
+    if (!data || typeof data !== 'object') return;
+    if (data.type !== '__podstr_hbo_manifest' && data.type !== '__podstr_hbo_navigation') return;
+    if (typeof data.nonce !== 'string' || !data.nonce.startsWith('__podstr_hbo_')) return;
+    if (_hboNonce === null) _hboNonce = data.nonce;
+    if (data.nonce !== _hboNonce) return;
+
+    if (data.type === '__podstr_hbo_navigation') {
+      // SPA nav — reset state if pathname actually changed
+      if (_hboLastPath === location.pathname) return;
+      _hboLastPath = location.pathname;
+      detectedTracks.length = 0;
+      activeTrackUrl = null;
+      translationDone = false;
+      translatedCues = [];
+      hidePicker();
+      if (overlay) { overlay.remove(); overlay = null; }
+      hideBadge();
+      return;
+    }
+
+    if (!queryVideo()) {
+      console.warn('[podstr.cc] HBO: manifest received but no <video> found yet');
+      return;
+    }
+    if (typeof data.mpd !== 'string' || data.mpd.length > 5 * 1024 * 1024) {
+      console.warn('[podstr.cc] HBO: manifest payload invalid/too large');
+      return;
+    }
+    console.log('[podstr.cc] HBO: manifest received in content.js', data.mpd.length, 'bytes, parsing...');
+    chrome.runtime.sendMessage({
+      type: 'parse_dash_manifest_xml',
+      mpd: data.mpd,
+      mpdUrl: data.mpdUrl
+    }, (resp) => {
+      if (chrome.runtime.lastError || !resp || resp.error || !resp.tracks) {
+        console.warn('[podstr.cc] HBO: parse failed:', chrome.runtime.lastError, resp && resp.error);
+        return;
+      }
+      console.log('[podstr.cc] HBO: parsed', resp.tracks.length, 'subtitle tracks');
+      for (const tr of resp.tracks) {
+        const url = `hbo:${tr.videoId || 'unknown'}/${tr.trackId}`;
+        if (detectedTracks.some(x => x.url === url)) continue;
+        console.log('[podstr.cc] HBO: adding track', tr.lang, tr.label, tr.segments.length, 'segments');
+        addDetectedTrack(tr.lang, url, tr.label);
+        const added = detectedTracks.find(x => x.url === url);
+        if (added) {
+          added._type = 'hbo_dash';
+          added._hboSegments = tr.segments;
+          added._hboMime = tr.mime;
+        }
+      }
+    });
+  });
+
   // ── YouTube SPA navigation: full state reset ──
   document.addEventListener('yt-navigate-finish', () => {
     detectedTracks.length = 0;
@@ -874,6 +1157,7 @@
       pickerElement.remove();
       pickerElement = null;
     }
+    cleanupNetflixPicker();
     setShadowSubtitlesVisible(true); // Restore native subs
     setNativeSubtitlesVisible(true); // Restore native subs (Video.js / RaiPlay)
   }
@@ -881,6 +1165,10 @@
   function trackCacheUrl(track) {
     if (track._type === 'ttml') return 'ttml:' + track.url;
     if (track._type === 'srt') return 'srt:' + track.url;
+    // youtube, hbo_dash, ttml_inline (Netflix): track.url already encodes prefix.
+    // native_track: track.url is a raw URL — startTranslation prepends 'native:'
+    // separately, so the cache key is asymmetric here. Pre-existing AS-232 bug,
+    // unrelated to AS-244/AS-245.
     return track.url;
   }
 
@@ -1007,70 +1295,120 @@
       return;
     }
 
-    let container = parentAcrossShadow(video);
-    // Walk up to find a container that:
-    // 1. Is in light DOM (document.contains)
-    // 2. Has NO shadow root (elements with shadowRoot won't render our child without <slot>)
-    // 3. Has good dimensions (≥90% of video width)
-    while (container && container !== document.body) {
-      const rect = container.getBoundingClientRect();
-      const usable = document.contains(container) && !container.shadowRoot
-        && rect.width >= video.clientWidth * 0.9 && rect.height > 0;
-      if (usable) break;
-      container = parentAcrossShadow(container);
-    }
-    if (!container || container === document.body) {
-      container = parentAcrossShadow(video);
-      while (container && (!document.contains(container) || container.shadowRoot)) {
-        container = parentAcrossShadow(container);
-      }
-      if (!container) container = document.body;
-    }
-
-    if (container.getBoundingClientRect().width === 0) {
+    // For Netflix (AS-245): mount picker in document.body to escape Cadmium's
+    // stacking-context wrappers (transform/opacity create their own stacking
+    // contexts that z-index doesn't pierce). Position synced to player rect.
+    // For all other sites: existing behaviour — mount in findStableContainer.
+    const isNetflix = location.hostname.endsWith('.netflix.com');
+    const playerContainer = findStableContainer(video);
+    if (playerContainer.getBoundingClientRect().width === 0) {
       setTimeout(createPicker, 500);
       return;
     }
 
-    const pos = getComputedStyle(container).position;
-    if (pos === 'static') container.style.position = 'relative';
-
     pickerElement = document.createElement('div');
     pickerElement.id = 'ai-subtitler-picker';
-    // Shift down on YouTube to avoid overlapping ytp-chrome-top bar
-    if (container.querySelector('.ytp-chrome-top')) {
-      pickerElement.style.top = '50px';
-    }
+
     // Prevent clicks from triggering player play/pause
     for (const evt of ['click', 'mousedown', 'pointerdown', 'dblclick']) {
       pickerElement.addEventListener(evt, (e) => e.stopPropagation());
     }
-    container.appendChild(pickerElement);
 
-    // Auto-hide picker after 3s of no mouse movement (but not during translation)
-    const isPickerBusy = () => activeTrackUrl && !translationDone;
-    const showPicker_ = () => {
-      if (pickerElement) pickerElement.classList.remove('hidden');
-      clearTimeout(mouseHideTimer);
-      mouseHideTimer = setTimeout(() => {
-        if (pickerElement && !pickerElement.matches(':hover') && !isPickerBusy()) {
-          pickerElement.classList.add('hidden');
-        }
-      }, 3000);
-    };
-    container.addEventListener('mousemove', showPicker_);
-    container.addEventListener('mouseleave', () => {
-      clearTimeout(mouseHideTimer);
-      mouseHideTimer = setTimeout(() => {
-        if (pickerElement && !isPickerBusy()) pickerElement.classList.add('hidden');
-      }, 1000);
-    });
-    // Start hidden after initial 3s
-    mouseHideTimer = setTimeout(() => {
-      if (pickerElement && !isPickerBusy()) pickerElement.classList.add('hidden');
-    }, 3000);
+    if (isNetflix) {
+      console.log('[podstr.cc] Netflix picker: mounting in body, anchor=',
+        playerContainer.tagName, playerContainer.className);
+      pickerElement.classList.add('ai-sub-picker-body-mounted');
+      document.body.appendChild(pickerElement);
+      _netflixPickerAnchor = playerContainer;
+      repositionNetflixPicker(playerContainer);
+      _netflixPickerResizeObserver = new ResizeObserver(() => repositionNetflixPicker(playerContainer));
+      _netflixPickerResizeObserver.observe(playerContainer);
+      _netflixPickerResizeHandler = () => repositionNetflixPicker(playerContainer);
+      window.addEventListener('resize', _netflixPickerResizeHandler);
+      document.addEventListener('fullscreenchange', _netflixPickerResizeHandler);
+      // Netflix-specific visibility: pickerVisibility.attach() relies on
+      // _findControlContainer scanning ancestors for .passive/.active classes,
+      // but Cadmium toggles those on a wide ancestor (.watch-video) that
+      // findStableContainer doesn't reach. Use document-level mouse tracking
+      // instead — show on movement, auto-hide after 3s of idle.
+      attachNetflixPickerVisibility();
+    } else {
+      // Existing behaviour for all other sites.
+      if (playerContainer.querySelector('.ytp-chrome-top')) {
+        pickerElement.style.top = '50px';
+      }
+      const pos = getComputedStyle(playerContainer).position;
+      if (pos === 'static') playerContainer.style.position = 'relative';
+      playerContainer.appendChild(pickerElement);
+      pickerVisibility.attach(playerContainer);
+    }
 
     updatePicker();
+  }
+
+  // AS-245: Netflix body-mounted picker positioning helpers
+  let _netflixPickerAnchor = null;
+  let _netflixPickerResizeObserver = null;
+  let _netflixPickerResizeHandler = null;
+  let _netflixMouseHandler = null;
+  let _netflixMouseTimer = null;
+
+  function repositionNetflixPicker(container) {
+    if (!pickerElement || !container || !container.isConnected) return;
+    const r = container.getBoundingClientRect();
+    // Clamp inside viewport: if player is off-screen (cinema mode, mid-resize),
+    // pin picker to viewport edges so it stays clickable.
+    const top = Math.max(10, Math.min(r.top + 10, window.innerHeight - 60));
+    const right = Math.max(10, Math.min(window.innerWidth - r.right + 10, window.innerWidth - 60));
+    pickerElement.style.position = 'fixed';
+    pickerElement.style.top = top + 'px';
+    pickerElement.style.right = right + 'px';
+    pickerElement.style.left = 'auto';
+    pickerElement.style.zIndex = '2147483647';
+  }
+
+  // Document-level mouse-driven visibility for Netflix body-mounted picker.
+  // We don't use pickerVisibility.attach() because _findControlContainer is
+  // unreliable on Netflix DOM: it finds an ancestor whose .passive/.active
+  // classes don't toggle in the way our sync() expects.
+  function attachNetflixPickerVisibility() {
+    if (!pickerElement) return;
+    pickerElement.classList.remove('hidden');
+    _netflixMouseHandler = () => {
+      if (!pickerElement) return;
+      pickerElement.classList.remove('hidden');
+      clearTimeout(_netflixMouseTimer);
+      _netflixMouseTimer = setTimeout(() => {
+        if (!pickerElement) return;
+        if (activeTrackUrl && !translationDone) return; // busy translating
+        if (pickerElement.matches(':hover')) return;
+        pickerElement.classList.add('hidden');
+      }, 3000);
+    };
+    document.addEventListener('mousemove', _netflixMouseHandler);
+    // Kick autohide timer immediately so picker dims if user is idle from start.
+    _netflixMouseHandler();
+  }
+
+  function cleanupNetflixPicker() {
+    if (_netflixPickerResizeObserver) {
+      _netflixPickerResizeObserver.disconnect();
+      _netflixPickerResizeObserver = null;
+    }
+    if (_netflixPickerResizeHandler) {
+      window.removeEventListener('resize', _netflixPickerResizeHandler);
+      document.removeEventListener('fullscreenchange', _netflixPickerResizeHandler);
+      _netflixPickerResizeHandler = null;
+    }
+    if (_netflixMouseHandler) {
+      document.removeEventListener('mousemove', _netflixMouseHandler);
+      _netflixMouseHandler = null;
+    }
+    if (_netflixMouseTimer) {
+      clearTimeout(_netflixMouseTimer);
+      _netflixMouseTimer = null;
+    }
+    _netflixPickerAnchor = null;
   }
 
   function updatePicker() {
@@ -1134,7 +1472,7 @@
       // Restore progress bar (replaceChildren destroyed it)
       updateProgressBar(lastProgressPct, lastProgressState);
       // Keep picker visible during translation
-      if (pickerElement) pickerElement.classList.remove('hidden');
+      pickerVisibility.show();
       return;
     }
 
@@ -1270,6 +1608,16 @@
         btn.textContent = chrome.i18n.getMessage(msgKey, [srcLabel]) || fallback;
         btn.addEventListener('click', () => startTranslation(track));
         pickerElement.appendChild(btn);
+        // When cached by same model — still offer retranslate (different model
+        // branch above handles cross-model case).
+        if (isCached(track)) {
+          const reBtn = document.createElement('button');
+          reBtn.className = 'ai-sub-picker-link ai-sub-retranslate-link';
+          reBtn.textContent = chrome.i18n.getMessage('viewerRetranslate', [shortModelName(selectedModel)])
+            || `Translate with ${shortModelName(selectedModel)}`;
+          reBtn.addEventListener('click', () => startTranslation(track, { skipCache: true }));
+          pickerElement.appendChild(reBtn);
+        }
       }
     } else {
       const cachedTrack = translatableTracks.find(isCached);
@@ -1302,27 +1650,30 @@
       });
       pickerElement.appendChild(btn);
 
-      // If selected track is cached by different model, show info row
+      // If selected track is cached — show retranslate option.
+      // For different-model cache: show "Translated by X" + "Translate with Y".
+      // For same-model cache: just the retranslate link.
       const addRetranslateLink = () => {
         const oldRow = pickerElement.querySelector('.ai-sub-info-row');
         if (oldRow) oldRow.remove();
         const selected = translatableTracks.find(t => t.url === sel.value);
-        if (selected && isDifferentModel(selected)) {
-          const row = document.createElement('div');
-          row.className = 'ai-sub-info-row';
+        if (!selected || !isCached(selected)) return;
+        const row = document.createElement('div');
+        row.className = 'ai-sub-info-row';
+        if (isDifferentModel(selected)) {
           const info = document.createElement('span');
           info.className = 'ai-sub-viewer-label ai-sub-cached-model-info';
           info.textContent = chrome.i18n.getMessage('viewerCachedByModel', [shortModelName(cachedModel(selected))])
             || `Translated by ${shortModelName(cachedModel(selected))}`;
           row.appendChild(info);
-          const reBtn = document.createElement('button');
-          reBtn.className = 'ai-sub-picker-link ai-sub-retranslate-link';
-          reBtn.textContent = chrome.i18n.getMessage('viewerRetranslate', [shortModelName(selectedModel)])
-            || `Translate with ${shortModelName(selectedModel)}`;
-          reBtn.addEventListener('click', () => startTranslation(selected, { skipCache: true }));
-          row.appendChild(reBtn);
-          pickerElement.appendChild(row);
         }
+        const reBtn = document.createElement('button');
+        reBtn.className = 'ai-sub-picker-link ai-sub-retranslate-link';
+        reBtn.textContent = chrome.i18n.getMessage('viewerRetranslate', [shortModelName(selectedModel)])
+          || `Translate with ${shortModelName(selectedModel)}`;
+        reBtn.addEventListener('click', () => startTranslation(selected, { skipCache: true }));
+        row.appendChild(reBtn);
+        pickerElement.appendChild(row);
       };
       addRetranslateLink();
       sel.addEventListener('change', addRetranslateLink);
@@ -1524,6 +1875,8 @@
         else if (track._type === 'ttml') watchdogUrl = 'ttml:' + track.url;
         else if (track._type === 'srt') watchdogUrl = 'srt:' + track.url;
         else if (track._type === 'native_track') watchdogUrl = 'native:' + track.url;
+        else if (track._type === 'ttml_inline') watchdogUrl = track.url; // already 'netflix:...'
+        else if (track._type === 'hbo_dash') watchdogUrl = track.url; // already 'hbo:...'
         else watchdogUrl = 'playlist:' + track.url;
         chrome.runtime.sendMessage({
           type: 'start_translation',
@@ -1557,12 +1910,11 @@
     if (devMode) showBadge('translating', chrome.i18n.getMessage('devDownloading', [track.label]));
 
     try {
-      // ── YouTube: enable CC via player API, wait for webRequest URL, fetch VTT ──
+      // ── YouTube: primary /api/timedtext via webRequest, fallback /get_panel intercept ──
       if (track.url.startsWith('youtube:')) {
-        const lang = track.url.split(':')[2];
+        const lang = track.lang;
 
-        // Local cache hit: skip enable_cc dance — go straight to start_translation
-        // (shared cache needs real VTT for hash lookup, so don't shortcut for _hasSharedCached)
+        // Local cache hit — straight to start_translation.
         if (track._hasCached && !opts.skipCache) {
           chrome.runtime.sendMessage({
             type: 'start_translation', vtt: '', url: track.url,
@@ -1579,53 +1931,120 @@
           return;
         }
 
-        // In embeds, use baseUrl directly (webRequest won't catch timedtext).
-        // On regular YouTube, try enabling CC to get webRequest URL, fallback to baseUrl.
-        let fetchUrl = null;
+        let resultVtt = null;
         const isEmbed = location.pathname.startsWith('/embed/');
 
+        // ─── Primary path: enable CC → webRequest catches /api/timedtext → fetch VTT ───
+        // On embeds webRequest can't catch it, skip straight to baseUrl.
         if (!isEmbed) {
-          // Ask YouTube player to load subtitles for this language
           window.postMessage({ type: '__ai_sub_yt_enable_cc', lang }, window.location.origin);
-
-          // Wait for webRequest to catch the real timedtext URL (max 8s)
-          fetchUrl = await Promise.race([
+          const fetchUrl = await Promise.race([
             new Promise(resolve => { ytUrlResolvers[track.url] = resolve; }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
-          ]).catch(() => null);
+            new Promise(resolve => setTimeout(() => resolve(null), 8000))
+          ]);
           delete ytUrlResolvers[track.url];
+          if (track.url !== activeTrackUrl) return;
 
-          // Disable native CC
-          window.postMessage({ type: '__ai_sub_yt_disable_cc' }, window.location.origin);
+          let primaryFetchUrl = fetchUrl || track._ytTimedTextUrl;
+          if (primaryFetchUrl) {
+            const primary = await new Promise(resolve =>
+              chrome.runtime.sendMessage({ type: 'fetch_youtube_vtt', url: primaryFetchUrl }, resolve));
+            if (track.url !== activeTrackUrl) return;
+            if (primary && !primary.error && primary.vtt) {
+              const c = (primary.vtt.match(/-->/g) || []).length;
+              if (c > 0) {
+                resultVtt = primary.vtt;
+                console.log('[podstr.cc] yt: primary /api/timedtext OK, cues=', c);
+              } else {
+                console.warn('[podstr.cc] yt: primary returned empty body, falling back to /get_panel');
+              }
+            } else {
+              console.warn('[podstr.cc] yt: primary fetch error, falling back:', primary?.error);
+            }
+          }
+        } else if (track._ytTimedTextUrl) {
+          // Embed: try baseUrl directly.
+          const primary = await new Promise(resolve =>
+            chrome.runtime.sendMessage({ type: 'fetch_youtube_vtt', url: track._ytTimedTextUrl }, resolve));
+          if (track.url !== activeTrackUrl) return;
+          if (primary && !primary.error && primary.vtt) {
+            const c = (primary.vtt.match(/-->/g) || []).length;
+            if (c > 0) resultVtt = primary.vtt;
+          }
         }
 
-        if (track.url !== activeTrackUrl) return; // cancelled while waiting
+        // ─── Fallback path: open transcript panel, intercept /get_panel (AS-249) ───
+        if (!resultVtt) {
+          const videoDurationMs = (() => {
+            const v = document.querySelector('video');
+            return (v && Number.isFinite(v.duration) && v.duration > 0)
+              ? Math.floor(v.duration * 1000) : null;
+          })();
 
-        // Use baseUrl from player response (always works, required for embeds)
-        if (!fetchUrl && track._ytTimedTextUrl) {
-          fetchUrl = track._ytTimedTextUrl;
-        }
-        if (!fetchUrl) {
-          showBadge('error', chrome.i18n.getMessage('errorEnableCc'));
-          activeTrackUrl = null; updatePicker(); return;
+          if (lang) {
+            window.postMessage({ type: '__ai_sub_yt_set_caption_lang', lang }, window.location.origin);
+            await new Promise(r => setTimeout(r, 600));
+          }
+          if (track.url !== activeTrackUrl) return;
+
+          const requestKey = String(Date.now()) + '-' + Math.random().toString(36).slice(2, 8);
+          const panelResp = await new Promise((resolve) => {
+            const handler = (e) => {
+              if (e.origin !== window.location.origin) return;
+              if (!e.data || e.data.type !== '__ai_sub_yt_panel_response') return;
+              if (e.data.requestKey !== requestKey) return;
+              window.removeEventListener('message', handler);
+              resolve(e.data);
+            };
+            window.addEventListener('message', handler);
+            window.postMessage({ type: '__ai_sub_yt_open_transcript', requestKey }, window.location.origin);
+            setTimeout(() => {
+              window.removeEventListener('message', handler);
+              resolve({ error: 'CONTENT_TIMEOUT' });
+            }, 15000);
+          });
+
+          window.postMessage({ type: '__ai_sub_yt_close_transcript' }, window.location.origin);
+
+          if (track.url !== activeTrackUrl) return;
+
+          if (panelResp.error || panelResp.endpoint !== '/get_panel' || panelResp.status !== 200 || !panelResp.body) {
+            console.warn('[podstr.cc] yt-panel fail:',
+              panelResp.error || panelResp.endpoint, panelResp.status,
+              'bodyLen', (panelResp.body || '').length);
+          } else {
+            const parsed = await new Promise(resolve =>
+              chrome.runtime.sendMessage(
+                { type: 'youtube_panel_to_vtt', body: panelResp.body, videoDurationMs },
+                resolve));
+            if (track.url !== activeTrackUrl) return;
+            if (parsed && !parsed.error && parsed.vtt) {
+              const c = (parsed.vtt.match(/-->/g) || []).length;
+              if (c > 0) {
+                resultVtt = parsed.vtt;
+                console.log('[podstr.cc] yt: fallback /get_panel OK, cues=', c);
+              }
+            } else {
+              console.warn('[podstr.cc] yt-panel parse fail:', parsed?.error);
+            }
+          }
         }
 
-        const result = await new Promise(resolve =>
-          chrome.runtime.sendMessage({ type: 'fetch_youtube_vtt', url: fetchUrl }, resolve)
-        );
-        if (result.error) {
-          showBadge('error', chrome.i18n.getMessage('errorYouTube', [result.error]));
-          activeTrackUrl = null; updatePicker(); return;
-        }
+        // Disable native CC after either path (we may have turned it on).
+        window.postMessage({ type: '__ai_sub_yt_disable_cc' }, window.location.origin);
+
         if (track.url !== activeTrackUrl) return;
-        const cueCount = (result.vtt.match(/-->/g) || []).length;
-        if (!cueCount) {
-          showBadge('error', chrome.i18n.getMessage('errorNoSubtitles')); activeTrackUrl = null; updatePicker(); return;
+
+        if (!resultVtt) {
+          showBadge('error', chrome.i18n.getMessage('errorYouTube'));
+          activeTrackUrl = null; updatePicker(); return;
         }
-        track._cachedVtt = result.vtt;
+
+        track._cachedVtt = resultVtt;
+        const cueCount = (resultVtt.match(/-->/g) || []).length;
         if (devMode) showBadge('translating', chrome.i18n.getMessage('devTranslating', [String(cueCount)]));
         chrome.runtime.sendMessage({
-          type: 'start_translation', vtt: result.vtt, url: track.url,
+          type: 'start_translation', vtt: resultVtt, url: track.url,
           target_lang: targetLang, provider: selectedProvider,
           model: selectedModel, title: getPageTitle(),
           page_url: location.href,
@@ -1641,8 +2060,10 @@
       }
 
       // ── SRT: fetch file, convert to VTT, translate ──
-      // Fallback: if _type wasn't set (e.g. race condition), detect from URL
-      if (!track._type && track.url.includes('.srt')) {
+      // Fallback: if _type wasn't set (e.g. race condition), detect from URL.
+      // Match `.srt` only at the end of the path (.srt or .srt?query) — NOT when it's
+      // inside the path like kino.pub `…/2679079.srt/index.m3u8?loc=nl` (that's an HLS playlist).
+      if (!track._type && /\.srt(?:\?|$)/.test(track.url)) {
         track._type = 'srt';
       }
       if (track._type === 'srt') {
@@ -1656,7 +2077,6 @@
         });
 
         if (chrome.runtime.lastError || !srtResult || srtResult.error) {
-          showBadge('error', chrome.i18n.getMessage('errorPrefix', [srtResult?.error || chrome.i18n.getMessage('errorFetchFailed')]));
           activeTrackUrl = null;
           updatePicker();
           return;
@@ -1688,6 +2108,88 @@
           }
         });
 
+        return;
+      }
+
+      // ── Netflix TTML already captured (no fetch needed, AS-245) ──
+      if (track._type === 'ttml_inline') {
+        if (!track._cachedTtml) {
+          // pending — request via bridge to MAIN-world
+          if (track._netflixTrackId) {
+            window.postMessage({
+              type: '__podstr_netflix_request_track',
+              nonce: _netflixNonce,
+              trackId: track._netflixTrackId
+            }, location.origin);
+            // Wait for either ttml message or 6-second timeout.
+            // handleNetflixTtml will re-call startTranslation upon arrival.
+            const stillPending = await new Promise((resolve) => {
+              const timer = setTimeout(() => resolve(true), 6000);
+              const onTtml = (ev) => {
+                if (ev.source !== window) return;
+                if (ev.origin !== location.origin) return;
+                if (ev.data?.type !== '__podstr_netflix_ttml') return;
+                if (ev.data?.nonce !== _netflixNonce) return;
+                clearTimeout(timer);
+                window.removeEventListener('message', onTtml);
+                resolve(false);
+              };
+              window.addEventListener('message', onTtml);
+            });
+            if (stillPending) {
+              showBadge('error', chrome.i18n.getMessage('errorNetflixCachedTtml'));
+              activeTrackUrl = null; updatePicker(); return;
+            }
+            return; // resumed via handleNetflixTtml → startTranslation
+          }
+          showBadge('error', chrome.i18n.getMessage('errorNoSubtitles'));
+          activeTrackUrl = null; updatePicker(); return;
+        }
+
+        if (devMode) showBadge('translating', chrome.i18n.getMessage('devDownloading', [track.label]));
+
+        const ttmlResult = await new Promise((resolve) =>
+          chrome.runtime.sendMessage({ type: 'parse_ttml_xml', xml: track._cachedTtml }, resolve));
+
+        if (chrome.runtime.lastError || !ttmlResult || ttmlResult.error) {
+          showBadge('error', chrome.i18n.getMessage('errorPrefix',
+            [ttmlResult?.error || chrome.i18n.getMessage('errorFetchFailed')]));
+          activeTrackUrl = null; updatePicker(); return;
+        }
+
+        if (track.url !== activeTrackUrl) return;
+
+        if (ttmlResult.lang) {
+          const langCode = ttmlResult.lang.split('-')[0];
+          track.lang = langCode;
+          track.label = LANG_NAMES[langCode] || langCode.toUpperCase();
+          updatePicker();
+        }
+
+        console.log(`[podstr.cc] TTML inline: ${ttmlResult.cueCount} cues, lang=${ttmlResult.lang}`);
+        track._cachedVtt = ttmlResult.vtt;
+
+        if (devMode) showBadge('translating', chrome.i18n.getMessage('devTranslating', [String(ttmlResult.cueCount)]));
+
+        // Cache key: track.url already encodes nttm:uuid or sha256.
+        // Don't double-prefix with 'ttml:' — that's for fetched-by-URL TTML.
+        chrome.runtime.sendMessage({
+          type: 'start_translation',
+          vtt: ttmlResult.vtt,
+          url: track.url,
+          target_lang: targetLang,
+          provider: selectedProvider,
+          model: selectedModel,
+          title: getPageTitle(),
+          page_url: location.href,
+          skipCache: !!opts.skipCache,
+        }, (resp) => {
+          if (chrome.runtime.lastError || resp?.error) {
+            showBadge('error', resp?.error || chrome.i18n.getMessage('errorStartTranslation'));
+            activeTrackUrl = null;
+            updatePicker();
+          }
+        });
         return;
       }
 
@@ -1785,6 +2287,68 @@
         return;
       }
 
+      // ── HBO Max DASH: WebVTT segments listed in DASH manifest (AS-244) ──
+      if (track._type === 'hbo_dash') {
+        if (devMode) showBadge('translating', chrome.i18n.getMessage('devDownloading', [track.label]));
+
+        const dashResult = await new Promise((resolve) => {
+          chrome.runtime.sendMessage(
+            { type: 'fetch_dash_track', segments: track._hboSegments },
+            resolve
+          );
+        });
+
+        if (chrome.runtime.lastError || !dashResult || dashResult.error) {
+          let userMsg;
+          if (dashResult && dashResult.error === 'auth_expired') {
+            userMsg = chrome.i18n.getMessage('errorHboAuthExpired');
+          } else {
+            userMsg = chrome.i18n.getMessage('errorPrefix',
+              [(dashResult && dashResult.error) || chrome.i18n.getMessage('errorFetchFailed')]);
+          }
+          showBadge('error', userMsg);
+          activeTrackUrl = null; updatePicker(); return;
+        }
+
+        if (track.url !== activeTrackUrl) return;
+
+        console.log(`[podstr.cc] HBO DASH: downloaded ${dashResult.total} segments` + (dashResult.partial ? ' (partial)' : ''));
+
+        const combinedHbo = combineSegments(dashResult.texts);
+        if (!combinedHbo.cueCount) {
+          showBadge('error', chrome.i18n.getMessage('errorNoSubtitles'));
+          activeTrackUrl = null; updatePicker(); return;
+        }
+
+        if (dashResult.partial) {
+          console.warn('[podstr.cc] HBO DASH: partial result — translating what was fetched');
+          showBadge('error', chrome.i18n.getMessage('errorHboPartial'));
+        }
+
+        console.log(`[podstr.cc] HBO DASH: combined ${combinedHbo.cueCount} cues, ${combinedHbo.vtt.length} bytes`);
+        track._cachedVtt = combinedHbo.vtt;
+        if (devMode) showBadge('translating', chrome.i18n.getMessage('devTranslating', [String(combinedHbo.cueCount)]));
+
+        // Cache key: track.url is already 'hbo:videoId/trackId' (stable across sessions).
+        chrome.runtime.sendMessage({
+          type: 'start_translation',
+          vtt: combinedHbo.vtt,
+          url: track.url,
+          target_lang: targetLang,
+          provider: selectedProvider,
+          model: selectedModel,
+          title: getPageTitle(),
+          page_url: location.href,
+          skipCache: !!opts.skipCache,
+        }, (resp) => {
+          if (chrome.runtime.lastError || resp?.error) {
+            showBadge('error', resp?.error || chrome.i18n.getMessage('errorStartTranslation'));
+            activeTrackUrl = null; updatePicker();
+          }
+        });
+        return;
+      }
+
       // Download segments via background (CORS)
       const result = await new Promise((resolve) => {
         chrome.runtime.sendMessage(
@@ -1846,22 +2410,72 @@
   }
 
   // ── Combine VTT segments into one ──
+  // Some sites (kino.pub) overlap subtitle segments — last cue of seg-N == first cue of seg-(N+1).
+  // Skip consecutive duplicates by timecode. Non-consecutive cues with identical timecodes
+  // (theoretical: dual-speaker SDH, dual-audio) are kept.
+  // AS-244: also handle X-TIMESTAMP-MAP for HLS WebVTT segments with relative
+  // timecodes (HBO Max DASH WebVTT). When absent (kinopub, Filmzie), offset = 0.
   function combineSegments(segmentTexts) {
     let vtt = 'WEBVTT\n\n';
     let cueCount = 0;
+    let skipped = 0;
+    let lastTimecode = null;
 
     for (const text of segmentTexts) {
       if (!text) continue;
       const lines = text.split('\n');
+
+      // Detect X-TIMESTAMP-MAP per RFC 8216 §4.3.3 (attribute order is NOT specified).
+      //   X-TIMESTAMP-MAP=MPEGTS:900000,LOCAL:00:00:00.000
+      //   X-TIMESTAMP-MAP=LOCAL:00:00:00.000,MPEGTS:900000   (also valid)
+      // Offset (seconds) = MPEGTS / 90000 - LOCAL_seconds.
+      let segmentOffsetSec = 0;
+      for (let li = 0; li < Math.min(lines.length, 10); li++) {
+        const headerMatch = lines[li].match(/^X-TIMESTAMP-MAP\s*=\s*(.+)$/);
+        if (!headerMatch) continue;
+        const attrs = {};
+        for (const part of headerMatch[1].split(',')) {
+          const kv = part.trim().match(/^(\w+)\s*:\s*(.+)$/);
+          if (kv) attrs[kv[1].toUpperCase()] = kv[2].trim();
+        }
+        // LOCAL must be HH:MM:SS.mmm. If short form (MM:SS.mmm) or anything else,
+        // skip the shift — misshifting all cues is worse than not shifting at all.
+        if (attrs.MPEGTS && attrs.LOCAL && /^\d{2}:\d{2}:\d{2}\.\d{3}$/.test(attrs.LOCAL)) {
+          const mpegtsSec = parseInt(attrs.MPEGTS, 10) / 90000;
+          const localSec = _parseVttTimeForCombine(attrs.LOCAL);
+          if (Number.isFinite(mpegtsSec) && Number.isFinite(localSec)) {
+            segmentOffsetSec = mpegtsSec - localSec;
+          }
+        }
+        break;
+      }
 
       for (let i = 0; i < lines.length; i++) {
         const m = lines[i].match(
           /(\d{2}:\d{2}:\d{2}[\.,]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[\.,]\d{3})/
         );
         if (m) {
+          let startTc = m[1].replace(',', '.');
+          let endTc = m[2].replace(',', '.');
+          if (segmentOffsetSec !== 0) {
+            startTc = _shiftVttTimecode(startTc, segmentOffsetSec);
+            endTc = _shiftVttTimecode(endTc, segmentOffsetSec);
+          }
+          const timecode = startTc + '-->' + endTc;
+          if (timecode === lastTimecode) {
+            // Skip duplicate cue body
+            skipped++;
+            i++;
+            while (i < lines.length && lines[i].trim() !== '') {
+              if (lines[i].match(/\d{2}:\d{2}:\d{2}[\.,]\d{3}\s*-->/)) { i--; break; }
+              i++;
+            }
+            continue;
+          }
+          lastTimecode = timecode;
           cueCount++;
           vtt += cueCount + '\n';
-          vtt += lines[i].trim() + '\n';
+          vtt += startTc + ' --> ' + endTc + '\n';
           i++;
           while (i < lines.length && lines[i].trim() !== '') {
             if (lines[i].match(/\d{2}:\d{2}:\d{2}[\.,]\d{3}\s*-->/)) { i--; break; }
@@ -1873,7 +2487,28 @@
       }
     }
 
+    if (skipped > 0) {
+      console.log('[podstr.cc] combineSegments: ' + cueCount + ' cues, ' + skipped + ' duplicates skipped (' + vtt.length + ' bytes)');
+    }
     return { vtt, cueCount };
+  }
+
+  function _parseVttTimeForCombine(tc) {
+    const m = tc.match(/^(\d{2}):(\d{2}):(\d{2})\.(\d{3})$/);
+    if (!m) return 0;
+    return parseInt(m[1], 10) * 3600 + parseInt(m[2], 10) * 60 +
+           parseInt(m[3], 10) + parseInt(m[4], 10) / 1000;
+  }
+
+  function _shiftVttTimecode(tc, deltaSec) {
+    const sec = _parseVttTimeForCombine(tc) + deltaSec;
+    if (!Number.isFinite(sec) || sec < 0) return tc;
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = Math.floor(sec % 60);
+    const ms = Math.round((sec - Math.floor(sec)) * 1000);
+    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' +
+           String(s).padStart(2, '0') + '.' + String(ms).padStart(3, '0');
   }
 
   // ── Parse translated VTT into cues ──
@@ -2112,22 +2747,7 @@
       return;
     }
 
-    let container = parentAcrossShadow(video);
-    while (container && container !== document.body) {
-      const rect = container.getBoundingClientRect();
-      const usable = document.contains(container) && !container.shadowRoot
-        && rect.width >= video.clientWidth * 0.9 && rect.height > 0;
-      if (usable) break;
-      container = parentAcrossShadow(container);
-    }
-    if (!container || container === document.body) {
-      container = parentAcrossShadow(video);
-      while (container && (!document.contains(container) || container.shadowRoot)) {
-        container = parentAcrossShadow(container);
-      }
-      if (!container) container = document.body;
-    }
-
+    const container = findStableContainer(video);
     const pos = getComputedStyle(container).position;
     if (pos === 'static') container.style.position = 'relative';
 
@@ -2147,18 +2767,33 @@
     const video = queryVideo();
     if (!video) return;
 
-    if (overlay && (!overlay.isConnected || !containsAcrossShadow(overlay.parentElement, video))) {
+    // Recreate only if element physically left the DOM. Earlier check
+    // `containsAcrossShadow(parent, video)` gave false-positives on Vidstack-style players
+    // (kino.pub): video lives behind a shadow boundary that parentAcrossShadow can't bridge
+    // from a light-DOM ancestor downward, so the watchdog kept killing a perfectly mounted
+    // picker every 2s and broke clicks mid-flight.
+    if (overlay && !overlay.isConnected) {
       console.log('[podstr.cc] Overlay container stale — recreating');
       overlay.remove();
       overlay = null;
       createOverlay();
     }
 
-    if (pickerElement && (!pickerElement.isConnected || !containsAcrossShadow(pickerElement.parentElement, video))) {
+    // For body-mounted picker (Netflix), pickerElement.isConnected is always true,
+    // so check the player anchor instead.
+    const stalePickerByElement = pickerElement && !pickerElement.isConnected;
+    const stalePickerByAnchor = pickerElement && _netflixPickerAnchor && !_netflixPickerAnchor.isConnected;
+    if (stalePickerByElement || stalePickerByAnchor) {
+      const wasOpen = pickerVisibility.getOpen();
       console.log('[podstr.cc] Picker container stale — recreating');
+      pickerVisibility.detach();
+      cleanupNetflixPicker();
       pickerElement.remove();
       pickerElement = null;
-      if (detectedTracks.length > 0) createPicker();
+      if (detectedTracks.length > 0) {
+        createPicker();
+        if (wasOpen && pickerElement) pickerVisibility.show();
+      }
     }
   }
 
@@ -2266,7 +2901,7 @@
     el.className = 'ai-sub-picker-notify ' + pendingNotification.type;
     el.textContent = pendingNotification.text;
     pickerElement.appendChild(el);
-    pickerElement.classList.remove('hidden');
+    pickerVisibility.show();
     // Auto-clear
     const remaining = pendingNotification.expiry - Date.now();
     setTimeout(() => { pendingNotification = null; if (el.parentNode) el.remove(); }, remaining);

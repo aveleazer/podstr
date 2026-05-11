@@ -188,6 +188,15 @@ function normalizeCacheKey(url) {
   if (url.startsWith('youtube:')) {
     return prefix + url;
   }
+  // Netflix (AS-245): synthetic URLs from netflix-detect.js. nttm:uuid is stable
+  // across sessions; SHA-256(full ttml) is fallback when uuid is missing.
+  // trackId is session-bound, last resort.
+  if (url.startsWith('netflix:uuid:')) return prefix + url;
+  if (url.startsWith('netflix:hash:')) return prefix + url;
+  if (url.startsWith('netflix:trackId:')) return prefix + url;
+  // HBO Max (AS-244): synthetic 'hbo:<videoId>/<trackId>' from content.js,
+  // stable across sessions. Real segment URLs (with auth tokens) never reach this.
+  if (url.startsWith('hbo:')) return prefix + url;
   try {
     const path = new URL(url).pathname;
     // BBC iPlayer: extract pips-pid-{pid} as stable identifier
@@ -196,6 +205,13 @@ function normalizeCacheKey(url) {
     // RaiPlay: extract filename from /dl/video/stl/{filename}.srt
     const raiMatch = path.match(/\/dl\/video\/stl\/([^/]+\.srt)/);
     if (raiMatch) return prefix + 'raiplay:' + raiMatch[1];
+    // Netflix CDN legacy fallback: webRequest may catch initial XHR before
+    // MAIN-world hook installs (race condition with lazy SW registration).
+    // Per-session cache only. New flow uses netflix:uuid:/netflix:hash:.
+    const parsedUrl = new URL(url);
+    if (parsedUrl.hostname.includes('nflxvideo.net')) {
+      return prefix + 'netflix:' + parsedUrl.search;
+    }
     // Kinopub/generic: /subtitles/... path
     const subMatch = path.match(/\/subtitles\/.+/);
     if (subMatch) return prefix + subMatch[0];

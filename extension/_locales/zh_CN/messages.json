@@ -292,12 +292,7 @@
     "message": "请在播放器中启用字幕（CC）"
   },
   "errorYouTube": {
-    "message": "YouTube：$ERR$",
-    "placeholders": {
-      "err": {
-        "content": "$1"
-      }
-    }
+    "message": "YouTube isn't returning subtitles for this video. Try another video or check back later."
   },
   "errorNoSubtitles": {
     "message": "无字幕"
@@ -668,5 +663,14 @@
   },
   "infoCostFree": {
     "message": "free"
+  },
+  "errorNetflixCachedTtml": {
+    "message": "Netflix cached subtitles, please reload the episode"
+  },
+  "errorHboAuthExpired": {
+    "message": "HBO links expired, please reload the page"
+  },
+  "errorHboPartial": {
+    "message": "Some segments missing — translation may be incomplete"
   }
 }

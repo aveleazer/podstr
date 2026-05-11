@@ -292,12 +292,7 @@
     "message": "Включите субтитры (CC) в плеере"
   },
   "errorYouTube": {
-    "message": "YouTube: $ERR$",
-    "placeholders": {
-      "err": {
-        "content": "$1"
-      }
-    }
+    "message": "YouTube не отдаёт субтитры для этого видео. Попробуй другое видео или вернись позже."
   },
   "errorNoSubtitles": {
     "message": "Нет субтитров"
@@ -668,5 +663,14 @@
   },
   "infoCostFree": {
     "message": "бесплатно"
+  },
+  "errorNetflixCachedTtml": {
+    "message": "Netflix кэшировал субтитры, переоткройте серию"
+  },
+  "errorHboAuthExpired": {
+    "message": "Срок ссылок HBO истёк, перезагрузите страницу"
+  },
+  "errorHboPartial": {
+    "message": "Скачана часть сегментов — перевод может быть неполным"
   }
 }

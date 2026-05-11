@@ -91,6 +91,13 @@
   pointer-events: none;
 }
 
+/* AS-245: Netflix body-mounted picker. Escapes Cadmium stacking-context
+   wrappers (transform/opacity create their own stacking contexts that z-index
+   doesn't pierce). top/right/zIndex set inline via repositionNetflixPicker. */
+#ai-subtitler-picker.ai-sub-picker-body-mounted {
+  position: fixed;
+}
+
 .ai-sub-picker-btn {
   padding: 3px 8px;
   border: 1px solid rgba(255, 255, 255, 0.3);

@@ -19,6 +19,10 @@
 
 importScripts('parsers.js', 'detectors.js', 'providers.js', 'bg-settings.js', 'bg-cache.js', 'bg-translate.js');
 
+// URL prefixes that already encode a stable cache identifier (no need to wrap in 'playlist:')
+// Used by check_cache, check_shared_cache, watchdog. AS-244 added 'hbo:'.
+const HAS_PREFIX_RE = /^(youtube|ttml|srt|native|hbo|netflix):/;
+
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
 const seenUrls = new Set();
@@ -33,6 +37,7 @@ const PREDEFINED_SITES = [
   { id: 'netflix',  matches: ['*://*.netflix.com/*'] },
   { id: 'bbc',      matches: ['*://*.bbc.co.uk/*', '*://*.bbc.com/*'] },
   { id: 'raiplay',  matches: ['*://*.raiplay.it/*'] },
+  { id: 'hbomax',   matches: ['*://play.hbomax.com/*', '*://play.max.com/*'] },
   { id: 'podstr',   matches: ['*://*.podstr.cc/*', '*://podstr.cc/*'] },
 ];
 
@@ -45,20 +50,29 @@ function originToMatchPattern(origin) {
   }
 }
 
+// Extract hostname from a manifest match-pattern. Handles both wildcard-subdomain
+// and exact-host forms. Used by isPredefinedOrigin / disabled-checks (AS-244).
+//   '*://*.hbomax.com/*' → 'hbomax.com'
+//   '*://play.hbomax.com/*' → 'play.hbomax.com'
+function matchPatternHostname(pattern) {
+  const m = pattern.match(/^\*?:?\/\/(?:\*\.)?([^/]+)(?:\/.*)?$/);
+  return m ? m[1] : '';
+}
+
 function isPredefinedOrigin(origin) {
   try {
     const hostname = new URL(origin).hostname;
-    return PREDEFINED_SITES.some(s => {
-      const domainPart = s.matches[0].replace('*://*.', '').replace('/*', '');
+    return PREDEFINED_SITES.some(s => s.matches.some(p => {
+      const domainPart = matchPatternHostname(p);
       return hostname === domainPart || hostname.endsWith('.' + domainPart);
-    });
+    }));
   } catch {
     return false;
   }
 }
 
 // Script registration version — bump to force re-registration
-const SCRIPT_REG_VERSION = 6; // v6: added RaiPlay MAIN world fetch interceptor
+const SCRIPT_REG_VERSION = 8; // v8: Netflix MAIN world (AS-245) + HBO Max MAIN+content scripts (AS-244)
 
 async function ensurePredefinedScripts() {
   // Force re-register if version changed (e.g. allFrames added)
@@ -87,8 +101,10 @@ async function ensurePredefinedScripts() {
     const isDisabled = disabledSites.some(origin => {
       try {
         const hostname = new URL(origin).hostname;
-        const domain = site.matches[0].replace('*://*.', '').replace('/*', '');
-        return hostname === domain || hostname.endsWith('.' + domain);
+        return site.matches.some(p => {
+          const domain = matchPatternHostname(p);
+          return hostname === domain || hostname.endsWith('.' + domain);
+        });
       } catch { return false; }
     });
     if (isDisabled) continue;
@@ -129,6 +145,40 @@ async function ensurePredefinedScripts() {
       runAt: 'document_start',
       world: 'MAIN',
       allFrames: true,
+      persistAcrossSessions: true,
+    });
+  }
+
+  // Netflix MAIN world script for Cadmium TTML capture and track list extraction (AS-245)
+  const netflixDisabled = disabledSites.some(o => { try { return new URL(o).hostname.endsWith('netflix.com'); } catch { return false; } });
+  if (!netflixDisabled && !existingIds.has('site-netflix-main')) {
+    toRegister.push({
+      id: 'site-netflix-main',
+      matches: ['*://*.netflix.com/*'],
+      js: ['netflix-detect.js'],
+      runAt: 'document_start',
+      world: 'MAIN',
+      allFrames: false,
+      persistAcrossSessions: true,
+    });
+  }
+
+  // HBO Max MAIN world script for DASH manifest capture (AS-244)
+  const hboHosts = ['play.hbomax.com', 'play.max.com'];
+  const hboDisabled = disabledSites.some(o => {
+    try {
+      const h = new URL(o).hostname;
+      return hboHosts.some(target => h === target || h.endsWith('.' + target));
+    } catch { return false; }
+  });
+  if (!hboDisabled && !existingIds.has('site-hbo-main')) {
+    toRegister.push({
+      id: 'site-hbo-main',
+      matches: ['*://play.hbomax.com/*', '*://play.max.com/*'],
+      js: ['hbo-detect.js'],
+      runAt: 'document_start',
+      world: 'MAIN',
+      allFrames: false,
       persistAcrossSessions: true,
     });
   }
@@ -236,7 +286,10 @@ chrome.webRequest.onCompleted.addListener(
       '*://vod-sub-uk.live.cf.md.bbci.co.uk/iplayer/subtitles/*',
       '*://*.cloudfront.net/iplayer/subtitles/*',
       // RaiPlay subtitle files (SRT format)
-      '*://www.raiplay.it/dl/video/stl/*.srt*'
+      '*://www.raiplay.it/dl/video/stl/*.srt*',
+      // Netflix CDN — matches all nflxvideo.net traffic (video chunks too), but detector
+      // rejects non-text/xml fast. No narrower URL pattern distinguishes subtitle fetches.
+      '*://*.nflxvideo.net/*'
     ]
   },
   ['responseHeaders'] // Needed for content-type detection (TTML)
@@ -463,16 +516,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         if (isPredefinedOrigin(origin)) {
           // Disable predefined: unregister its content script, save to disabledSites
           const hostname = new URL(origin).hostname;
-          const siteEntry = PREDEFINED_SITES.find(s => {
-            const domain = s.matches[0].replace('*://*.', '').replace('/*', '');
+          const siteEntry = PREDEFINED_SITES.find(s => s.matches.some(p => {
+            const domain = matchPatternHostname(p);
             return hostname === domain || hostname.endsWith('.' + domain);
-          });
+          }));
           if (siteEntry) {
             const scriptId = 'site-' + siteEntry.id;
             await chrome.scripting.unregisterContentScripts({ ids: [scriptId] }).catch(() => {});
-            // Also unregister MAIN world script for YouTube
+            // Also unregister MAIN world site-scripts for sites that have them
             if (siteEntry.id === 'youtube') {
               await chrome.scripting.unregisterContentScripts({ ids: ['site-youtube-main'] }).catch(() => {});
+            } else if (siteEntry.id === 'raiplay') {
+              await chrome.scripting.unregisterContentScripts({ ids: ['site-raiplay-main'] }).catch(() => {});
+            } else if (siteEntry.id === 'netflix') {
+              await chrome.scripting.unregisterContentScripts({ ids: ['site-netflix-main'] }).catch(() => {});
+            } else if (siteEntry.id === 'hbomax') {
+              await chrome.scripting.unregisterContentScripts({ ids: ['site-hbo-main'] }).catch(() => {});
             }
           }
           const data = await chrome.storage.local.get('disabledSites');
@@ -625,7 +684,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     (async () => {
       try {
         let url = msg.url;
-        // Replace existing fmt param (e.g. fmt=srv3) instead of appending second one
         if (/[?&]fmt=/.test(url)) {
           url = url.replace(/([?&]fmt=)[^&]*/, '$1vtt');
         } else {
@@ -640,6 +698,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       }
     })();
     return true;
+  }
+
+  if (msg.type === 'youtube_panel_to_vtt') {
+    try {
+      const { cues } = parseYouTubePanel(msg.body, msg.videoDurationMs);
+      if (!cues || cues.length === 0) {
+        sendResponse({ error: 'EMPTY_PANEL' });
+        return;
+      }
+      const vtt = buildVtt(cues, null, { credit: false });
+      sendResponse({ vtt });
+    } catch (e) {
+      console.warn('[podstr.cc] yt-panel parse error:', e.message);
+      sendResponse({ error: e.message });
+    }
+    return;
   }
 
   if (msg.type === 'fetch_segments') {
@@ -664,6 +738,47 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const vtt = buildVtt(result.cues, null, { credit: false });
         sendResponse({ vtt, lang: result.lang, cueCount: result.cues.length });
       })
+      .catch(e => sendResponse({ error: e.message }));
+    return true;
+  }
+
+  // Parse already-captured TTML XML (no fetch). Used by Netflix flow (AS-245):
+  // MAIN-world XHR hook captures TTML, content.js sends it here for parsing.
+  if (msg.type === 'parse_ttml_xml') {
+    try {
+      const result = parseTTML(msg.xml);
+      if (!result.cues.length) { sendResponse({ error: 'no_cues' }); return true; }
+      const vtt = buildVtt(result.cues, null, { credit: false });
+      sendResponse({ vtt, lang: result.lang, cueCount: result.cues.length });
+    } catch (e) {
+      sendResponse({ error: e.message });
+    }
+    return true;
+  }
+
+  // Parse already-captured DASH manifest (HBO Max, AS-244). MAIN-world XHR hook
+  // captures dash.mpd, content.js forwards it here for parsing into track list.
+  if (msg.type === 'parse_dash_manifest_xml') {
+    try {
+      const result = parseDashSubtitleTracks(msg.mpd, msg.mpdUrl);
+      if (result.error) { sendResponse({ error: result.error }); return true; }
+      if (!result.tracks || !result.tracks.length) {
+        sendResponse({ error: 'no_subtitle_tracks' });
+        return true;
+      }
+      sendResponse({ tracks: result.tracks });
+    } catch (e) {
+      sendResponse({ error: e.message });
+    }
+    return true;
+  }
+
+  // Download all DASH WebVTT segments by URL list (HBO Max, AS-244).
+  // Symmetric to fetch_segments (HLS), but skips m3u8 parsing — segment list
+  // comes pre-built from the DASH manifest in content.js.
+  if (msg.type === 'fetch_dash_track') {
+    fetchAllDashSegments(msg.segments)
+      .then(sendResponse)
       .catch(e => sendResponse({ error: e.message }));
     return true;
   }
@@ -809,7 +924,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const provider = msg.provider || settings.provider;
     const model = msg.model || getActiveModel();
     Promise.all(urls.map(async (url) => {
-      const prefix = url.startsWith('youtube:') ? '' : url.startsWith('ttml:') ? '' : url.startsWith('srt:') ? '' : 'playlist:';
+      const prefix = HAS_PREFIX_RE.test(url) ? '' : 'playlist:';
       const key = buildCacheKey(prefix + url, targetLang, provider, model);
       const cached = await cacheGet(key);
       return cached ? url : null;
@@ -831,7 +946,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     // Build normalized URL map for ALL requested URLs (needed for cache lookups)
     const normalizedMap = {};
     for (const url of urls) {
-      normalizedMap[url] = normalizeCacheKey('playlist:' + url).replace('playlist:', '');
+      const prefixed = HAS_PREFIX_RE.test(url) ? url : 'playlist:' + url;
+      normalizedMap[url] = normalizeCacheKey(prefixed).replace(/^playlist:/, '');
     }
     Promise.all(urls.map(async (url) => {
       try {
@@ -940,4 +1056,57 @@ async function fetchAllSegments(playlistUrl) {
     console.error('[podstr.cc] fetchAllSegments error:', e);
     return { error: e.message };
   }
+}
+
+// AS-244: Download all DASH WebVTT segments by pre-built URL list.
+// Used by HBO Max — segment list comes from DASH manifest, not m3u8 playlist.
+async function fetchAllDashSegments(segmentUrls) {
+  if (!Array.isArray(segmentUrls) || !segmentUrls.length) {
+    return { error: 'no_segments' };
+  }
+  console.log(`[podstr.cc] DASH: downloading ${segmentUrls.length} subtitle segments...`);
+
+  const texts = [];
+  let authFailures = 0;
+  let notFoundCount = 0;
+  for (let i = 0; i < segmentUrls.length; i += 5) {
+    const batch = segmentUrls.slice(i, i + 5);
+    const results = await Promise.all(
+      batch.map(async (url) => {
+        try {
+          const r = await fetch(url);
+          if (r.status === 401 || r.status === 403) { authFailures++; return ''; }
+          if (r.status === 404) { notFoundCount++; return ''; }
+          return r.ok ? await r.text() : '';
+        } catch (e) {
+          return '';
+        }
+      })
+    );
+    texts.push(...results);
+    const attempted = i + batch.length;
+    if (i + 5 < segmentUrls.length) {
+      await new Promise(r => setTimeout(r, 100));
+    }
+    // Bail: auth_expired (≥3 auth failures and >30% rate)
+    if (authFailures >= 3 && authFailures / attempted > 0.3) {
+      return { error: 'auth_expired' };
+    }
+    // Bail: segments_unreachable (≥10 404s and >50% rate — manifest count overshoot
+    // with priority-3 cap=500, or malformed manifest). Return partial if got something.
+    if (notFoundCount >= 10 && notFoundCount / attempted > 0.5) {
+      const partialGot = texts.filter(t => t).length;
+      if (partialGot > 0) {
+        console.warn(`[podstr.cc] DASH: ${notFoundCount} 404s, returning ${partialGot} fetched segments`);
+        return { texts, total: segmentUrls.length, partial: true };
+      }
+      return { error: 'segments_unreachable' };
+    }
+  }
+
+  const got = texts.filter(t => t).length;
+  console.log(`[podstr.cc] DASH: downloaded ${got}/${segmentUrls.length} segments`);
+  if (got === 0 && authFailures > 0) return { error: 'auth_expired' };
+  if (got === 0) return { error: 'no_segments_fetched' };
+  return { texts, total: segmentUrls.length };
 }

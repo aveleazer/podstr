@@ -1,5 +1,5 @@
 // detectors.js — Subtitle format detectors for webRequest pipeline
-// Each detector: { id, match(url, contentType) → type|null }
+// Each detector: { id, match(url, contentType, headers) → type|null }
 // First match wins. Order matters: URL checks (cheap) before content-type (needs header parsing).
 
 const SUBTITLE_DETECTORS = [
@@ -35,6 +35,19 @@ const SUBTITLE_DETECTORS = [
     }
   },
   {
+    id: 'netflix',
+    match(url, contentType, headers) {
+      // Netflix CDN: subtitles are text/xml ~100KB+, init segments are text/xml ~2-4KB.
+      // If Content-Length is absent (chunked transfer), allow through — parseTTML returns
+      // empty cues for non-TTML XML, which the caller handles gracefully.
+      if (!url.includes('nflxvideo.net')) return null;
+      if (!contentType || !contentType.includes('text/xml')) return null;
+      const cl = getContentLength(headers);
+      if (cl !== null && cl < 5000) return null; // Skip init segments (~2-4KB)
+      return 'ttml_detected';
+    }
+  },
+  {
     id: 'ttml',
     match(url, contentType) {
       // content-type is the most stable signal for TTML
@@ -65,15 +78,30 @@ function getContentType(headers) {
 }
 
 /**
+ * Extract content-length from webRequest responseHeaders array.
+ * Returns integer or null.
+ */
+function getContentLength(headers) {
+  if (!headers) return null;
+  for (const h of headers) {
+    if (h.name.toLowerCase() === 'content-length') {
+      return parseInt(h.value, 10);
+    }
+  }
+  return null;
+}
+
+/**
  * Run all detectors against a webRequest.onCompleted details object.
  * Returns { type, url } or null.
  */
 function detectSubtitle(details) {
   const url = details.url;
   const contentType = getContentType(details.responseHeaders);
+  const headers = details.responseHeaders;
 
   for (const detector of SUBTITLE_DETECTORS) {
-    const type = detector.match(url, contentType);
+    const type = detector.match(url, contentType, headers);
     if (type) return { type, url };
   }
   return null;
