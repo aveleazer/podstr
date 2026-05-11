@@ -34,14 +34,18 @@ To translate new content, you need an [OpenRouter API key](https://openrouter.ai
 
 | Platform | Subtitles | Status |
 |----------|-----------|--------|
-| **YouTube** | Manual CC (not auto-generated) | Tested |
+| **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Tested |
+| **Netflix** | TTML via Cadmium player API | Tested |
+| **HBO Max** | WebVTT via DASH manifest | Tested |
 | **BBC iPlayer** | TTML/EBU-TT-D | Tested |
+| **RaiPlay** | SRT via MAIN-world fetch interceptor | Tested |
+| **kino.pub** | HLS subtitles (Vidstack player) | Tested |
+| **RTS Planeta** | Native HTML5 `<track>` | Tested |
 | **ARTE** | HLS subtitles | Tested |
 | **Plex** | HLS subtitles | Tested |
 | **Filmzie** | HLS subtitles | Tested |
-| **Netflix** | HLS subtitles | Experimental |
 
-Other sites with HLS/VTT/TTML subtitles may work — click **Enable** in the extension popup.
+Other sites with HLS / VTT / TTML / native `<track>` subtitles may work — click **Enable** in the extension popup.
 
 ## Features
 
