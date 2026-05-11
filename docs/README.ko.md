@@ -27,14 +27,19 @@ Chrome 확장 프로그램: 동영상 플랫폼의 자막을 감지하고 실시
 ## 지원 플랫폼
 
 | 플랫폼 | 자막 형식 | 상태 |
-|--------|-----------|------|
-| **YouTube** | 수동 CC (자동 생성 제외) | 테스트 완료 |
+|------|------|------|
+| **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | 테스트 완료 |
+| **Netflix** | TTML via Cadmium player API | 테스트 완료 |
+| **HBO Max** | WebVTT via DASH manifest | 테스트 완료 |
 | **BBC iPlayer** | TTML/EBU-TT-D | 테스트 완료 |
-| **ARTE** | HLS 자막 | 테스트 완료 |
-| **Plex** | HLS 자막 | 테스트 완료 |
-| **Filmzie** | HLS 자막 | 테스트 완료 |
+| **RaiPlay** | SRT via MAIN-world fetch interceptor | 테스트 완료 |
+| **kino.pub** | HLS subtitles (Vidstack player) | 테스트 완료 |
+| **RTS Planeta** | Native HTML5 `<track>` | 테스트 완료 |
+| **ARTE** | HLS subtitles | 테스트 완료 |
+| **Plex** | HLS subtitles | 테스트 완료 |
+| **Filmzie** | HLS subtitles | 테스트 완료 |
 
-HLS/VTT/TTML 자막이 있는 다른 사이트에서도 작동할 수 있습니다. 확장 프로그램 팝업에서 **Enable**을 클릭하세요.
+HLS / VTT / TTML / 네이티브 `<track>` 자막이 있는 다른 사이트에서도 작동할 수 있습니다 — 확장 프로그램 팝업에서 **Enable**을 클릭하세요.
 
 ## 기능
 

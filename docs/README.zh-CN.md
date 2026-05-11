@@ -27,14 +27,19 @@ Chrome 扩展程序：自动检测视频平台上的字幕并实时翻译。
 ## 支持的平台
 
 | 平台 | 字幕类型 | 状态 |
-|------|----------|------|
-| **YouTube** | 手动 CC（非自动生成） | 已测试 |
+|------|------|------|
+| **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | 已测试 |
+| **Netflix** | TTML via Cadmium player API | 已测试 |
+| **HBO Max** | WebVTT via DASH manifest | 已测试 |
 | **BBC iPlayer** | TTML/EBU-TT-D | 已测试 |
-| **ARTE** | HLS 字幕 | 已测试 |
-| **Plex** | HLS 字幕 | 已测试 |
-| **Filmzie** | HLS 字幕 | 已测试 |
+| **RaiPlay** | SRT via MAIN-world fetch interceptor | 已测试 |
+| **kino.pub** | HLS subtitles (Vidstack player) | 已测试 |
+| **RTS Planeta** | Native HTML5 `<track>` | 已测试 |
+| **ARTE** | HLS subtitles | 已测试 |
+| **Plex** | HLS subtitles | 已测试 |
+| **Filmzie** | HLS subtitles | 已测试 |
 
-其他提供 HLS/VTT/TTML 字幕的网站也可能支持——在扩展弹窗中点击 **Enable** 即可尝试。
+其他提供 HLS / VTT / TTML / 原生 `<track>` 字幕的网站也可能支持——在扩展弹窗中点击 **Enable** 即可尝试。
 
 ## 功能特性
 

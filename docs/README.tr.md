@@ -27,14 +27,19 @@ Yeni içerik çevirmek için bir [OpenRouter API anahtarı](https://openrouter.a
 ## Desteklenen Platformlar
 
 | Platform | Altyazılar | Durum |
-|----------|------------|-------|
-| **YouTube** | Manuel CC (otomatik oluşturulan değil) | Test edildi |
+|------|------|------|
+| **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Test edildi |
+| **Netflix** | TTML via Cadmium player API | Test edildi |
+| **HBO Max** | WebVTT via DASH manifest | Test edildi |
 | **BBC iPlayer** | TTML/EBU-TT-D | Test edildi |
-| **ARTE** | HLS altyazıları | Test edildi |
-| **Plex** | HLS altyazıları | Test edildi |
-| **Filmzie** | HLS altyazıları | Test edildi |
+| **RaiPlay** | SRT via MAIN-world fetch interceptor | Test edildi |
+| **kino.pub** | HLS subtitles (Vidstack player) | Test edildi |
+| **RTS Planeta** | Native HTML5 `<track>` | Test edildi |
+| **ARTE** | HLS subtitles | Test edildi |
+| **Plex** | HLS subtitles | Test edildi |
+| **Filmzie** | HLS subtitles | Test edildi |
 
-HLS/VTT/TTML altyazılı diğer siteler de çalışabilir — uzantı açılır penceresinde **Enable**'a tıklayın.
+HLS / VTT / TTML / yerel `<track>` altyazılı diğer siteler de çalışabilir — uzantı açılır penceresinde **Enable**'a tıklayın.
 
 ## Özellikler
 

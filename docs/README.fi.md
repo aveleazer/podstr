@@ -27,14 +27,19 @@ Uuden sisällön kääntämiseen tarvitset [OpenRouter API -avaimen](https://ope
 ## Tuetut alustat
 
 | Alusta | Tekstitykset | Tila |
-|--------|-------------|------|
-| **YouTube** | Manuaaliset CC (ei automaattisesti luodut) | Testattu |
+|------|------|------|
+| **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Testattu |
+| **Netflix** | TTML via Cadmium player API | Testattu |
+| **HBO Max** | WebVTT via DASH manifest | Testattu |
 | **BBC iPlayer** | TTML/EBU-TT-D | Testattu |
-| **ARTE** | HLS-tekstitykset | Testattu |
-| **Plex** | HLS-tekstitykset | Testattu |
-| **Filmzie** | HLS-tekstitykset | Testattu |
+| **RaiPlay** | SRT via MAIN-world fetch interceptor | Testattu |
+| **kino.pub** | HLS subtitles (Vidstack player) | Testattu |
+| **RTS Planeta** | Native HTML5 `<track>` | Testattu |
+| **ARTE** | HLS subtitles | Testattu |
+| **Plex** | HLS subtitles | Testattu |
+| **Filmzie** | HLS subtitles | Testattu |
 
-Muut sivustot, joilla on HLS/VTT/TTML-tekstitykset, saattavat myös toimia — napsauta **Enable** laajennuksen ponnahdusikkunassa.
+Muut HLS / VTT / TTML / natiivi-`<track>`-tekstityksiä tarjoavat sivustot voivat myös toimia — napsauta laajennuksen ponnahdusikkunassa **Enable**.
 
 ## Ominaisuudet
 

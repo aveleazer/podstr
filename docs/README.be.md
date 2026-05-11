@@ -39,14 +39,19 @@
 ## Правераныя платформы
 
 | Платформа | Субтытры | Статус |
-|-----------|----------|--------|
-| **YouTube** | Ручныя CC (не аўтазгенераваныя) | Праверана |
-| **Кінапаб** | HLS-субтытры | Праверана |
-| **ARTE** | HLS-субтытры | Праверана |
-| **Filmzie** | HLS-субтытры | Праверана |
+|------|------|------|
+| **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Праверана |
+| **Netflix** | TTML via Cadmium player API | Праверана |
+| **HBO Max** | WebVTT via DASH manifest | Праверана |
 | **BBC iPlayer** | TTML/EBU-TT-D | Праверана |
+| **RaiPlay** | SRT via MAIN-world fetch interceptor | Праверана |
+| **kino.pub** | HLS subtitles (Vidstack player) | Праверана |
+| **RTS Planeta** | Native HTML5 `<track>` | Праверана |
+| **ARTE** | HLS subtitles | Праверана |
+| **Plex** | HLS subtitles | Праверана |
+| **Filmzie** | HLS subtitles | Праверана |
 
-Іншыя сайты з HLS-субтытрамі могуць працаваць — націсніце **Enable** у popup пашырэння.
+Іншыя сайты з HLS / VTT / TTML / нативным `<track>` таксама могуць працаваць — націсніце **Enable** у popup пашырэння.
 
 ## Магчымасці
 

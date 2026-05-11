@@ -27,14 +27,19 @@ Para traduzir conteúdo novo, você precisa de uma [chave de API do OpenRouter](
 ## Plataformas Suportadas
 
 | Plataforma | Legendas | Status |
-|------------|----------|--------|
-| **YouTube** | CC manuais (não geradas automaticamente) | Testado |
+|------|------|------|
+| **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Testado |
+| **Netflix** | TTML via Cadmium player API | Testado |
+| **HBO Max** | WebVTT via DASH manifest | Testado |
 | **BBC iPlayer** | TTML/EBU-TT-D | Testado |
-| **ARTE** | Legendas HLS | Testado |
-| **Plex** | Legendas HLS | Testado |
-| **Filmzie** | Legendas HLS | Testado |
+| **RaiPlay** | SRT via MAIN-world fetch interceptor | Testado |
+| **kino.pub** | HLS subtitles (Vidstack player) | Testado |
+| **RTS Planeta** | Native HTML5 `<track>` | Testado |
+| **ARTE** | HLS subtitles | Testado |
+| **Plex** | HLS subtitles | Testado |
+| **Filmzie** | HLS subtitles | Testado |
 
-Outros sites com legendas HLS/VTT/TTML também podem funcionar — clique em **Enable** no popup da extensão.
+Outros sites com legendas HLS / VTT / TTML / `<track>` nativos também podem funcionar — clique em **Enable** no popup da extensão.
 
 ## Funcionalidades
 

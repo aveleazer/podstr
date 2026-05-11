@@ -39,14 +39,19 @@ Instructions détaillées : [CONTRIBUTING.md](CONTRIBUTING.md)
 ## Plateformes vérifiées
 
 | Plateforme | Sous-titres | Statut |
-|------------|-------------|--------|
-| **YouTube** | CC manuels (non auto-générés) | Vérifié |
-| **Kinopab** | Sous-titres HLS | Vérifié |
-| **ARTE** | Sous-titres HLS | Vérifié |
-| **Filmzie** | Sous-titres HLS | Vérifié |
+|------|------|------|
+| **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Vérifié |
+| **Netflix** | TTML via Cadmium player API | Vérifié |
+| **HBO Max** | WebVTT via DASH manifest | Vérifié |
 | **BBC iPlayer** | TTML/EBU-TT-D | Vérifié |
+| **RaiPlay** | SRT via MAIN-world fetch interceptor | Vérifié |
+| **kino.pub** | HLS subtitles (Vidstack player) | Vérifié |
+| **RTS Planeta** | Native HTML5 `<track>` | Vérifié |
+| **ARTE** | HLS subtitles | Vérifié |
+| **Plex** | HLS subtitles | Vérifié |
+| **Filmzie** | HLS subtitles | Vérifié |
 
-D'autres sites avec des sous-titres HLS peuvent fonctionner — cliquez sur **Enable** dans le popup de l'extension.
+D'autres sites avec sous-titres HLS / VTT / TTML / `<track>` natifs peuvent fonctionner — cliquez sur **Enable** dans le popup de l'extension.
 
 ## Fonctionnalités
 

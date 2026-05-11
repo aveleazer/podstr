@@ -39,14 +39,19 @@ Detaljna uputstva: [CONTRIBUTING.md](CONTRIBUTING.md)
 ## Testirane platforme
 
 | Platforma | Titlovi | Status |
-|-----------|---------|--------|
-| **YouTube** | Ručni CC (ne automatski generisani) | Testirano |
-| **Kinopab** | HLS titlovi | Testirano |
-| **ARTE** | HLS titlovi | Testirano |
-| **Filmzie** | HLS titlovi | Testirano |
+|------|------|------|
+| **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Testirano |
+| **Netflix** | TTML via Cadmium player API | Testirano |
+| **HBO Max** | WebVTT via DASH manifest | Testirano |
 | **BBC iPlayer** | TTML/EBU-TT-D | Testirano |
+| **RaiPlay** | SRT via MAIN-world fetch interceptor | Testirano |
+| **kino.pub** | HLS subtitles (Vidstack player) | Testirano |
+| **RTS Planeta** | Native HTML5 `<track>` | Testirano |
+| **ARTE** | HLS subtitles | Testirano |
+| **Plex** | HLS subtitles | Testirano |
+| **Filmzie** | HLS subtitles | Testirano |
 
-Drugi sajtovi sa HLS titlovima mogu raditi — kliknite **Enable** u popup-u ekstenzije.
+Drugi sajtovi sa HLS / VTT / TTML / nativnim `<track>` titlovima takođe mogu raditi — kliknite **Enable** u popup-u ekstenzije.
 
 ## Mogućnosti
 

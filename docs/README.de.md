@@ -39,14 +39,19 @@ Ausführliche Anleitung: [CONTRIBUTING.md](CONTRIBUTING.md)
 ## Getestete Plattformen
 
 | Plattform | Untertitel | Status |
-|-----------|------------|--------|
-| **YouTube** | Manuelle CC (nicht automatisch generiert) | Getestet |
-| **Kinopab** | HLS-Untertitel | Getestet |
-| **ARTE** | HLS-Untertitel | Getestet |
-| **Filmzie** | HLS-Untertitel | Getestet |
+|------|------|------|
+| **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Getestet |
+| **Netflix** | TTML via Cadmium player API | Getestet |
+| **HBO Max** | WebVTT via DASH manifest | Getestet |
 | **BBC iPlayer** | TTML/EBU-TT-D | Getestet |
+| **RaiPlay** | SRT via MAIN-world fetch interceptor | Getestet |
+| **kino.pub** | HLS subtitles (Vidstack player) | Getestet |
+| **RTS Planeta** | Native HTML5 `<track>` | Getestet |
+| **ARTE** | HLS subtitles | Getestet |
+| **Plex** | HLS subtitles | Getestet |
+| **Filmzie** | HLS subtitles | Getestet |
 
-Andere Seiten mit HLS-Untertiteln können ebenfalls funktionieren — klicke auf **Enable** im Popup der Erweiterung.
+Andere Websites mit HLS / VTT / TTML / nativen `<track>`-Untertiteln können ebenfalls funktionieren — klicke **Enable** im Popup der Erweiterung.
 
 ## Funktionen
 
