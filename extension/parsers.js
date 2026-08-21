@@ -4,6 +4,7 @@
 // ── Credit text by target language (shown at end of translated subtitles) ──
 const CREDIT_BY_LANG = {
   Russian: 'Переведено через Подстрочник — умные ИИ-субтитры\npodstr.cc',
+  Persian: 'ترجمه‌شده با podstr.cc — زیرنویس هوش مصنوعی',
   Ukrainian: 'Перекладено через Підрядник — ІІ-субтитри\npodstr.cc',
   Belarusian: 'Перакладзена праз Падрадкоўнік — ІІ-субтытры\npodstr.cc',
   Serbian: 'Преведено преко Подстрочник — АИ титлови\npodstr.cc',

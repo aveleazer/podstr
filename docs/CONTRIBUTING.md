@@ -41,6 +41,29 @@ Translate whatever you watch -- that's the whole idea.
 - Test on at least one real video before submitting
 - The extension is vanilla JS with zero dependencies -- no build step required
 
+### Adding a language
+
+Use the existing Persian implementation as the checklist for new languages:
+
+1. Add the canonical target name and UI default in `extension/providers.js` and `extension/bg-settings.js`.
+2. Add subtitle track codes, same-language detection, direction handling, and translated credits in `extension/content.js` and `extension/parsers.js`.
+3. Add the Chrome locale under `extension/_locales/`, preserving message keys and placeholder definitions; update popup/content RTL behavior when needed.
+4. Add an explicit filename code in `server/server.py` when the language name does not begin with its desired two-letter file suffix.
+5. Add the localized README, update the language navigation, and document any production verification needed for the managed backend.
+6. Add a site locale only after the corresponding installation, pricing, account, privacy, terms, and help pages are deployed; keep English fallback until then.
+
+The canonical target string must remain consistent across translation requests, cache keys, database records, quota queries, and history queries.
+
+### Managed backend verification
+
+The hosted managed backend is not part of this repository. After adding a language, an operator with production access should:
+
+- submit `target_lang: "Persian"` to `/translate` and confirm Persian Unicode output;
+- inspect translation, quota, cache, and history records for the exact value `Persian`;
+- verify the backend does not rename it to `Farsi` or corrupt it with ASCII escaping;
+- submit and retrieve a shared-cache entry using the same canonical target value;
+- confirm quota and translation-history queries include the new language.
+
 ## Claude CLI mode (for developers)
 
 This is a hidden dev-only feature for contributors with a Claude Max subscription. It translates via the Claude CLI through a job queue.

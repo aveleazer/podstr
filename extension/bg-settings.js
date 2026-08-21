@@ -11,7 +11,7 @@ let settings = {
   provider: DEFAULT_PROVIDER,
   model: DEFAULT_MODEL,
   cliModel: 'sonnet',
-  targetLang: 'Russian',
+  targetLang: getDefaultTargetLang(),
   apiKey: null,
   sharedCacheUrl: SHARED_CACHE_DEFAULT_URL,
   sharedCacheApiKey: SHARED_CACHE_KEY,
@@ -63,7 +63,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
     if (changes.provider) settings.provider = changes.provider.newValue || DEFAULT_PROVIDER;
     if (changes.model) settings.model = changes.model.newValue || DEFAULT_MODEL;
     if (changes.cliModel) settings.cliModel = changes.cliModel.newValue || 'sonnet';
-    if (changes.targetLang) settings.targetLang = changes.targetLang.newValue || 'Russian';
+    if (changes.targetLang) settings.targetLang = changes.targetLang.newValue || getDefaultTargetLang();
     if (changes.sharedCacheUrl !== undefined) settings.sharedCacheUrl = changes.sharedCacheUrl.newValue || null;
   }
   if (area === 'local') {

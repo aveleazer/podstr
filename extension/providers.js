@@ -244,6 +244,7 @@ const TARGET_LANGS = [
   { code: 'Japanese', label: '日本語' },
   { code: 'Korean', label: '한국어' },
   { code: 'Norwegian', label: 'Norsk' },
+  { code: 'Persian', label: 'فارسی' },
   { code: 'Polish', label: 'Polski' },
   { code: 'Portuguese', label: 'Português' },
   { code: 'Romanian', label: 'Română' },
@@ -264,7 +265,7 @@ const UI_LANG_TO_TARGET = {
   fr: 'French', de: 'German', el: 'Greek', he: 'Hebrew',
   hi: 'Hindi', hu: 'Hungarian', id: 'Indonesian', it: 'Italian',
   ja: 'Japanese', ko: 'Korean', nb: 'Norwegian', no: 'Norwegian',
-  pl: 'Polish', pt: 'Portuguese', ro: 'Romanian', ru: 'Russian',
+  fa: 'Persian', pl: 'Polish', pt: 'Portuguese', ro: 'Romanian', ru: 'Russian',
   sr: 'Serbian', es: 'Spanish', sv: 'Swedish', th: 'Thai',
   tr: 'Turkish', uk: 'Ukrainian', vi: 'Vietnamese',
 };
