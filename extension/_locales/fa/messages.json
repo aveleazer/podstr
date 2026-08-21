@@ -1,0 +1,676 @@
+{
+  "extensionName": {
+    "message": "Podstr — ترجمهٔ زیرنویس با هوش مصنوعی"
+  },
+  "extensionDescription": {
+    "message": "زیرنویس‌ها را در زمان واقعی ترجمه می‌کند — با حفظ بافت، نه خط‌به‌خط."
+  },
+  "headerTitle": {
+    "message": "podstr.cc"
+  },
+  "headerSub": {
+    "message": "ترجمهٔ زیرنویس با هوش مصنوعی"
+  },
+  "tabApi": {
+    "message": "API"
+  },
+  "labelTargetLang": {
+    "message": "زبان ترجمه"
+  },
+  "labelTranslationEnabled": {
+    "message": "ترجمه فعال است"
+  },
+  "labelSubtitleStyle": {
+    "message": "سبک زیرنویس"
+  },
+  "labelSize": {
+    "message": "اندازه"
+  },
+  "labelColor": {
+    "message": "رنگ"
+  },
+  "labelBackground": {
+    "message": "پس‌زمینه"
+  },
+  "labelPosition": {
+    "message": "موقعیت"
+  },
+  "labelAuto": {
+    "message": "خودکار"
+  },
+  "labelBottom": {
+    "message": "پایین"
+  },
+  "labelTop": {
+    "message": "بالا"
+  },
+  "labelReset": {
+    "message": "بازنشانی"
+  },
+  "hintOpenVideo": {
+    "message": "یک ویدیو دارای زیرنویس باز کنید تا انتخابگر زبان ظاهر شود. زبان موردنظر را انتخاب کنید — ترجمه خودکار آغاز می‌شود."
+  },
+  "stateLoading": {
+    "message": "در حال بارگذاری..."
+  },
+  "stateNoTitle": {
+    "message": "(بدون عنوان)"
+  },
+  "stateCommError": {
+    "message": "خطای ارتباط با افزونه"
+  },
+  "apiGetKey": {
+    "message": "دریافت کلید API از openrouter.ai →"
+  },
+  "labelApiKey": {
+    "message": "کلید API"
+  },
+  "labelApiKeyPrefix": {
+    "message": "کلید API"
+  },
+  "polzaPaymentHint": {
+    "message": "پرداخت به روبل ₽"
+  },
+  "placeholderApiKey": {
+    "message": "sk-or-..."
+  },
+  "tooltipToggleKey": {
+    "message": "نمایش/پنهان‌کردن"
+  },
+  "labelModel": {
+    "message": "مدل"
+  },
+  "placeholderModel": {
+    "message": "مثال: google/gemini-3-flash-preview"
+  },
+  "fontSizeAuto": {
+    "message": "خودکار"
+  },
+  "badgeLoading": {
+    "message": "در حال بارگذاری زیرنویس‌ها..."
+  },
+  "badgeTranslatingSimple": {
+    "message": "در حال ترجمه..."
+  },
+  "badgeTranslatingCanWatch": {
+    "message": "در حال ترجمه... $PCT$% · می‌توانید تماشا کنید",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeTranslating": {
+    "message": "ترجمه: $PCT$% — بخش $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeFromCache": {
+    "message": "از حافظهٔ پنهان"
+  },
+  "badgeDone": {
+    "message": "انجام شد"
+  },
+  "badgeDoneCount": {
+    "message": "$LABEL$! $COUNT$ زیرنویس",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "badgeSubtitlesCount": {
+    "message": "زیرنویس‌ها ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeSubtitlesAvailable": {
+    "message": "زیرنویس موجود است"
+  },
+  "viewerTranslate": {
+    "message": "ترجمه ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerTranslateBtn": {
+    "message": "ترجمه"
+  },
+  "viewerShow": {
+    "message": "نمایش ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowBtn": {
+    "message": "نمایش"
+  },
+  "viewerSetupHint": {
+    "message": "راه‌اندازی ترجمه ↗"
+  },
+  "viewerTranslateAnyway": {
+    "message": "به‌هرحال ترجمه کن"
+  },
+  "viewerCachedByModel": {
+    "message": "ترجمه‌شده با $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerRetranslate": {
+    "message": "ترجمه با $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerSameLangHint": {
+    "message": "این ویدیو از قبل زیرنویس $1 دارد. آن را از تنظیمات پخش‌کننده فعال کنید",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerSignIn": {
+    "message": "برای ترجمهٔ رایگان وارد شوید"
+  },
+  "viewerSignInForCache": {
+    "message": "برای تماشای ترجمه وارد شوید"
+  },
+  "viewerSetupApi": {
+    "message": "یا کلید API را تنظیم کنید"
+  },
+  "viewerQuotaExhausted": {
+    "message": "سقف مصرف · $1/$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "viewerUpgradePro": {
+    "message": "ارتقا به Pro"
+  },
+  "viewerRenewSub": {
+    "message": "تمدید اشتراک"
+  },
+  "viewerUseApiKey": {
+    "message": "یا از کلید API خود استفاده کنید"
+  },
+  "badgeCacheHitFree": {
+    "message": "از حافظهٔ پنهان · $1 · −$2 از $3 (رایگان برای Pro)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeTrackLoading": {
+    "message": "در حال بارگذاری..."
+  },
+  "tooltipSharedCache": {
+    "message": "در حافظهٔ پنهان مشترک آماده است ($MODEL$)",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "tooltipOffsetMinus": {
+    "message": "زیرنویس‌ها زودتر پخش شوند (−0.5s)"
+  },
+  "tooltipOffsetLabel": {
+    "message": "جابجایی زیرنویس (برای بازنشانی کلیک کنید)"
+  },
+  "tooltipOffsetPlus": {
+    "message": "زیرنویس‌ها دیرتر پخش شوند (+0.5s)"
+  },
+  "cacheNotifyReady": {
+    "message": "$SRC$ → $TGT$ آماده است ($MODEL$)",
+    "placeholders": {
+      "src": {
+        "content": "$1"
+      },
+      "tgt": {
+        "content": "$2"
+      },
+      "model": {
+        "content": "$3"
+      }
+    }
+  },
+  "badgeOffset": {
+    "message": "جابجایی: $OFFSET$s",
+    "placeholders": {
+      "offset": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeOffsetReset": {
+    "message": "جابجایی بازنشانی شد"
+  },
+  "badgePositionBottom": {
+    "message": "زیرنویس: پایین"
+  },
+  "badgePositionTop": {
+    "message": "زیرنویس: بالا"
+  },
+  "errorEnableCc": {
+    "message": "زیرنویس‌ها (CC) را در پخش‌کننده فعال کنید"
+  },
+  "errorYouTube": {
+    "message": "YouTube برای این ویدیو زیرنویس برنمی‌گرداند. ویدیوی دیگری را امتحان کنید یا بعداً دوباره بررسی کنید."
+  },
+  "errorNoSubtitles": {
+    "message": "بدون زیرنویس"
+  },
+  "errorNoSubsFound": {
+    "message": "زیرنویسی پیدا نشد"
+  },
+  "errorNotSubtitles": {
+    "message": "این زیرنویس نیست"
+  },
+  "errorGeneric": {
+    "message": "خطا"
+  },
+  "errorPrefix": {
+    "message": "خطا: $ERR$",
+    "placeholders": {
+      "err": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorStartTranslation": {
+    "message": "خطا در شروع ترجمه"
+  },
+  "errorFetchFailed": {
+    "message": "دانلود ناموفق بود"
+  },
+  "errorInvalidApiKey": {
+    "message": "کلید API نامعتبر OpenRouter"
+  },
+  "errorInsufficientFunds": {
+    "message": "موجودی OpenRouter کافی نیست"
+  },
+  "errorTimeout": {
+    "message": "مهلت درخواست OpenRouter تمام شد (مدل در 2 دقیقه پاسخ نداد)"
+  },
+  "errorNeedApiKey": {
+    "message": "کلید API برای OpenRouter لازم است"
+  },
+  "errorUnknownModel": {
+    "message": "مدل ناشناخته: $MODEL$",
+    "placeholders": {
+      "model": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNoModel": {
+    "message": "مدلی انتخاب نشده است (تنظیمات افزونه)"
+  },
+  "errorNeedKey": {
+    "message": "کلید API لازم است (تنظیمات افزونه)"
+  },
+  "errorJsonParse": {
+    "message": "مدل پاسخ نامعتبری برگرداند — امکان تجزیهٔ JSON وجود ندارد"
+  },
+  "errorHttpStatus": {
+    "message": "خطا $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "retryProgress": {
+    "message": "تلاش مجدد $ATTEMPT$/$MAX$ ($CODE$)...",
+    "placeholders": {
+      "attempt": {
+        "content": "$1"
+      },
+      "max": {
+        "content": "$2"
+      },
+      "code": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorPartialHint": {
+    "message": " ($DONE$/$TOTAL$ ذخیره شد؛ دوباره کلیک کنید)",
+    "placeholders": {
+      "done": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "devDownloading": {
+    "message": "در حال دانلود زیرنویس‌های $LABEL$...",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      }
+    }
+  },
+  "devTranslating": {
+    "message": "در حال ترجمه: $COUNT$ زیرنویس...",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteNotActivated": {
+    "message": "فعال نیست"
+  },
+  "siteActivate": {
+    "message": "فعال‌سازی"
+  },
+  "labelHideSDH": {
+    "message": "پنهان کردن توضیحات صوتی [SDH]"
+  },
+  "tooltipHideSDH": {
+    "message": "SDH = زیرنویس برای ناشنوایان و کم‌شنوایان. جلوه‌های صوتی مانند [خنده]، [بسته‌شدن در] و [موسیقی پرتنش] را از زیرنویس‌های ترجمه‌شده پنهان می‌کند"
+  },
+  "footerTerms": {
+    "message": "شرایط استفاده"
+  },
+  "footerPrivacy": {
+    "message": "حریم خصوصی"
+  },
+  "dropZoneDefault": {
+    "message": "فایل .srt یا .vtt را رها کنید"
+  },
+  "dropZoneOnlySrtVtt": {
+    "message": "فقط فایل‌های .srt و .vtt"
+  },
+  "dropZoneTooBig": {
+    "message": "فایل بیش از حد بزرگ است (حداکثر 2 MB)"
+  },
+  "dropZoneReading": {
+    "message": "در حال خواندن فایل..."
+  },
+  "dropZoneSubmitting": {
+    "message": "در حال ارسال به صف..."
+  },
+  "dropZoneSent": {
+    "message": "ارسال شد"
+  },
+  "dropZonePosition": {
+    "message": "($1 در صف)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "dropZoneReadError": {
+    "message": "خواندن فایل ممکن نیست"
+  },
+  "labelQueue": {
+    "message": "صف ترجمه"
+  },
+  "queuePending": {
+    "message": "در انتظار"
+  },
+  "queueRunning": {
+    "message": "در حال اجرا"
+  },
+  "labelProvider": {
+    "message": "ارائه‌دهنده"
+  },
+  "providerApiKey": {
+    "message": "کلید API (از برگهٔ API)"
+  },
+  "providerOpenRouterHint": {
+    "message": "(به کلید API نیاز دارد)"
+  },
+  "providerClaudeCliHint": {
+    "message": "(از طریق صف)"
+  },
+  "statusCheckingServer": {
+    "message": "در حال بررسی سرور..."
+  },
+  "statusServerOk": {
+    "message": "سرور صف فعال است"
+  },
+  "statusServerDown": {
+    "message": "سرور صف در دسترس نیست"
+  },
+  "labelEnabled": {
+    "message": "فعال"
+  },
+  "badgeQueueProgress": {
+    "message": "در حال بارگذاری: $1%",
+    "placeholders": {
+      "pct": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorQueueServer": {
+    "message": "خطای ترجمه در سرور"
+  },
+  "errorQueueTimeout": {
+    "message": "مهلت انتظار برای ترجمه تمام شد (1 ساعت)"
+  },
+  "queueStatusInQueue": {
+    "message": "در صف"
+  },
+  "queueStatusPosition": {
+    "message": "در صف ($POS$)",
+    "placeholders": {
+      "pos": {
+        "content": "$1"
+      }
+    }
+  },
+  "placeholderModelCustom": {
+    "message": "یا نام مدل را وارد کنید..."
+  },
+  "modelCustomOption": {
+    "message": "مدل دیگر..."
+  },
+  "modelHelpLink": {
+    "message": "کدام مدل را انتخاب کنم؟ →"
+  },
+  "costFree": {
+    "message": "🆓 رایگان — ممکن است کیفیت متفاوت باشد"
+  },
+  "costPerEpisode": {
+    "message": "برای هر قسمت"
+  },
+  "costUnknown": {
+    "message": "💰 قیمت نامشخص — قیمت‌گذاری ارائه‌دهنده را بررسی کنید"
+  },
+  "costPaidWarning": {
+    "message": "از موجودی شما کسر می‌شود"
+  },
+  "modelSelectPlaceholder": {
+    "message": "مدل را انتخاب کنید..."
+  },
+  "apiPaymentHint": {
+    "message": "⚠️ برای هر ترجمه هزینهٔ آن به ارائه‌دهنده پرداخت می‌شود. هزینه به مدل بستگی دارد و ممکن است برای هر قسمت به چند دلار برسد. از مدل‌های سریع (Flash، Haiku) استفاده کنید — مدل‌های کند ممکن است ده‌ها دقیقه زمان ببرند. حتماً در تنظیمات ارائه‌دهنده سقف هزینه تعیین کنید."
+  },
+  "apiSetupGuide": {
+    "message": "راهنمای راه‌اندازی →"
+  },
+  "apiGetKeyPolza": {
+    "message": "دریافت کلید API از Polza (₽) →"
+  },
+  "tabSubtitles": {
+    "message": "زیرنویس‌ها"
+  },
+  "tabDev": {
+    "message": "مترجم"
+  },
+  "accountSignInHint": {
+    "message": "برای 5 ترجمهٔ رایگان در ماه وارد شوید"
+  },
+  "accountEmailPlaceholder": {
+    "message": "your@email.com"
+  },
+  "accountSignIn": {
+    "message": "ورود"
+  },
+  "accountOrApiKey": {
+    "message": "یا از کلید API خود در"
+  },
+  "accountUsingOwnKey": {
+    "message": "در حال استفاده از کلید API شما"
+  },
+  "accountSignInForFree": {
+    "message": "برای ترجمهٔ رایگان وارد شوید"
+  },
+  "labelApiProvider": {
+    "message": "ارائه‌دهنده"
+  },
+  "apiHintBanner": {
+    "message": ""
+  },
+  "apiHintBefore": {
+    "message": "Podstrochnik بدون کلید و با یک طرح"
+  },
+  "apiHintPlanLink": {
+    "message": "رایگان یا Pro"
+  },
+  "apiHintAfter": {
+    "message": "کار می‌کند. این بخش برای کسانی است که می‌خواهند همه‌چیز را خودشان تنظیم کنند: ارائه‌دهندهٔ خود را وصل کنند، مدل انتخاب کنند و هزینه‌ها را مستقیماً مدیریت کنند."
+  },
+  "apiGetKeyFor": {
+    "message": "دریافت کلید API از"
+  },
+  "footerHelp": {
+    "message": "راهنما"
+  },
+  "accountCheckEmail": {
+    "message": "ایمیل خود را بررسی کنید و برای ورود روی لینک کلیک کنید"
+  },
+  "accountResend": {
+    "message": "ایمیل را دریافت نکردید؟ ارسال دوباره"
+  },
+  "accountLogout": {
+    "message": "خروج"
+  },
+  "accountFreePlan": {
+    "message": "رایگان"
+  },
+  "accountProPlan": {
+    "message": "Pro"
+  },
+  "accountQuotaText": {
+    "message": "$1 / $2 این ماه",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "accountQuotaResets": {
+    "message": "بازنشانی در $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountQuotaExhausted": {
+    "message": "تمام $1 ترجمهٔ این ماه را مصرف کرده‌اید",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountUpgrade": {
+    "message": "ارتقا به Pro"
+  },
+  "accountManageSubscription": {
+    "message": "مدیریت"
+  },
+  "accountUseOwnKey": {
+    "message": "یا از کلید API خود استفاده کنید"
+  },
+  "accountResendIn": {
+    "message": "ارسال دوباره در $1s",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountLoginError": {
+    "message": "ورود انجام نشد. بعداً دوباره تلاش کنید."
+  },
+  "badgeSignIn": {
+    "message": "برای ترجمه وارد شوید"
+  },
+  "badgeQuota": {
+    "message": "سقف ترجمه پر شده است"
+  },
+  "errorSessionExpired": {
+    "message": "نشست منقضی شده است. دوباره وارد شوید."
+  },
+  "apiKeyFormatWarning": {
+    "message": "کلید باید با sk-or- (OpenRouter) یا pza_ (Polza) شروع شود"
+  },
+  "localizedLangNames": {
+    "message": "{\"English\":\"انگلیسی\",\"German\":\"آلمانی\",\"French\":\"فرانسوی\",\"Spanish\":\"اسپانیایی\",\"Italian\":\"ایتالیایی\",\"Portuguese\":\"پرتغالی\",\"Japanese\":\"ژاپنی\",\"Korean\":\"کره‌ای\",\"Chinese\":\"چینی\",\"Dutch\":\"هلندی\",\"Polish\":\"لهستانی\",\"Swedish\":\"سوئدی\",\"Danish\":\"دانمارکی\",\"Finnish\":\"فنلاندی\",\"Norwegian\":\"نروژی\",\"Persian\":\"فارسی\",\"Czech\":\"چکی\",\"Hungarian\":\"مجاری\",\"Turkish\":\"ترکی\",\"Arabic\":\"عربی\",\"Hebrew\":\"عبری\",\"Hindi\":\"هندی\",\"Thai\":\"تایلندی\",\"Ukrainian\":\"اوکراینی\",\"Romanian\":\"رومانیایی\",\"Russian\":\"روسی\",\"Serbian\":\"صربی\",\"Belarusian\":\"بلاروسی\",\"Vietnamese\":\"ویتنامی\",\"Indonesian\":\"اندونزیایی\",\"Greek\":\"یونانی\"}"
+  },
+  "slowModelHint": {
+    "message": "مدل کند — ترجمه ممکن است مدتی طول بکشد"
+  },
+  "infoCostFree": {
+    "message": "رایگان"
+  },
+  "errorNetflixCachedTtml": {
+    "message": "Netflix زیرنویس‌ها را ذخیره کرده است؛ قسمت را دوباره بارگذاری کنید"
+  },
+  "errorHboAuthExpired": {
+    "message": "لینک‌های HBO منقضی شده‌اند؛ صفحه را دوباره بارگذاری کنید"
+  },
+  "errorHboPartial": {
+    "message": "بخشی از بخش‌ها موجود نیست — ترجمه ممکن است ناقص باشد"
+  }
+}

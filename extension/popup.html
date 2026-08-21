@@ -82,7 +82,7 @@
       letter-spacing: 0.04em;
     }
     .header__version {
-      margin-left: auto;
+      margin-inline-start: auto;
       font-size: 10px;
       color: var(--text-dim);
       letter-spacing: 0.06em;
@@ -173,7 +173,7 @@
       flex: 1; accent-color: var(--amber); height: 4px;
     }
     .style-row .style-value {
-      flex: 0 0 36px; text-align: right;
+      flex: 0 0 36px; text-align: end;
       font-size: 11px; color: var(--text-dim);
     }
     .style-row input[type="color"] {
@@ -322,6 +322,10 @@
     }
     .lang-select:focus { border-color: var(--amber-dim); }
     .lang-select option { background: var(--bg-deep); }
+    #accountEmail, #apiKeyInput, #modelInput {
+      direction: ltr;
+      text-align: start;
+    }
     .popup-footer { padding: 10px 16px; text-align: center; font-size: 11px; color: #666; border-top: 1px solid var(--border); margin-top: 8px; }
     .popup-footer a { color: #888; text-decoration: none; }
     .popup-footer a:hover { color: var(--amber); }

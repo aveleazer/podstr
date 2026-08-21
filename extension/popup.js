@@ -12,6 +12,12 @@ function localize() {
     el.title = chrome.i18n.getMessage(el.dataset.i18nTitle);
   });
 }
+
+document.documentElement.lang =
+  chrome.i18n.getMessage('@@ui_locale') ||
+  chrome.i18n.getUILanguage();
+document.documentElement.dir =
+  chrome.i18n.getMessage('@@bidi_dir') || 'ltr';
 localize();
 document.getElementById('ext-version').textContent = 'v' + chrome.runtime.getManifest().version;
 

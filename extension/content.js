@@ -1309,6 +1309,7 @@
 
     pickerElement = document.createElement('div');
     pickerElement.id = 'ai-subtitler-picker';
+    pickerElement.dir = chrome.i18n.getMessage('@@bidi_dir') || 'ltr';
 
     // Prevent clicks from triggering player play/pause
     for (const evt of ['click', 'mousedown', 'pointerdown', 'dblclick']) {
