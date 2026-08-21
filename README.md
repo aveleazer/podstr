@@ -13,7 +13,7 @@ Chrome extension: detects subtitles on video platforms and translates them in re
 
 </div>
 
-🇷🇺 [Русский](docs/README.ru.md) · 🇺🇦 [Українська](docs/README.uk.md) · 🇧🇾 [Беларуская](docs/README.be.md) · 🇷🇸 [Srpski](docs/README.sr.md) · 🇪🇸 [Español](docs/README.es.md) · 🇫🇷 [Français](docs/README.fr.md) · 🇩🇪 [Deutsch](docs/README.de.md) · 🇧🇷 [Português](docs/README.pt-BR.md) · 🇨🇳 [中文](docs/README.zh-CN.md) · 🇯🇵 [日本語](docs/README.ja.md) · 🇰🇷 [한국어](docs/README.ko.md) · 🇹🇷 [Türkçe](docs/README.tr.md)
+🇷🇺 [Русский](docs/README.ru.md) · 🇺🇦 [Українська](docs/README.uk.md) · 🇧🇾 [Беларуская](docs/README.be.md) · 🇷🇸 [Srpski](docs/README.sr.md) · 🇪🇸 [Español](docs/README.es.md) · 🇫🇷 [Français](docs/README.fr.md) · 🇩🇪 [Deutsch](docs/README.de.md) · 🇧🇷 [Português](docs/README.pt-BR.md) · 🇨🇳 [中文](docs/README.zh-CN.md) · 🇯🇵 [日本語](docs/README.ja.md) · 🇰🇷 [한국어](docs/README.ko.md) · 🇹🇷 [Türkçe](docs/README.tr.md) · 🇮🇷 [فارسی](docs/README.fa.md)
 
 ---
 
@@ -57,7 +57,7 @@ Other sites with HLS / VTT / TTML / native `<track>` subtitles may work — clic
 - **Timing adjustment** — `[` / `]` to shift ±0.5s
 - **Style customization** — font, color, opacity, position
 - **Keyboard shortcuts** — `B` toggle position, `\` reset offset
-- **13 interface languages** — EN, RU, UK, BE, SR, ES, FR, DE, PT, ZH, JA, KO, TR
+- **14 interface languages** — EN, RU, UK, BE, SR, ES, FR, DE, PT, ZH, JA, KO, TR, FA
 
 ## How it works
 

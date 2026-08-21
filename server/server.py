@@ -47,6 +47,10 @@ CLI_MODEL_MAP = {
     'sonnet': 'claude-sonnet-4-6',
     'haiku': 'claude-haiku-4-5',
 }
+
+LANG_FILE_CODES = {
+    'Persian': 'fa',
+}
 STREAM_TIMEOUT = 600      # 10 min global fallback
 CLI_BATCH_SIZE = 200      # lines per CLI batch
 CLI_FIRST_BATCH_SIZE = 50 # smaller first batch for streaming (quick start)
@@ -1126,7 +1130,7 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
     # 6. Save locally
     base, ext = os.path.splitext(filepath)
     # Short lang code for filename
-    lang_short = target_lang[:2].lower() if len(target_lang) > 2 else target_lang.lower()
+    lang_short = LANG_FILE_CODES.get(target_lang, target_lang[:2].lower())
     out_path = f"{base}.{lang_short}{ext}"
     with open(out_path, 'w', encoding='utf-8') as f:
         f.write(translated_vtt)
