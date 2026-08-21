@@ -51,6 +51,20 @@ CLI_MODEL_MAP = {
 LANG_FILE_CODES = {
     'Persian': 'fa',
 }
+LANG_ALIASES = {
+    'fa': 'Persian',
+    'fas': 'Persian',
+    'per': 'Persian',
+    'farsi': 'Persian',
+    'persian': 'Persian',
+}
+
+
+def normalize_target_lang(target_lang):
+    value = str(target_lang).strip()
+    return LANG_ALIASES.get(value.casefold(), value)
+
+
 STREAM_TIMEOUT = 600      # 10 min global fallback
 CLI_BATCH_SIZE = 200      # lines per CLI batch
 CLI_FIRST_BATCH_SIZE = 50 # smaller first batch for streaming (quick start)
@@ -822,7 +836,7 @@ def translate_job(job, batch_timeout=None):
     """Translate a single job using CLI. Reports progress and uploads result."""
     job_id = job['job_id']
     vtt_text = job['vtt']
-    target_lang = job['target_lang']
+    target_lang = normalize_target_lang(job['target_lang'])
     model = job.get('model', MODEL)
     streaming = job.get('streaming', False)
 
@@ -1023,6 +1037,8 @@ def translate_file(filepath, target_lang, model, title=None, upload=True):
     Saves translated file next to original (e.g. movie.srt → movie.ru.srt).
     Optionally uploads to shared cache on VPS.
     """
+    target_lang = normalize_target_lang(target_lang)
+
     if not os.path.isfile(filepath):
         log.error(f"✗ File not found: {filepath}")
         sys.exit(1)
