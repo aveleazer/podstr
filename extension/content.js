@@ -91,7 +91,7 @@
     cs: 'CS', ces: 'CS', hu: 'HU', hun: 'HU', tr: 'TR', tur: 'TR',
     ar: 'AR', ara: 'AR', he: 'HE', heb: 'HE', hi: 'HI', hin: 'HI',
     th: 'TH', tha: 'TH', uk: 'UK', ukr: 'UK', ro: 'RO', ron: 'RO',
-    ru: 'RU', rus: 'RU',
+    ru: 'RU', rus: 'RU', fa: 'FA', fas: 'FA', per: 'FA',
   };
 
   // Map track lang code → TARGET_LANGS code (for detecting same-language subs)
@@ -107,6 +107,7 @@
     ru: 'Russian', rus: 'Russian', be: 'Belarusian', bel: 'Belarusian',
     sr: 'Serbian', srp: 'Serbian', vi: 'Vietnamese', vie: 'Vietnamese',
     id: 'Indonesian', ind: 'Indonesian', el: 'Greek', ell: 'Greek',
+    fa: 'Persian', fas: 'Persian', per: 'Persian',
   };
 
 
@@ -2817,6 +2818,7 @@
     if (!overlay) return;
     const span = overlay.querySelector('#ai-subtitler-text');
     if (!span) return;
+    span.dir = 'auto';
 
     if (text && text.trim()) {
       let display = text.replace(/<[^>]+>/g, '');
