@@ -15,7 +15,7 @@ Chrome-laajennus: tunnistaa tekstitykset videoalustoilla ja kääntää ne reaal
 
 Chrome-laajennus, joka kaappaa tekstitykset videosivustoilta ja kääntää ne tekoälymalleilla (Claude, Gemini, DeepSeek ym. OpenRouterin kautta). Toimii englannin-, espanjan-, saksan-, suomenkielisillä — millä tahansa tekstityksillä. Kääntää mille tahansa kielelle.
 
-Jos joku on jo kääntänyt saman jakson, käännös latautuu jaetusta välimuistista välittömästi ja ilmaiseksi.
+Jo kääntämäsi jakso latautuu uudelleen katsottaessa välittömästi selaimesi paikallisesta välimuistista.
 
 ## Pika-aloitus
 
@@ -30,7 +30,6 @@ Uuden sisällön kääntämiseen tarvitset [OpenRouter API -avaimen](https://ope
 |------|------|------|
 | **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Testattu |
 | **Netflix** | TTML via Cadmium player API | Testattu |
-| **HBO Max** | WebVTT via DASH manifest | Testattu |
 | **BBC iPlayer** | TTML/EBU-TT-D | Testattu |
 | **RaiPlay** | SRT via MAIN-world fetch interceptor | Testattu |
 | **kino.pub** | HLS subtitles (Vidstack player) | Testattu |
@@ -46,7 +45,6 @@ Muut HLS / VTT / TTML / natiivi-`<track>`-tekstityksiä tarjoavat sivustot voiva
 - **Mikä tahansa kieli** — kääntää mistä tahansa tekstityskielestä mille tahansa kohdekielelle
 - **Useita tekoälymalleja** — valitse laadun ja hinnan mukaan. Ilmaisia malleja saatavilla
 - **Käännöksen hinta** — näe kunkin käännöksen kustannus suoraan videolla
-- **Jaettu välimuisti** — yksi kääntää, kaikki muut katsovat ilmaiseksi
 - **Älykäs paikallinen välimuisti** — käännetyt tekstitykset latautuvat välittömästi uudelleenkatselussa
 - **Ajoituksen säätö** — `[` / `]` siirtää ±0,5 sekuntia
 - **Tyylin muokkaus** — fontti, väri, läpinäkyvyys, sijainti
@@ -58,14 +56,14 @@ Muut HLS / VTT / TTML / natiivi-`<track>`-tekstityksiä tarjoavat sivustot voiva
 1. **Tunnistus** — Service Worker kaappaa tekstityspyynnöt `chrome.webRequest`-rajapinnalla
 2. **Lataus** — taustaskripti hakee tekstitykset ohittaen CORS-rajoitukset
 3. **Käännös** — erissä OpenRouter API:n kautta (sinun avaimesi, sinun mallivalintasi)
-4. **Välimuisti** — käännetty VTT pakataan gzip-muotoon, tallennetaan paikallisesti + jaettuun välimuistiin
+4. **Välimuisti** — käännetty VTT pakataan gzip-muotoon ja tallennetaan paikallisesti selaimeesi
 5. **Renderöinti** — sisältöskripti näyttää tekstitykset synkronoituna videon toistoon
 
 ## UKK
 
-**Tarvitsenko API-avaimen?** Ei, jos jakso on jo jaetussa välimuistissa. Uusiin käännöksiin tarvitset OpenRouter-avaimen.
+**Tarvitsenko API-avaimen?** Kyllä — uudet käännökset tehdään omalla OpenRouter-avaimellasi. Jo kääntämäsi sisältö tulee uudelleen katsottaessa paikallisesta välimuistista ilman avainta.
 
-**Onko se ilmainen?** Laajennus on ilmainen. Välimuistissa olevat käännökset ovat ilmaisia. Maksat vain uuden sisällön kääntämisestä tekoälypalveluntarjoajan kautta.
+**Onko se ilmainen?** Laajennus on ilmainen. Maksat vain tekoälypalveluntarjoajalle uusista käännöksistä; omien käännöstesi uudelleenkatselu on ilmaista.
 
 **Käännöksen laatu?** Riippuu mallista. Claude Opus on hyvien fanikäännösten tasolla. DeepSeek ja Gemini Flash ovat edullisempia mutta silti luettavia.
 

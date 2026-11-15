@@ -15,7 +15,7 @@ Chrome uzantısı: Video platformlarındaki altyazıları algılar ve gerçek za
 
 Video sitelerindeki altyazıları yakalayıp yapay zeka modelleri (Claude, Gemini, DeepSeek vb., OpenRouter üzerinden) ile çeviren bir Chrome uzantısı. İngilizce, İspanyolca, Almanca, Fince — her dildeki altyazıyla çalışır. İstediğiniz dile çevirir.
 
-Aynı bölümü daha önce biri çevirdiyse, çeviri ortak önbellekten anında ve ücretsiz olarak yüklenir.
+Daha önce çevirdiğiniz bir bölüm, tekrar izlerken tarayıcınızın yerel önbelleğinden anında yüklenir.
 
 ## Hızlı Başlangıç
 
@@ -30,7 +30,6 @@ Yeni içerik çevirmek için bir [OpenRouter API anahtarı](https://openrouter.a
 |------|------|------|
 | **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Test edildi |
 | **Netflix** | TTML via Cadmium player API | Test edildi |
-| **HBO Max** | WebVTT via DASH manifest | Test edildi |
 | **BBC iPlayer** | TTML/EBU-TT-D | Test edildi |
 | **RaiPlay** | SRT via MAIN-world fetch interceptor | Test edildi |
 | **kino.pub** | HLS subtitles (Vidstack player) | Test edildi |
@@ -46,7 +45,6 @@ HLS / VTT / TTML / yerel `<track>` altyazılı diğer siteler de çalışabilir 
 - **Her dil** — herhangi bir altyazı dilinden herhangi bir hedef dile çeviri
 - **Birden fazla yapay zeka modeli** — kalite ve fiyata göre seçin. Ücretsiz modeller mevcut
 - **Çeviri maliyeti** — her çevirinin ne kadara mal olduğunu doğrudan video üzerinde görün
-- **Ortak önbellek** — bir kişi çevirir, diğer herkes ücretsiz izler
 - **Akıllı yerel önbellek** — tekrar izlemede çevrilmiş altyazılar anında yüklenir
 - **Zamanlama ayarı** — `[` / `]` ile ±0,5 saniye kaydırma
 - **Stil özelleştirme** — yazı tipi, renk, saydamlık, konum
@@ -58,14 +56,14 @@ HLS / VTT / TTML / yerel `<track>` altyazılı diğer siteler de çalışabilir 
 1. **Algılama** — Service Worker, `chrome.webRequest` ile altyazı isteklerini yakalar
 2. **İndirme** — Arka plan betiği CORS'u atlayarak altyazıları indirir
 3. **Çeviri** — OpenRouter API üzerinden toplu çeviri (sizin anahtarınız, sizin model seçiminiz)
-4. **Önbellek** — Çevrilmiş VTT, gzip ile sıkıştırılıp yerel + ortak önbellekte saklanır
+4. **Önbellek** — Çevrilmiş VTT gzip ile sıkıştırılıp tarayıcıda yerel olarak saklanır
 5. **Görüntüleme** — İçerik betiği, altyazıları video oynatımıyla senkronize gösterir
 
 ## SSS
 
-**API anahtarı gerekli mi?** Bölüm ortak önbellekteyse gerekmez. Yeni çeviriler için OpenRouter anahtarı gerekir.
+**API anahtarı gerekli mi?** Evet — yeni çeviriler kendi OpenRouter anahtarınızla yapılır. Çevirdikleriniz tekrar izlemede anahtarsız olarak yerel önbellekten gelir.
 
-**Ücretsiz mi?** Uzantı ücretsiz. Önbellekteki çeviriler ücretsiz. Yalnızca yapay zeka sağlayıcısı aracılığıyla yeni içerik çevirirken ödeme yaparsınız.
+**Ücretsiz mi?** Uzantı ücretsiz. Yalnızca yeni çeviriler için yapay zeka sağlayıcısına ödeme yaparsınız; kendi çevirilerinizi tekrar izlemek ücretsizdir.
 
 **Çeviri kalitesi nasıl?** Modele bağlı. Claude Opus, kaliteli hayran altyazıları seviyesinde. DeepSeek ve Gemini Flash daha ucuz ama yine de okunabilir.
 

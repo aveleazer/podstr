@@ -15,7 +15,7 @@ Chrome 扩展程序：自动检测视频平台上的字幕并实时翻译。
 
 一个 Chrome 扩展程序，能拦截视频网站上的字幕，并通过 AI 模型（Claude、Gemini、DeepSeek 等，经由 OpenRouter）进行翻译。支持英语、西班牙语、德语、芬兰语等任何语言的字幕，可翻译成任意目标语言。
 
-如果有人已经翻译过同一集，翻译会从共享缓存中即时免费加载。
+已经翻译过的剧集，再次观看时会从浏览器本地缓存即时加载。
 
 ## 快速开始
 
@@ -30,7 +30,6 @@ Chrome 扩展程序：自动检测视频平台上的字幕并实时翻译。
 |------|------|------|
 | **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | 已测试 |
 | **Netflix** | TTML via Cadmium player API | 已测试 |
-| **HBO Max** | WebVTT via DASH manifest | 已测试 |
 | **BBC iPlayer** | TTML/EBU-TT-D | 已测试 |
 | **RaiPlay** | SRT via MAIN-world fetch interceptor | 已测试 |
 | **kino.pub** | HLS subtitles (Vidstack player) | 已测试 |
@@ -46,7 +45,6 @@ Chrome 扩展程序：自动检测视频平台上的字幕并实时翻译。
 - **任意语言** — 支持任何字幕语言到任何目标语言的翻译
 - **多种 AI 模型** — 按质量和价格自由选择，有免费模型可用
 - **翻译费用** — 直接在视频上查看每次翻译的花费
-- **共享缓存** — 一人翻译，所有人免费观看
 - **智能本地缓存** — 重复观看时字幕即时加载
 - **时间轴调整** — `[` / `]` 前后偏移 ±0.5 秒
 - **样式自定义** — 字体、颜色、透明度、位置
@@ -58,14 +56,14 @@ Chrome 扩展程序：自动检测视频平台上的字幕并实时翻译。
 1. **检测** — Service Worker 通过 `chrome.webRequest` 拦截字幕请求
 2. **下载** — 后台脚本绕过 CORS 获取字幕
 3. **翻译** — 通过 OpenRouter API 批量翻译（使用你的密钥和你选择的模型）
-4. **缓存** — 翻译后的 VTT 经 gzip 压缩，同时保存到本地和共享缓存
+4. **缓存** — 翻译后的 VTT 经 gzip 压缩，保存在浏览器本地
 5. **渲染** — 内容脚本将字幕与视频播放同步显示
 
 ## 常见问题
 
-**需要 API 密钥吗？** 如果该集已在共享缓存中，则不需要。翻译新内容需要 OpenRouter 密钥。
+**需要 API 密钥吗？** 需要。新翻译使用你自己的 OpenRouter 密钥；已翻译的内容再次观看时无需密钥，直接从本地缓存加载。
 
-**免费吗？** 扩展本身免费。缓存中的翻译免费。仅在通过 AI 服务商翻译新内容时需要付费。
+**免费吗？** 扩展本身免费。只有新翻译需要向 AI 服务商付费；重看自己的翻译免费。
 
 **翻译质量如何？** 取决于模型。Claude Opus 的水平堪比优质字幕组。DeepSeek 和 Gemini Flash 更便宜，但仍然可读。
 

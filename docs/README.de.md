@@ -15,7 +15,7 @@ Chrome-Erweiterung: erkennt Untertitel auf Videoplattformen und übersetzt sie i
 
 Eine Chrome-Erweiterung, die Untertitel auf Videoseiten abfängt und sie mithilfe von KI-Modellen übersetzt (Claude, Gemini, DeepSeek u.a. über OpenRouter). Funktioniert mit englischen, spanischen, deutschen, finnischen — beliebigen Untertiteln. Übersetzt in jede Sprache.
 
-Wenn jemand dieselbe Episode bereits übersetzt hat, wird die Übersetzung sofort und kostenlos aus dem gemeinsamen Cache geladen.
+Eine Episode, die du schon übersetzt hast, lädt beim erneuten Ansehen sofort aus dem lokalen Cache deines Browsers.
 
 ## Ich will schauen
 
@@ -42,7 +42,6 @@ Ausführliche Anleitung: [CONTRIBUTING.md](CONTRIBUTING.md)
 |------|------|------|
 | **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Getestet |
 | **Netflix** | TTML via Cadmium player API | Getestet |
-| **HBO Max** | WebVTT via DASH manifest | Getestet |
 | **BBC iPlayer** | TTML/EBU-TT-D | Getestet |
 | **RaiPlay** | SRT via MAIN-world fetch interceptor | Getestet |
 | **kino.pub** | HLS subtitles (Vidstack player) | Getestet |
@@ -57,7 +56,6 @@ Andere Websites mit HLS / VTT / TTML / nativen `<track>`-Untertiteln können ebe
 
 - **Mehrsprachig** — übersetzt von jeder Sprache in jede andere. Deutsch als Standard
 - **Auswahl des KI-Modells** — DeepSeek, Gemini, Claude Sonnet/Opus, Llama über OpenRouter
-- **Gemeinsamer Cache** — einer übersetzt, alle anderen schauen kostenlos
 - **Übersetzungskosten** — die Kosten werden direkt im Video angezeigt
 - **Timing-Anpassung** — `[` / `]` zum Verschieben um ±0,5s
 - **Darstellung anpassen** — Schriftart, Farbe, Deckkraft, Position
@@ -66,11 +64,11 @@ Andere Websites mit HLS / VTT / TTML / nativen `<track>`-Untertiteln können ebe
 
 ### Brauche ich einen API-Schlüssel?
 
-Nein, wenn die Episode bereits von jemandem übersetzt wurde (gemeinsamer Cache). Für eine neue Übersetzung brauchst du einen OpenRouter-Schlüssel oder ein Claude-Max-Abo.
+Ja — neue Übersetzungen laufen über deinen eigenen OpenRouter-Schlüssel. Was du schon übersetzt hast, kommt beim erneuten Ansehen ohne Schlüssel aus dem lokalen Cache.
 
 ### Ist es kostenlos?
 
-Die Erweiterung ist kostenlos. Übersetzungen aus dem gemeinsamen Cache sind kostenlos. Bezahlt wird nur für die Übersetzung neuer Inhalte über die OpenRouter API.
+Die Erweiterung ist kostenlos. Bezahlt wird nur der KI-Anbieter für neue Übersetzungen; erneutes Ansehen deiner Übersetzungen ist kostenlos.
 
 ### Wie ist die Übersetzungsqualität?
 

@@ -22,23 +22,12 @@ const PROVIDERS = {
   'openrouter': {
     label: 'OpenRouter',
     needsKey: true,
-    needsServer: false,
     freeformModel: true
-  },
-  'claude-cli': {
-    label: 'Claude CLI',
-    needsKey: false,
-    needsServer: true,
-    models: [
-      { code: 'sonnet', label: 'Sonnet' },
-      { code: 'opus', label: 'Opus' },
-      { code: 'haiku', label: 'Haiku' },
-    ]
   },
 };
 
 const DEFAULT_PROVIDER = 'openrouter';
-const DEFAULT_MODEL = 'google/gemini-3.1-flash-lite-preview';
+const DEFAULT_MODEL = 'google/gemini-3.1-flash-lite';
 const API_BASE_URL = 'https://api.podstr.cc';
 
 const FIRST_BATCH_SIZE = 50;

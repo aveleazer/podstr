@@ -1,13 +1,11 @@
 // bg-translate.js — Translation orchestrator: API calls, batching, progress
 //
-// Provides: callOpenRouter, translateBatch, submitToQueue, pollJobStatus, runTranslation
-// Expects:  settings, settingsReady (from background.js)
+// Provides: callOpenRouter, translateBatch, runTranslation
+// Expects:  settings (from bg-settings.js)
 //           activeTranslations (from background.js)
-//           cacheGet, cachePut, sharedCacheGet, sharedCacheGetByUrl, sharedCachePut,
-//           sha256, buildCacheKey, sanitizePageUrl (from bg-cache.js)
-//           parseVtt, buildVtt, buildJsonTranslationPrompt, parseJsonTranslations,
-//           normalizeCacheKey (from parsers.js/providers.js)
-//           translateBatchManaged, getTranslationMode, getActiveModel (from background.js)
+//           cacheGet, cachePut, sha256, buildCacheKey (from bg-cache.js)
+//           parseVtt, buildVtt, buildJsonTranslationPrompt, parseJsonTranslations (from parsers.js/providers.js)
+//           translateBatchManaged, getTranslationMode (from background.js)
 //           FIRST_BATCH_SIZE, BATCH_SIZE, PARALLEL_WORKERS (from providers.js)
 
 'use strict';
@@ -81,52 +79,6 @@ async function callOpenRouter(prompt, model, apiKey, signal, onRetry) {
 }
 
 // ══════════════════════════════════════════════════
-// ── Claude CLI (via queue on shared cache server) ──
-// ══════════════════════════════════════════════════
-
-async function submitToQueue(vtt, targetLang, model, tabId, playlistUrl, overrideTitle, channel = '', earlyPageUrl = '') {
-  const sharedUrl = settings.sharedCacheUrl;
-  if (!sharedUrl) throw new Error('Shared cache URL not configured');
-
-  let pageUrl = earlyPageUrl ? sanitizePageUrl(earlyPageUrl) : '';
-  let pageTitle = overrideTitle || '';
-  if (tabId && (!pageUrl || !pageTitle)) {
-    const tab = await chrome.tabs.get(tabId).catch(() => null);
-    if (!pageUrl) pageUrl = sanitizePageUrl(tab?.url);
-    if (!pageTitle) pageTitle = tab?.title || '';
-  }
-
-  const resp = await fetch(`${sharedUrl}/queue/submit`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      vtt, target_lang: targetLang, model,
-      title: pageTitle,
-      page_url: pageUrl,
-      normalized_url: playlistUrl ? normalizeCacheKey('playlist:' + playlistUrl).replace('playlist:', '') : '',
-      channel: channel || '',
-      streaming: true,
-    }),
-    signal: AbortSignal.timeout(10000),
-  });
-
-  if (!resp.ok) {
-    const err = await resp.text().catch(() => 'unknown');
-    throw new Error(`Queue submit error ${resp.status}: ${err.substring(0, 200)}`);
-  }
-  return resp.json(); // {job_id, status, position}
-}
-
-async function pollJobStatus(jobId) {
-  const sharedUrl = settings.sharedCacheUrl;
-  const resp = await fetch(`${sharedUrl}/queue/${jobId}`, {
-    signal: AbortSignal.timeout(10000),
-  });
-  if (!resp.ok) return null;
-  return resp.json();
-}
-
-// ══════════════════════════════════════════════════
 // ── OpenRouter translate batch ──
 // ══════════════════════════════════════════════════
 
@@ -139,7 +91,8 @@ async function translateBatch(texts, targetLang, model, apiKey, signal, onRetryP
   const { content, usage } = await callOpenRouter(prompt, model, apiKey, signal, onRetry);
   let { texts: translated, missedIds } = parseJsonTranslations(content, texts);
 
-  // One retry for missed lines (model skipped them)
+  // One retry for missed lines (model skipped them); lines still missing -> incomplete (not cached, AS-262)
+  let incomplete = false;
   if (missedIds.length > 0) {
     console.warn(`[podstr.cc] Model skipped ${missedIds.length}/${texts.length} lines, retrying missed. IDs: ${missedIds.join(',')}`);
 
@@ -157,20 +110,22 @@ async function translateBatch(texts, targetLang, model, apiKey, signal, onRetryP
       }
       if (stillMissed.length > 0) {
         console.warn(`[podstr.cc] Retry still missed ${stillMissed.length} lines — giving up`);
+        incomplete = true;
       }
     } catch (e) {
       console.warn(`[podstr.cc] Retry for missed lines failed: ${e.message}`);
+      incomplete = true;
     }
   }
 
-  return { texts: translated, usage };
+  return { texts: translated, usage, incomplete };
 }
 
 // ══════════════════════════════════════════════════
 // ── Translation orchestrator ──
 // ══════════════════════════════════════════════════
 
-async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiKey, pageTitle, channel = '', pageUrl = '', skipCache = false) {
+async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiKey, skipCache = false, partialSource = false) {
   const abortController = new AbortController();
   const signal = abortController.signal;
 
@@ -189,13 +144,6 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
       type: 'translation_done', vtt: cached, fromCache: true,
       cacheModel: model, cacheFreeOnPro: isCacheFreeOnPro,
     }).catch(() => {});
-    // Backfill shared cache if not there yet (fire-and-forget, skip if vtt empty)
-    if (vtt) {
-      sha256(vtt).then(hash => {
-        console.log('[podstr.cc] Backfill: uploading to shared cache...');
-        return sharedCachePut(hash, 'auto', targetLang, cached, model, tabId, url, pageTitle, channel, pageUrl);
-      }).catch(e => console.log('[podstr.cc] Backfill failed:', e.message || e));
-    }
     delete activeTranslations[tabId];
     return;
   }
@@ -203,47 +151,14 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
   const entries = parseVtt(vtt);
   const total = entries.length;
 
-  // Shared cache lookup: by hash first, then by URL as fallback
-  const vttHash = vtt ? await sha256(vtt) : null;
-  let sharedVtt = null;
-  let sharedCacheModel = null;
-  if (vttHash && !skipCache) {
-    const byHashResult = await sharedCacheGet(vttHash, 'auto', targetLang);
-    if (byHashResult) {
-      sharedVtt = byHashResult.vtt;
-      sharedCacheModel = byHashResult.model;
-    }
-  }
-  // Fallback: URL-based lookup (YouTube VTT may differ between fetches -> hash mismatch)
-  if (!sharedVtt && !skipCache) {
-    const normalizedUrl = normalizeCacheKey(url);
-    const byUrlResult = await sharedCacheGetByUrl(normalizedUrl, targetLang);
-    if (byUrlResult) {
-      sharedVtt = byUrlResult.vtt;
-      sharedCacheModel = byUrlResult.model;
-    }
-  }
-  if (sharedVtt) {
-    console.log('[podstr.cc] Shared cache hit!');
-    // Save under the real model's key, not the user's current model
-    const realModel = sharedCacheModel || model;
-    const localKey = realModel !== model
-      ? buildCacheKey(url, targetLang, provider, realModel)
-      : cacheKey;
-    await cachePut(localKey, sharedVtt, total);
-    chrome.tabs.sendMessage(tabId, {
-      type: 'translation_done', vtt: sharedVtt, fromCache: true,
-      cacheModel: sharedCacheModel || model, cacheFreeOnPro: isCacheFreeOnPro,
-    }).catch(() => {});
-    // Backfill normalized_url for existing translations (fire-and-forget)
-    if (vttHash) {
-      sharedCachePut(vttHash, 'auto', targetLang, sharedVtt, sharedCacheModel || model, tabId, url, pageTitle, channel, pageUrl).catch(() => {});
-    }
-    delete activeTranslations[tabId];
-    return;
-  }
-
   if (total === 0) {
+    // AS-264 diagnostic: which path sent a source without cues. Only the url scheme
+    // ('playlist', 'native', 'srt', ...) — no full URL (auth tokens), no subtitle text.
+    console.warn('[podstr.cc] No cues in source VTT: path=' + String(url).split(':')[0]
+      + ', vtt length=' + vtt.length
+      + ', timing lines=' + (vtt.match(/-->/g) || []).length
+      + ', WEBVTT header=' + /^\uFEFF?WEBVTT/.test(vtt)
+      + ', partial=' + partialSource + ', aborted=' + signal.aborted);
     chrome.tabs.sendMessage(tabId, { type: 'translation_error', error: chrome.i18n.getMessage('errorNoSubsFound') }).catch(() => {});
     delete activeTranslations[tabId];
     return;
@@ -251,13 +166,15 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
 
   // Translation mode: byok (own API key), managed (backend), or none (error)
   const mode = getTranslationMode();
-  if (mode === 'none' && provider !== 'claude-cli') {
+  if (mode === 'none') {
     chrome.tabs.sendMessage(tabId, { type: 'translation_error', error: chrome.i18n.getMessage('badgeSignIn') }).catch(() => {});
     delete activeTranslations[tabId];
     return;
   }
 
-  let hadErrors = false;
+  // partialSource: some subtitle segments failed to download (AS-263) — the result has holes,
+  // so it must not be cached, and the user is told.
+  let hadErrors = partialSource;
   let completedCues = 0;
   let totalCost = 0;
   let totalTokens = 0;
@@ -273,157 +190,105 @@ async function runTranslation(tabId, vtt, url, targetLang, provider, model, apiK
   };
 
   try {
-    let finalVtt;
+    // ── Batched translation (BYOK or Managed) ──
+    const firstEnd = Math.min(FIRST_BATCH_SIZE, total);
+    const batches = [{ start: 0, end: firstEnd }];
+    let pos = firstEnd;
+    while (pos < total) {
+      const end = Math.min(pos + BATCH_SIZE, total);
+      batches.push({ start: pos, end });
+      pos = end;
+    }
 
-    if (provider === 'claude-cli') {
-      // ── CLI: submit to queue -> poll status ──
-      console.log(`[podstr.cc] CLI queue submit: ${total} cues, model: ${model}`);
+    const sendBatchProgress = (extra) => {
+      sendProgress({
+        batch: Math.min(batches.findIndex(b => b.end > completedCues) + 1, batches.length),
+        total_batches: batches.length,
+        partial_vtt: buildVtt(entries.slice(0, completedCues), targetLang, { credit: false }),
+        ...extra,
+      });
+    };
 
-      const submitResult = await submitToQueue(vtt, targetLang, model, tabId, url, pageTitle, channel, pageUrl);
-      const jobId = submitResult.job_id;
-      console.log(`[podstr.cc] Job submitted: ${jobId}, status: ${submitResult.status}, position: ${submitResult.position}`);
+    const onRetryProgress = (info) => sendProgress({ retry_info: info });
 
-      // Send initial progress to content.js
-      const posLabel = submitResult.position > 0 ? ' ' + chrome.i18n.getMessage('queueStatusPosition', [String(submitResult.position)]) : '';
-      sendProgress({ queue_status: chrome.i18n.getMessage('queueStatusInQueue') + posLabel });
+    // Compute translation_id for managed mode (content-addressable)
+    let translationId = null;
+    if (mode === 'managed') {
+      translationId = await sha256(vtt + '\0' + targetLang);
+    }
 
-      // Poll until done or error
-      const POLL_INTERVAL = 5000; // 5 seconds
-      const POLL_TIMEOUT = 3600000; // 1 hour max
-      const pollStart = Date.now();
+    console.log(`[podstr.cc] Translating ${total} cues (${mode}): first batch ${firstEnd}, then ${batches.length - 1} batches`);
 
-      while (!signal.aborted && Date.now() - pollStart < POLL_TIMEOUT) {
-        await new Promise(r => setTimeout(r, POLL_INTERVAL));
-        if (signal.aborted) break;
+    // Notify content.js that translation started (triggers indeterminate progress bar)
+    sendProgress({ batch: 1, total_batches: batches.length });
 
-        const status = await pollJobStatus(jobId);
-        if (!status) continue;
-
-        if (status.status === 'pending') {
-          const pos = status.position || '?';
-          sendProgress({ queue_status: chrome.i18n.getMessage('queueStatusInQueue') + ' ' + chrome.i18n.getMessage('queueStatusPosition', [String(pos)]) });
-        } else if (status.status === 'running') {
-          completedCues = status.progress_done || 0;
-          sendProgress({
-            batch: status.batch_current || 0,
-            total_batches: status.batch_total || 1,
-            queue_status: 'running',
-            partial_vtt: status.vtt_partial || undefined,
-          });
-        } else if (status.status === 'done') {
-          finalVtt = status.vtt;
-          completedCues = total;
-          console.log(`[podstr.cc] Job ${jobId} done!`);
-          break;
-        } else if (status.status === 'error') {
-          throw new Error(status.error || chrome.i18n.getMessage('errorQueueServer'));
-        }
-      }
-
-      if (signal.aborted) return;
-      if (!finalVtt) throw new Error(chrome.i18n.getMessage('errorQueueTimeout'));
-
-    } else {
-      // ── Batched translation (BYOK or Managed) ──
-      const firstEnd = Math.min(FIRST_BATCH_SIZE, total);
-      const batches = [{ start: 0, end: firstEnd }];
-      let pos = firstEnd;
-      while (pos < total) {
-        const end = Math.min(pos + BATCH_SIZE, total);
-        batches.push({ start: pos, end });
-        pos = end;
-      }
-
-      const sendBatchProgress = (extra) => {
-        sendProgress({
-          batch: Math.min(batches.findIndex(b => b.end > completedCues) + 1, batches.length),
-          total_batches: batches.length,
-          partial_vtt: buildVtt(entries.slice(0, completedCues), targetLang, { credit: false }),
-          ...extra,
-        });
-      };
-
-      const onRetryProgress = (info) => sendProgress({ retry_info: info });
-
-      // Compute translation_id for managed mode (content-addressable)
-      let translationId = null;
+    // Helper: translate a batch via the right mode
+    const doBatch = async (texts, batchIndex, context) => {
       if (mode === 'managed') {
-        translationId = await sha256(vtt + '\0' + targetLang);
+        return translateBatchManaged(texts, targetLang, translationId, batchIndex, batches.length, signal, context);
       }
+      return translateBatch(texts, targetLang, model, apiKey, signal, onRetryProgress);
+    };
 
-      console.log(`[podstr.cc] Translating ${total} cues (${mode}): first batch ${firstEnd}, then ${batches.length - 1} batches`);
+    // ── First batch: quick start ──
+    const firstTexts = entries.slice(0, firstEnd).map(e => e.text);
+    const { texts: firstResult, usage: firstUsage, incomplete: firstIncomplete } = await doBatch(firstTexts, 0, null);
+    totalCost += Number(firstUsage?.cost) || 0;
+    totalTokens += Number(firstUsage?.total_tokens) || 0;
 
-      // Notify content.js that translation started (triggers indeterminate progress bar)
-      sendProgress({ batch: 1, total_batches: batches.length });
+    if (signal.aborted) return;
 
-      // Helper: translate a batch via the right mode
-      const doBatch = async (texts, batchIndex, context) => {
-        if (mode === 'managed') {
-          return translateBatchManaged(texts, targetLang, translationId, batchIndex, batches.length, signal, context);
-        }
-        return translateBatch(texts, targetLang, model, apiKey, signal, onRetryProgress);
-      };
+    if (firstResult) {
+      for (let i = 0; i < firstResult.length; i++) entries[i].text = firstResult[i];
+      if (firstIncomplete) hadErrors = true;
+      completedCues = firstEnd;
+    } else {
+      hadErrors = true;
+      completedCues = firstEnd;
+    }
+    sendBatchProgress();
 
-      // ── First batch: quick start ──
-      const firstTexts = entries.slice(0, firstEnd).map(e => e.text);
-      const { texts: firstResult, usage: firstUsage } = await doBatch(firstTexts, 0, null);
-      totalCost += Number(firstUsage?.cost) || 0;
-      totalTokens += Number(firstUsage?.total_tokens) || 0;
+    // ── Remaining batches: parallel with concurrency limit ──
+    if (batches.length > 1) {
+      const remaining = batches.slice(1);
+      for (let g = 0; g < remaining.length; g += PARALLEL_WORKERS) {
+        if (signal.aborted) return;
 
-      if (signal.aborted) return;
-
-      if (firstResult) {
-        for (let i = 0; i < firstResult.length; i++) entries[i].text = firstResult[i];
-        completedCues = firstEnd;
-      } else {
-        hadErrors = true;
-        completedCues = firstEnd;
-      }
-      sendBatchProgress();
-
-      // ── Remaining batches: parallel with concurrency limit ──
-      if (batches.length > 1) {
-        const remaining = batches.slice(1);
-        for (let g = 0; g < remaining.length; g += PARALLEL_WORKERS) {
-          if (signal.aborted) return;
-
-          const group = remaining.slice(g, g + PARALLEL_WORKERS);
-          const promises = group.map(async (batch, groupIdx) => {
-            const batchIndex = g + groupIdx + 1; // 0-based, first batch was 0
-            const texts = entries.slice(batch.start, batch.end).map(e => e.text);
-            try {
-              const { texts: result, usage: batchUsage } = await doBatch(texts, batchIndex, null);
-              totalCost += Number(batchUsage?.cost) || 0;
-              totalTokens += Number(batchUsage?.total_tokens) || 0;
-              if (result) {
-                for (let i = 0; i < result.length; i++) {
-                  entries[batch.start + i].text = result[i];
-                }
-              } else {
-                hadErrors = true;
+        const group = remaining.slice(g, g + PARALLEL_WORKERS);
+        const promises = group.map(async (batch, groupIdx) => {
+          const batchIndex = g + groupIdx + 1; // 0-based, first batch was 0
+          const texts = entries.slice(batch.start, batch.end).map(e => e.text);
+          try {
+            const { texts: result, usage: batchUsage, incomplete } = await doBatch(texts, batchIndex, null);
+            totalCost += Number(batchUsage?.cost) || 0;
+            totalTokens += Number(batchUsage?.total_tokens) || 0;
+            if (result) {
+              for (let i = 0; i < result.length; i++) {
+                entries[batch.start + i].text = result[i];
               }
-            } catch (e) {
-              if (signal.aborted) return;
-              console.error(`[podstr.cc] Batch error:`, e.message);
+              if (incomplete) hadErrors = true;
+            } else {
               hadErrors = true;
             }
-            completedCues = Math.max(completedCues, batch.end);
-          });
+          } catch (e) {
+            if (signal.aborted) return;
+            console.error(`[podstr.cc] Batch error:`, e.message);
+            hadErrors = true;
+          }
+          completedCues = Math.max(completedCues, batch.end);
+        });
 
-          await Promise.all(promises);
-          if (signal.aborted) return;
-          sendBatchProgress();
-        }
+        await Promise.all(promises);
+        if (signal.aborted) return;
+        sendBatchProgress();
       }
-
-      finalVtt = buildVtt(entries, targetLang);
     }
+
+    const finalVtt = buildVtt(entries, targetLang);
 
     // ── Done ──
     if (!hadErrors) {
       await cachePut(cacheKey, finalVtt, total);
-      // Upload to shared cache (fire-and-forget)
-      sharedCachePut(vttHash, 'auto', targetLang, finalVtt, model, tabId, url, pageTitle, channel, pageUrl).catch(() => {});
     } else {
       console.warn(`[podstr.cc] Translation had errors — not caching`);
     }

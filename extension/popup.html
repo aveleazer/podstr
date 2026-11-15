@@ -112,7 +112,6 @@
     .tab-pane.active { display: block; }
 
     /* ── Dev mode ── */
-    body:not(.dev-mode) .dev-only { display: none; }
 
     body.dev-mode .header__sub::after {
       content: ' / dev';
@@ -199,28 +198,6 @@
     }
     .style-reset:hover { color: var(--text-primary); border-color: var(--text-dim); }
 
-    /* ── Drop zone (dev) ── */
-    .drop-zone {
-      border: 2px dashed var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px; text-align: center;
-      font-size: 13px; color: var(--text-dim);
-      margin-bottom: 10px; cursor: pointer;
-      transition: border-color var(--transition), background var(--transition), color var(--transition);
-    }
-    .drop-zone:hover { border-color: var(--text-dim); color: var(--text-secondary); }
-    .drop-zone.dragover {
-      border-color: var(--amber);
-      background: var(--amber-glow);
-      color: var(--amber);
-    }
-    .drop-zone.loading {
-      border-color: var(--blue); color: var(--blue);
-      pointer-events: none;
-    }
-    .drop-zone.success { border-color: var(--amber); color: var(--amber); }
-    .drop-zone.error { border-color: var(--red); color: var(--red); }
-
     /* ── Site link ── */
     .site-link {
       display: block; text-align: center;
@@ -237,49 +214,12 @@
       border-color: rgba(232, 168, 40, 0.35);
     }
 
-    /* ── Queue (dev) ── */
-    .queue-section {
-      padding: 10px 12px;
-      background: rgba(232, 168, 40, 0.04);
-      border-radius: var(--radius-lg);
-      margin-bottom: 10px;
-      border: 1px solid rgba(232, 168, 40, 0.1);
-    }
-    .queue-section .section__label { color: var(--amber-dim); }
-    .queue-item {
-      display: flex; align-items: center; gap: 8px;
-      padding: 6px 0; font-size: 12px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-    .queue-item:last-child { border-bottom: none; }
-    .queue-status {
-      font-size: 10px; font-weight: 600; padding: 2px 6px;
-      border-radius: 2px; text-transform: uppercase; white-space: nowrap;
-      letter-spacing: 0.04em;
-    }
-    .queue-status.pending { background: rgba(232, 168, 40, 0.15); color: var(--amber); }
-    .queue-status.running { background: rgba(77, 166, 255, 0.15); color: var(--blue); }
-    .queue-title {
-      flex: 1; overflow: hidden; text-overflow: ellipsis;
-      white-space: nowrap; color: var(--text-secondary);
-    }
-    .queue-progress { color: var(--text-dim); font-size: 11px; white-space: nowrap; }
-
     /* ── Hint ── */
     .hint {
       font-size: 11px; color: var(--text-dim); line-height: 1.5;
       margin-top: 10px; padding-top: 10px;
       border-top: 1px solid var(--border-subtle);
     }
-
-    /* ── Settings (dev) ── */
-    .provider-options { display: flex; flex-direction: column; gap: 4px; }
-    .provider-option {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 13px; cursor: pointer;
-    }
-    .provider-option input { accent-color: var(--amber); }
-    .hint-text { color: var(--text-dim); font-size: 11px; }
 
     .key-row { display: flex; gap: 4px; }
     .key-input {
@@ -343,7 +283,6 @@
   <div class="tab-bar">
     <button class="tab-btn active" data-tab="subtitles" data-i18n="tabSubtitles"></button>
     <button class="tab-btn" data-tab="api" data-i18n="tabApi" id="tabBtnApi"></button>
-    <button class="tab-btn dev-only" data-tab="dev" data-i18n="tabDev"></button>
   </div>
 
   <!-- ═══ Tab 1: Subtitles ═══ -->
@@ -438,6 +377,11 @@
         <span class="section__label" data-i18n="labelHideSDH"></span>
         <label class="switch"><input type="checkbox" id="toggleHideSDH"><span class="slider"></span></label>
       </div>
+      <div class="toggle-row" style="margin-top: 6px;">
+        <span class="section__label" data-i18n="settingShowSameLangAsr"></span>
+        <label class="switch"><input type="checkbox" id="toggleShowSameLangAsr"><span class="slider"></span></label>
+      </div>
+      <div class="hint" data-i18n="settingShowSameLangAsrHint"></div>
     </div>
 
     <div class="hint" data-i18n="hintOpenVideo"></div>
@@ -470,30 +414,6 @@
       <span data-i18n="apiPaymentHint"></span>
       <a href="https://podstr.cc/en/models/" target="_blank" id="apiSetupGuideLink" style="color: var(--amber); text-decoration: none; white-space: nowrap;" data-i18n="apiSetupGuide"></a>
     </div>
-  </div>
-
-  <!-- ═══ Tab 3: Dev (dev only) ═══ -->
-  <div class="tab-pane" id="tab-dev">
-    <div class="drop-zone" id="dropZone" data-i18n="dropZoneDefault"></div>
-
-    <div class="queue-section" id="queueSection" style="display:none">
-      <div class="section__label" data-i18n="labelQueue"></div>
-      <div id="queueList"></div>
-    </div>
-    <div class="section">
-      <div class="section__label" data-i18n="labelProvider"></div>
-      <div class="provider-options">
-        <label class="provider-option">
-          <input type="radio" name="provider" value="openrouter" checked>
-          <span data-i18n="providerApiKey"></span>
-        </label>
-        <label class="provider-option">
-          <input type="radio" name="provider" value="claude-cli">
-          <span>Claude CLI <span class="hint-text" data-i18n="providerClaudeCliHint"></span></span>
-        </label>
-      </div>
-    </div>
-
   </div>
 
   <!-- ── Footer ── -->

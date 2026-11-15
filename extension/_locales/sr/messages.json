@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "Ipak prevedi"
   },
-  "viewerCachedByModel": {
-    "message": "Prevedeno ($1)",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "Prevedi pomoću $1",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "Пријавите се за бесплатне преводе"
-  },
-  "viewerSignInForCache": {
-    "message": "Пријавите се да видите превод"
   },
   "viewerSetupApi": {
     "message": "или подесите API кључ"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "Учитавање..."
   },
-  "tooltipSharedCache": {
-    "message": "Спремно у дељеном кешу ($MODEL$)",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "Титлови раније (−0.5с)"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "Титлови касније (+0.5с)"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ спремно ($MODEL$)",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "Помак: $OFFSET$с",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "Грешка при преузимању"
+  },
+  "errorSegmentsTimeout": {
+    "message": "Титлови се нису учитали: сајт видеа не одговара"
   },
   "errorInvalidApiKey": {
     "message": "Неважећи API кључ за OpenRouter"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "Приватност"
   },
-  "dropZoneDefault": {
-    "message": "Превуците .srt или .vtt фајл"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": "Само .srt и .vtt фајлови"
-  },
-  "dropZoneTooBig": {
-    "message": "Фајл је превелик (макс. 2 MB)"
-  },
-  "dropZoneReading": {
-    "message": "Читање фајла..."
-  },
-  "dropZoneSubmitting": {
-    "message": "Слање у ред..."
-  },
-  "dropZoneSent": {
-    "message": "Послато"
-  },
-  "dropZonePosition": {
-    "message": "($1 у реду)",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "Није могуће прочитати фајл"
-  },
-  "labelQueue": {
-    "message": "Ред за превод"
-  },
-  "queuePending": {
-    "message": "чека"
-  },
-  "queueRunning": {
-    "message": "у току"
-  },
-  "labelProvider": {
-    "message": "Провајдер"
-  },
-  "providerApiKey": {
-    "message": "API кључ (из картице API)"
-  },
-  "providerOpenRouterHint": {
-    "message": "(потребан API кључ)"
-  },
-  "providerClaudeCliHint": {
-    "message": "(преко реда)"
-  },
-  "statusCheckingServer": {
-    "message": "Провера сервера..."
-  },
-  "statusServerOk": {
-    "message": "Сервер реда ради"
-  },
-  "statusServerDown": {
-    "message": "Сервер реда недоступан"
-  },
   "labelEnabled": {
     "message": "Укључено"
   },
@@ -482,23 +393,6 @@
     "message": "Учитавање: $1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "Грешка превода на серверу"
-  },
-  "errorQueueTimeout": {
-    "message": "Истекло време чекања превода (1 сат)"
-  },
-  "queueStatusInQueue": {
-    "message": "У реду"
-  },
-  "queueStatusPosition": {
-    "message": "У реду ($POS$)",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -547,9 +441,6 @@
   },
   "tabSubtitles": {
     "message": "Титлови"
-  },
-  "tabDev": {
-    "message": "Преводилац"
   },
   "accountSignInHint": {
     "message": "Пријавите се — 5 превода/мес бесплатно"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$ (ауто)",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$ (ауто) — сређени оригинал",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "Среди и прикажи ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "Среди и прикажи"
+  },
+  "settingShowSameLangAsr": {
+    "message": "Прикажи сређене аутоматске титлове за видео на мом језику"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "Подразумевано искључено. Додаје сређене аутоматске титлове са YouTube-а када је видео већ на језику на који преводиш."
+  },
+  "badgeAsrImproving": {
+    "message": "Сређујем аутоматске титлове… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "Сређено са грешкама — део текста је остао као у оригиналу"
+  },
+  "errorAsrUnusable": {
+    "message": "Аутоматски титлови овог видеа не личе на повезан говор."
+  },
+  "errorAsrImprove": {
+    "message": "Аутоматски титлови нису сређени. Покушај поново или изабери други модел."
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "Преведено са грешкама — део је преведен из аутоматских титлова какви јесу, без сређивања"
   }
 }

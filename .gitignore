@@ -21,3 +21,7 @@ site/out/
 site/tmdb_cache.json
 node_modules/
 .superpowers/
+
+# AS-210 media stand (downloaded film, generated certs, profiles, frames)
+scripts/media/assets/
+scripts/media/out/

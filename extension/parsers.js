@@ -154,25 +154,53 @@ function parseSRT(text) {
 // (~5-10s each), coarser than per-CC-line VTT — it's what YouTube exposes via
 // the panel after older subtitle channels became unusable.
 //
-// Timing: macroMarkersPanelItemViewModel[i].onTap.innertubeCommand
-//         .watchEndpoint.startTimeSeconds. endMs = next.startMs - 1, or
-//         videoDurationMs - 1 for the last segment.
+// Start: macroMarkersPanelItemViewModel[i].onTap.innertubeCommand.watchEndpoint.startTimeSeconds.
+// Real end: frameworkUpdates.entityBatchUpdate.mutations[].payload.timedMarkersListSyncEntity
+//   .timedListData.sections[].timedSyncDataList[] = {videoTimeMs, syncItemId, endTimeMs}.
+//   View items carry no syncItemId, and every sync section has an extra header item
+//   (no endTimeMs, may share its time with the first real item), so the join is by
+//   start time (videoTimeMs == startTimeSeconds * 1000), and only items WITH endTimeMs
+//   are taken. Order-based joining would shift by one per section.
+// Cue end: the real end, clamped to nextStart - 1 (real ends overlap the next start by
+//   up to ~0.5 s); without a real end: nextStart - 1, last cue videoDurationMs - 1 or +5 s.
+// A paragraph is never split into lines (no per-line timing in this channel, AS-249).
 function parseYouTubePanel(bodyJsonText, videoDurationMs) {
   let json;
   try { json = JSON.parse(bodyJsonText); }
   catch (e) { throw new Error('panel JSON parse failed: ' + e.message); }
 
-  let items = null;
+  let sections = null;
   try {
-    items = json
+    sections = json
       .content.engagementPanelSectionListRenderer
-      .content.sectionListRenderer.contents[0]
-      .itemSectionRenderer.contents;
+      .content.sectionListRenderer.contents;
   } catch (e) {
     console.warn('[podstr.cc] yt-panel: shape mismatch on items path');
     return { cues: [] };
   }
-  if (!Array.isArray(items)) return { cues: [] };
+  if (!Array.isArray(sections)) return { cues: [] };
+  const items = [];
+  for (const sec of sections) {
+    const list = sec && sec.itemSectionRenderer && sec.itemSectionRenderer.contents;
+    if (Array.isArray(list)) items.push(...list);
+  }
+
+  const realEnd = new Map(); // startMs -> endMs
+  try {
+    for (const mu of json.frameworkUpdates.entityBatchUpdate.mutations) {
+      const t = mu && mu.payload && mu.payload.timedMarkersListSyncEntity;
+      for (const sec of (t && t.timedListData.sections) || []) {
+        for (const x of sec.timedSyncDataList || []) {
+          const startMs = Number(x.videoTimeMs), endMs = Number(x.endTimeMs);
+          if (x.endTimeMs != null && Number.isFinite(startMs) && Number.isFinite(endMs) && endMs > startMs) {
+            realEnd.set(startMs, endMs);
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[podstr.cc] yt-panel: no end times in body (' + e.message + ')');
+  }
 
   const raw = [];
   for (const it of items) {
@@ -202,7 +230,7 @@ function parseYouTubePanel(bodyJsonText, videoDurationMs) {
     }
     if (startMs === null) continue;
 
-    raw.push({ startMs, text });
+    raw.push({ startMs, text, realEndMs: realEnd.get(startMs) });
   }
 
   if (raw.length === 0) return { cues: [] };
@@ -213,8 +241,11 @@ function parseYouTubePanel(bodyJsonText, videoDurationMs) {
   let id = 1;
   for (let i = 0; i < raw.length; i++) {
     const startMs = raw[i].startMs;
+    const nextStart = i < raw.length - 1 ? raw[i + 1].startMs : null;
     let endMs;
-    if (i < raw.length - 1) endMs = raw[i + 1].startMs - 1;
+    if (raw[i].realEndMs !== undefined) {
+      endMs = nextStart !== null ? Math.min(raw[i].realEndMs, nextStart - 1) : raw[i].realEndMs;
+    } else if (nextStart !== null) endMs = nextStart - 1;
     else if (Number.isFinite(videoDurationMs) && videoDurationMs > startMs) endMs = videoDurationMs - 1;
     else endMs = startMs + 5000;
     if (endMs <= startMs) endMs = startMs + 500;

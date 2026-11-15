@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "Traducir de todos modos"
   },
-  "viewerCachedByModel": {
-    "message": "Traducido con $1",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "Traducir con $1",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "Inicia sesión para traducciones gratuitas"
-  },
-  "viewerSignInForCache": {
-    "message": "Inicia sesión para ver la traducción"
   },
   "viewerSetupApi": {
     "message": "o configura una clave API"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "Cargando..."
   },
-  "tooltipSharedCache": {
-    "message": "Listo en caché compartida ($MODEL$)",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "Subtítulos antes (−0.5s)"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "Subtítulos después (+0.5s)"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ listo ($MODEL$)",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "Desfase: $OFFSET$s",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "Error de descarga"
+  },
+  "errorSegmentsTimeout": {
+    "message": "No se cargaron los subtítulos: el sitio de vídeo no responde"
   },
   "errorInvalidApiKey": {
     "message": "Clave API de OpenRouter no válida"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "Privacidad"
   },
-  "dropZoneDefault": {
-    "message": "Arrastra un archivo .srt o .vtt"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": "Solo archivos .srt y .vtt"
-  },
-  "dropZoneTooBig": {
-    "message": "Archivo demasiado grande (máx. 2 MB)"
-  },
-  "dropZoneReading": {
-    "message": "Leyendo archivo..."
-  },
-  "dropZoneSubmitting": {
-    "message": "Enviando a la cola..."
-  },
-  "dropZoneSent": {
-    "message": "Enviado"
-  },
-  "dropZonePosition": {
-    "message": "($1 en la cola)",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "No se pudo leer el archivo"
-  },
-  "labelQueue": {
-    "message": "Cola de traducción"
-  },
-  "queuePending": {
-    "message": "en espera"
-  },
-  "queueRunning": {
-    "message": "en curso"
-  },
-  "labelProvider": {
-    "message": "Proveedor"
-  },
-  "providerApiKey": {
-    "message": "Clave API (de la pestaña API)"
-  },
-  "providerOpenRouterHint": {
-    "message": "(necesita clave API)"
-  },
-  "providerClaudeCliHint": {
-    "message": "(a través de la cola)"
-  },
-  "statusCheckingServer": {
-    "message": "Comprobando servidor..."
-  },
-  "statusServerOk": {
-    "message": "El servidor de cola está activo"
-  },
-  "statusServerDown": {
-    "message": "Servidor de cola no disponible"
-  },
   "labelEnabled": {
     "message": "Activada"
   },
@@ -482,23 +393,6 @@
     "message": "Cargando: $1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "Error de traducción en el servidor"
-  },
-  "errorQueueTimeout": {
-    "message": "Tiempo de espera de traducción agotado (1 hora)"
-  },
-  "queueStatusInQueue": {
-    "message": "En cola"
-  },
-  "queueStatusPosition": {
-    "message": "En cola ($POS$)",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -547,9 +441,6 @@
   },
   "tabSubtitles": {
     "message": "Subtítulos"
-  },
-  "tabDev": {
-    "message": "Traductor"
   },
   "accountSignInHint": {
     "message": "Inicia sesión — 5 traducciones/mes gratis"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$ (auto)",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$ (auto) — original corregido",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "Corregir y mostrar ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "Corregir y mostrar"
+  },
+  "settingShowSameLangAsr": {
+    "message": "Mostrar subtítulos automáticos corregidos en vídeos en mi idioma"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "Desactivado por defecto. Añade una versión corregida de los subtítulos automáticos de YouTube cuando el vídeo ya está en tu idioma de destino."
+  },
+  "badgeAsrImproving": {
+    "message": "Corrigiendo subtítulos automáticos… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "Corregido con errores: algunas partes quedan como en el original"
+  },
+  "errorAsrUnusable": {
+    "message": "Los subtítulos automáticos de este vídeo no parecen un discurso coherente."
+  },
+  "errorAsrImprove": {
+    "message": "No se pudieron corregir los subtítulos automáticos. Inténtalo de nuevo o elige otro modelo."
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "Traducido con errores: una parte se tradujo de los subtítulos automáticos tal cual, sin corregir"
   }
 }

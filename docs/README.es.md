@@ -15,7 +15,7 @@ Extensión de Chrome: detecta subtítulos en plataformas de vídeo y los traduce
 
 Una extensión de Chrome que intercepta subtítulos en sitios de vídeo y los traduce mediante modelos de IA (Claude, Gemini, DeepSeek, etc. a través de OpenRouter). Funciona con subtítulos en inglés, español, alemán, finés o cualquier otro idioma. Traduce a cualquier idioma.
 
-Si alguien ya tradujo el mismo episodio, la traducción se carga desde la caché compartida de forma instantánea y gratuita.
+Volver a ver un episodio que ya tradujiste carga la traducción al instante desde la caché local de tu navegador.
 
 ## Quiero ver
 
@@ -42,7 +42,6 @@ Instrucciones detalladas: [CONTRIBUTING.md](CONTRIBUTING.md)
 |------|------|------|
 | **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Verificado |
 | **Netflix** | TTML via Cadmium player API | Verificado |
-| **HBO Max** | WebVTT via DASH manifest | Verificado |
 | **BBC iPlayer** | TTML/EBU-TT-D | Verificado |
 | **RaiPlay** | SRT via MAIN-world fetch interceptor | Verificado |
 | **kino.pub** | HLS subtitles (Vidstack player) | Verificado |
@@ -57,7 +56,6 @@ Otros sitios con subtítulos HLS / VTT / TTML / `<track>` nativo también pueden
 
 - **Multilingüe** — traduce de cualquier idioma a cualquier otro. Español por defecto
 - **Elección de modelo IA** — DeepSeek, Gemini, Claude Sonnet/Opus, Llama a través de OpenRouter
-- **Caché compartida** — una persona traduce, el resto lo ve gratis
 - **Coste de traducción** — se muestra cuánto costó la traducción directamente sobre el vídeo
 - **Ajuste de sincronización** — `[` / `]` para desplazar ±0.5s
 - **Personalización visual** — fuente, color, opacidad, posición
@@ -66,11 +64,11 @@ Otros sitios con subtítulos HLS / VTT / TTML / `<track>` nativo también pueden
 
 ### ¿Necesito una clave API?
 
-No, si el episodio ya fue traducido por alguien (caché compartida). Para una traducción nueva necesitas una clave de OpenRouter o una suscripción a Claude Max.
+Sí: las traducciones nuevas se hacen con tu propia clave de OpenRouter. Lo que ya tradujiste se vuelve a ver desde la caché local sin clave.
 
 ### ¿Es gratis?
 
-La extensión es gratuita. Las traducciones de la caché compartida son gratuitas. Solo se paga por traducir contenido nuevo a través de OpenRouter API.
+La extensión es gratuita. Solo pagas al proveedor de IA por las traducciones nuevas; volver a ver tus traducciones es gratis.
 
 ### ¿Qué calidad tiene la traducción?
 

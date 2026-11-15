@@ -21,7 +21,7 @@ Chrome extension: detects subtitles on video platforms and translates them in re
 
 A Chrome extension that intercepts subtitles on video sites and translates them using AI models (Claude, Gemini, DeepSeek, etc. via OpenRouter). Works with English, Spanish, German, Finnish — any subtitles. Translates into any language.
 
-If someone has already translated the same episode, the translation loads from a shared cache — instantly and for free.
+Repeat viewing of an episode you have translated loads instantly from your browser's local cache.
 
 ## Quick Start
 
@@ -36,7 +36,6 @@ To translate new content, you need an [OpenRouter API key](https://openrouter.ai
 |----------|-----------|--------|
 | **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Tested |
 | **Netflix** | TTML via Cadmium player API | Tested |
-| **HBO Max** | WebVTT via DASH manifest | Tested |
 | **BBC iPlayer** | TTML/EBU-TT-D | Tested |
 | **RaiPlay** | SRT via MAIN-world fetch interceptor | Tested |
 | **kino.pub** | HLS subtitles (Vidstack player) | Tested |
@@ -52,7 +51,6 @@ Other sites with HLS / VTT / TTML / native `<track>` subtitles may work — clic
 - **Any language** — translates from any subtitle language to any target language
 - **Multiple AI models** — choose by quality and price. Free models available
 - **Translation cost** — see how much each translation costs right on the video
-- **Shared cache** — one person translates, everyone else watches for free
 - **Smart local cache** — translated subtitles load instantly on repeat viewing
 - **Timing adjustment** — `[` / `]` to shift ±0.5s
 - **Style customization** — font, color, opacity, position
@@ -64,14 +62,14 @@ Other sites with HLS / VTT / TTML / native `<track>` subtitles may work — clic
 1. **Detection** — service worker intercepts subtitle requests via `chrome.webRequest`
 2. **Download** — background script fetches subtitles, bypassing CORS
 3. **Translation** — batched via OpenRouter API (your key, your choice of model)
-4. **Cache** — translated VTT compressed with gzip, stored locally + shared cache
+4. **Cache** — translated VTT compressed with gzip and stored locally in your browser
 5. **Render** — content script displays subtitles synced with video playback
 
 ## FAQ
 
-**Do I need an API key?** No, if the episode is already in the shared cache. For new translations — you need an OpenRouter key.
+**Do I need an API key?** Yes — new translations are made with your own OpenRouter key. Repeat views of what you have translated come from the local cache without a key.
 
-**Is it free?** The extension is free. Cached translations are free. You only pay for translating new content via the AI provider.
+**Is it free?** The extension is free. You pay only your AI provider for new translations; repeat views of your own translations are free.
 
 **Translation quality?** Depends on the model. Claude Opus is on par with good fansubs. DeepSeek and Gemini Flash are cheaper but still readable.
 
@@ -79,7 +77,7 @@ Other sites with HLS / VTT / TTML / native `<track>` subtitles may work — clic
 
 ## Privacy
 
-- Your API key stays on your device — never sent to any server
+- Your API key is stored on your device and sent only to the AI provider it belongs to (OpenRouter or Polza)
 - No tracking, no analytics, no ads
 - Subtitle text is sent only to the AI provider you choose
 - [Privacy policy](https://podstr.cc/en/privacy/)

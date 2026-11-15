@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "Translate anyway"
   },
-  "viewerCachedByModel": {
-    "message": "Translated by $1",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "Translate with $1",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "Sign in for free translations"
-  },
-  "viewerSignInForCache": {
-    "message": "Sign in to watch translation"
   },
   "viewerSetupApi": {
     "message": "or set up API key"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "Loading..."
   },
-  "tooltipSharedCache": {
-    "message": "Ready in shared cache ($MODEL$)",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "Subtitles earlier (−0.5s)"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "Subtitles later (+0.5s)"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ ready ($MODEL$)",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "Offset: $OFFSET$s",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "Download failed"
+  },
+  "errorSegmentsTimeout": {
+    "message": "Subtitles did not load: the video site is not responding"
   },
   "errorInvalidApiKey": {
     "message": "Invalid OpenRouter API key"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "Privacy"
   },
-  "dropZoneDefault": {
-    "message": "Drop .srt or .vtt file"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": "Only .srt and .vtt files"
-  },
-  "dropZoneTooBig": {
-    "message": "File too large (max 2 MB)"
-  },
-  "dropZoneReading": {
-    "message": "Reading file..."
-  },
-  "dropZoneSubmitting": {
-    "message": "Submitting to queue..."
-  },
-  "dropZoneSent": {
-    "message": "Submitted"
-  },
-  "dropZonePosition": {
-    "message": "($1 in queue)",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "Could not read file"
-  },
-  "labelQueue": {
-    "message": "Translation queue"
-  },
-  "queuePending": {
-    "message": "waiting"
-  },
-  "queueRunning": {
-    "message": "running"
-  },
-  "labelProvider": {
-    "message": "Provider"
-  },
-  "providerApiKey": {
-    "message": "API key (from API tab)"
-  },
-  "providerOpenRouterHint": {
-    "message": "(needs API key)"
-  },
-  "providerClaudeCliHint": {
-    "message": "(via queue)"
-  },
-  "statusCheckingServer": {
-    "message": "Checking server..."
-  },
-  "statusServerOk": {
-    "message": "Queue server is running"
-  },
-  "statusServerDown": {
-    "message": "Queue server unavailable"
-  },
   "labelEnabled": {
     "message": "Enabled"
   },
@@ -482,23 +393,6 @@
     "message": "Loading: $1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "Translation error on server"
-  },
-  "errorQueueTimeout": {
-    "message": "Translation wait timeout (1 hour)"
-  },
-  "queueStatusInQueue": {
-    "message": "In queue"
-  },
-  "queueStatusPosition": {
-    "message": "In queue ($POS$)",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -538,9 +432,6 @@
   },
   "tabSubtitles": {
     "message": "Subtitles"
-  },
-  "tabDev": {
-    "message": "Translator"
   },
   "accountSignInHint": {
     "message": "Sign in for 5 free translations/month"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$ (auto)",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$ (auto) — cleaned-up original",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "Clean up & show ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "Clean up & show"
+  },
+  "settingShowSameLangAsr": {
+    "message": "Show cleaned-up auto-captions for videos in my language"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "Off by default. Adds a cleaned-up version of YouTube's auto-captions when the video is already in your target language."
+  },
+  "badgeAsrImproving": {
+    "message": "Cleaning up auto-captions… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "Cleaned up with errors — some parts left as in the original"
+  },
+  "errorAsrUnusable": {
+    "message": "This video's auto-captions don't look like coherent speech."
+  },
+  "errorAsrImprove": {
+    "message": "Couldn't clean up the auto-captions. Try again or pick another model."
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "Translated with errors — part of it was translated from the auto-captions as is, without clean-up"
   }
 }

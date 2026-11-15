@@ -34,8 +34,19 @@
       var ct = pr.captions && pr.captions.playerCaptionsTracklistRenderer &&
                pr.captions.playerCaptionsTracklistRenderer.captionTracks;
       if (ct && ct.length > 0) {
-        var channel = (pr.videoDetails && pr.videoDetails.author) || '';
-        window.postMessage({ type: '__ai_sub_yt_tracks', tracks: ct, channel: channel }, window.location.origin);
+        var vd = pr.videoDetails || {};
+        var channel = vd.author || '';
+        // Language of the original audio on multi-audio (auto-dub) videos: picks the ASR track (AS-261)
+        var originalAudioLang = '';
+        var fmts = (pr.streamingData && pr.streamingData.adaptiveFormats) || [];
+        for (var i = 0; i < fmts.length; i++) {
+          var at = fmts[i].audioTrack;
+          if (at && at.audioIsDefault && !at.isAutoDubbed && at.id) { originalAudioLang = String(at.id).split('.')[0]; break; }
+        }
+        // title/description: video context for the ASR clean-up pass (names, terms; AS-261)
+        window.postMessage({ type: '__ai_sub_yt_tracks', tracks: ct, channel: channel,
+          title: vd.title || '', description: vd.shortDescription || '',
+          originalAudioLang: originalAudioLang }, window.location.origin);
         sent = true;
       }
     } catch(e) {}

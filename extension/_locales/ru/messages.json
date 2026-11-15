@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "Всё равно перевести"
   },
-  "viewerCachedByModel": {
-    "message": "Переведено ($1)",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "Перевести через $1",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "Войдите для бесплатных переводов"
-  },
-  "viewerSignInForCache": {
-    "message": "Войдите чтобы посмотреть перевод"
   },
   "viewerSetupApi": {
     "message": "или настройте API-ключ"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "Загрузка..."
   },
-  "tooltipSharedCache": {
-    "message": "Готово в shared cache ($MODEL$)",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "Субтитры раньше (−0.5с)"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "Субтитры позже (+0.5с)"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ готовы ($MODEL$)",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "Сдвиг: $OFFSET$с",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "Ошибка загрузки"
+  },
+  "errorSegmentsTimeout": {
+    "message": "Субтитры не загрузились: сайт видео не отвечает"
   },
   "errorInvalidApiKey": {
     "message": "Невалидный API-ключ OpenRouter"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "Конфиденциальность"
   },
-  "dropZoneDefault": {
-    "message": "Перетащить .srt или .vtt файл"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": "Только .srt и .vtt файлы"
-  },
-  "dropZoneTooBig": {
-    "message": "Файл слишком большой (макс. 2 МБ)"
-  },
-  "dropZoneReading": {
-    "message": "Читаю файл..."
-  },
-  "dropZoneSubmitting": {
-    "message": "Отправляю в очередь..."
-  },
-  "dropZoneSent": {
-    "message": "Отправлено"
-  },
-  "dropZonePosition": {
-    "message": "($1-я в очереди)",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "Не удалось прочитать файл"
-  },
-  "labelQueue": {
-    "message": "Очередь переводов"
-  },
-  "queuePending": {
-    "message": "ждёт"
-  },
-  "queueRunning": {
-    "message": "идёт"
-  },
-  "labelProvider": {
-    "message": "Провайдер"
-  },
-  "providerApiKey": {
-    "message": "API-ключ (из вкладки API)"
-  },
-  "providerOpenRouterHint": {
-    "message": "(нужен ключ)"
-  },
-  "providerClaudeCliHint": {
-    "message": "(через очередь)"
-  },
-  "statusCheckingServer": {
-    "message": "Проверяю сервер..."
-  },
-  "statusServerOk": {
-    "message": "Сервер очередей работает"
-  },
-  "statusServerDown": {
-    "message": "Сервер очередей недоступен"
-  },
   "labelEnabled": {
     "message": "Включён"
   },
@@ -482,23 +393,6 @@
     "message": "Загрузка: $1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "Ошибка перевода на сервере"
-  },
-  "errorQueueTimeout": {
-    "message": "Таймаут ожидания перевода (1 час)"
-  },
-  "queueStatusInQueue": {
-    "message": "В очереди"
-  },
-  "queueStatusPosition": {
-    "message": "В очереди ($POS$-я)",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -538,9 +432,6 @@
   },
   "tabSubtitles": {
     "message": "Субтитры"
-  },
-  "tabDev": {
-    "message": "Переводчик"
   },
   "accountSignInHint": {
     "message": "Войдите — 5 переводов/мес бесплатно"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Скачана часть сегментов — перевод может быть неполным"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$ (авто)",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$ (авто) — улучшенный оригинал",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "Улучшить и показать ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "Улучшить и показать"
+  },
+  "settingShowSameLangAsr": {
+    "message": "Показывать улучшенные автосубтитры для видео на моём языке"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "По умолчанию выключено. Добавляет в список улучшенные автосубтитры YouTube, когда видео уже на языке, на который ты переводишь."
+  },
+  "badgeAsrImproving": {
+    "message": "Привожу в порядок автосубтитры… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "Приведено в порядок с ошибками — часть текста оставлена как в оригинале"
+  },
+  "errorAsrUnusable": {
+    "message": "Автосубтитры этого видео не похожи на связную речь."
+  },
+  "errorAsrImprove": {
+    "message": "Не удалось привести автосубтитры в порядок. Попробуй ещё раз или выбери другую модель."
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "Переведено с ошибками — часть переведена из автосубтитров как есть, без улучшения"
   }
 }

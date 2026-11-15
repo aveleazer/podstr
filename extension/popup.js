@@ -88,26 +88,6 @@ let devMode = false;
 function applyDevMode(enabled) {
   devMode = enabled;
   document.body.classList.toggle('dev-mode', enabled);
-
-  // If leaving dev mode: switch to first tab + reset provider to openrouter
-  if (!enabled) {
-    const activeTab = document.querySelector('.tab-btn.active');
-    if (activeTab && activeTab.dataset.tab === 'dev') {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-      document.querySelector('.tab-btn[data-tab="subtitles"]').classList.add('active');
-      $('tab-subtitles').classList.add('active');
-    }
-    // Reset provider to openrouter so extension doesn't stay on claude-cli
-    chrome.storage.sync.get(['provider'], (data) => {
-      if (data.provider === 'claude-cli') {
-        chrome.storage.sync.set({ provider: DEFAULT_PROVIDER });
-        const radio = document.querySelector(`input[value="${DEFAULT_PROVIDER}"]`);
-        if (radio) radio.checked = true;
-        onProviderChange(DEFAULT_PROVIDER);
-      }
-    });
-  }
 }
 
 chrome.storage.sync.get(['devMode'], (data) => {
@@ -135,10 +115,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     $('tab-' + btn.dataset.tab).classList.add('active');
-
-    if (btn.dataset.tab === 'dev') {
-      loadQueue();
-    }
   });
 });
 
@@ -152,36 +128,16 @@ if (goToApi) {
 }
 
 // ══════════════════════════════════════════════════
-// ── Provider / Model / Key (API + Dev tabs) ──
+// ── Model / Key (API tab) ──
 // ══════════════════════════════════════════════════
 
-chrome.storage.sync.get(['provider', 'model', 'cliModel'], (data) => {
-  const prov = data.provider || DEFAULT_PROVIDER;
-  const mod = data.model || DEFAULT_MODEL;
-  const radio = document.querySelector(`input[value="${prov}"]`);
-  if (radio) radio.checked = true;
-  onProviderChange(prov, mod);
-  initApiTab(mod);
+chrome.storage.sync.get(['model'], (data) => {
+  initApiTab(data.model || DEFAULT_MODEL);
 });
 
 chrome.storage.local.get(['apiKey'], (data) => {
   if (data.apiKey) $('apiKeyInput').value = data.apiKey;
 });
-
-document.querySelectorAll('input[name="provider"]').forEach(r => {
-  r.addEventListener('change', (e) => {
-    const newProv = e.target.value;
-    // Models stored separately: 'model' for openrouter, 'cliModel' for claude-cli
-    // Just switch provider — background.js reads the right model via getActiveModel()
-    chrome.storage.sync.set({ provider: newProv });
-    onProviderChange(newProv);
-  });
-});
-
-// Dev tab provider change (openrouter vs claude-cli) — only affects Dev tab UI
-function onProviderChange() {
-  // Provider-specific UI updates can be added here
-}
 
 // API tab: load saved model into input
 function initApiTab(savedModel) {
@@ -277,6 +233,14 @@ $('toggleHideSDH').addEventListener('change', () => {
   chrome.storage.sync.set({ hideSDH: $('toggleHideSDH').checked });
 });
 
+// Cleaned-up auto-captions for videos already in the target language (AS-261, default off)
+chrome.storage.sync.get(['showSameLangAsr'], (data) => {
+  $('toggleShowSameLangAsr').checked = !!data.showSameLangAsr;
+});
+$('toggleShowSameLangAsr').addEventListener('change', () => {
+  chrome.storage.sync.set({ showSameLangAsr: $('toggleShowSameLangAsr').checked });
+});
+
 // ══════════════════════════════════════════════════
 // ── Subtitle style (Player tab) ──
 // ══════════════════════════════════════════════════
@@ -339,153 +303,6 @@ $('styleBgOpacity').addEventListener('input', (e) => {
 });
 
 $('stylePosition').addEventListener('change', () => saveSubtitleStyle());
-
-// ══════════════════════════════════════════════════
-// ── Drop zone (Library tab, dev only) ──
-// ══════════════════════════════════════════════════
-
-{
-  const zone = $('dropZone');
-  const VALID_EXT = ['.srt', '.vtt'];
-  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
-  let resetTimer;
-
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = '.srt,.vtt';
-  fileInput.style.display = 'none';
-  document.body.appendChild(fileInput);
-
-  zone.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) handleFile(fileInput.files[0]);
-    fileInput.value = '';
-  });
-
-  zone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    zone.classList.add('dragover');
-  });
-
-  zone.addEventListener('dragleave', () => {
-    zone.classList.remove('dragover');
-  });
-
-  zone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    zone.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  });
-
-  function handleFile(file) {
-    const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-    if (!VALID_EXT.includes(ext)) {
-      showDropStatus('error', chrome.i18n.getMessage('dropZoneOnlySrtVtt'));
-      return;
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      showDropStatus('error', chrome.i18n.getMessage('dropZoneTooBig'));
-      return;
-    }
-
-    showDropStatus('loading', chrome.i18n.getMessage('dropZoneReading'));
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      let text = reader.result;
-
-      if (ext === '.srt') {
-        text = text.replace(/^\uFEFF/, '');
-        text = 'WEBVTT\n\n' + text.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
-      }
-
-      showDropStatus('loading', chrome.i18n.getMessage('dropZoneSubmitting'));
-
-      chrome.runtime.sendMessage({
-        type: 'submit_file',
-        vtt: text,
-        title: file.name.replace(/\.[^.]+$/, ''),
-      }, (resp) => {
-        if (chrome.runtime.lastError || !resp?.ok) {
-          const err = resp?.error || chrome.runtime.lastError?.message || chrome.i18n.getMessage('errorGeneric');
-          showDropStatus('error', err);
-          return;
-        }
-        const pos = resp.position > 0 ? ' ' + chrome.i18n.getMessage('dropZonePosition', [String(resp.position)]) : '';
-        showDropStatus('success', chrome.i18n.getMessage('dropZoneSent') + pos);
-        loadQueue();
-      });
-    };
-
-    reader.onerror = () => showDropStatus('error', chrome.i18n.getMessage('dropZoneReadError'));
-    reader.readAsText(file);
-  }
-
-  function showDropStatus(state, text) {
-    clearTimeout(resetTimer);
-    zone.className = 'drop-zone ' + state;
-    zone.textContent = text;
-    if (state === 'success' || state === 'error') {
-      resetTimer = setTimeout(() => {
-        zone.className = 'drop-zone';
-        zone.textContent = chrome.i18n.getMessage('dropZoneDefault');
-      }, 3000);
-    }
-  }
-}
-
-// ══════════════════════════════════════════════════
-// ── Queue (Library tab, dev only) ──
-// ══════════════════════════════════════════════════
-
-function loadQueue() {
-  chrome.runtime.sendMessage({ type: 'get_queue_list', limit: 10 }, (resp) => {
-    if (chrome.runtime.lastError || resp?.error || !resp?.jobs) {
-      $('queueSection').style.display = 'none';
-      return;
-    }
-
-    const active = resp.jobs.filter(j => j.status === 'pending' || j.status === 'running');
-    if (active.length === 0) {
-      $('queueSection').style.display = 'none';
-      return;
-    }
-
-    $('queueSection').style.display = 'block';
-    const list = $('queueList');
-    list.replaceChildren();
-
-    for (const job of active) {
-      const item = document.createElement('div');
-      item.className = 'queue-item';
-
-      const status = document.createElement('span');
-      status.className = 'queue-status ' + job.status;
-      status.textContent = job.status === 'pending' ? chrome.i18n.getMessage('queuePending') : chrome.i18n.getMessage('queueRunning');
-
-      const title = document.createElement('span');
-      title.className = 'queue-title';
-      title.textContent = job.title || job.id;
-
-      item.appendChild(status);
-      item.appendChild(title);
-
-      if (job.status === 'running' && job.progress_total > 0) {
-        const progress = document.createElement('span');
-        progress.className = 'queue-progress';
-        const pct = Math.round((job.progress_done / job.progress_total) * 100);
-        progress.textContent = pct + '%';
-        item.appendChild(progress);
-      }
-
-      list.appendChild(item);
-    }
-  });
-}
-
-loadQueue();
-
 
 // ══════════════════════════════════════════════════
 // ── API tab visibility and account state ──

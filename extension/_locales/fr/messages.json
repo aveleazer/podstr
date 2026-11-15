@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "Traduire quand même"
   },
-  "viewerCachedByModel": {
-    "message": "Traduit par $1",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "Traduire avec $1",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "Connectez-vous pour des traductions gratuites"
-  },
-  "viewerSignInForCache": {
-    "message": "Connectez-vous pour voir la traduction"
   },
   "viewerSetupApi": {
     "message": "ou configurez une clé API"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "Chargement..."
   },
-  "tooltipSharedCache": {
-    "message": "Prêt dans le cache partagé ($MODEL$)",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "Sous-titres en avance (−0.5s)"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "Sous-titres en retard (+0.5s)"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ prêt ($MODEL$)",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "Décalage : $OFFSET$s",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "Échec du téléchargement"
+  },
+  "errorSegmentsTimeout": {
+    "message": "Sous-titres non chargés : le site vidéo ne répond pas"
   },
   "errorInvalidApiKey": {
     "message": "Clé API OpenRouter invalide"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "Confidentialité"
   },
-  "dropZoneDefault": {
-    "message": "Déposez un fichier .srt ou .vtt"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": "Uniquement les fichiers .srt et .vtt"
-  },
-  "dropZoneTooBig": {
-    "message": "Fichier trop volumineux (max 2 Mo)"
-  },
-  "dropZoneReading": {
-    "message": "Lecture du fichier..."
-  },
-  "dropZoneSubmitting": {
-    "message": "Envoi dans la file d'attente..."
-  },
-  "dropZoneSent": {
-    "message": "Envoyé"
-  },
-  "dropZonePosition": {
-    "message": "($1 dans la file)",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "Impossible de lire le fichier"
-  },
-  "labelQueue": {
-    "message": "File d'attente de traduction"
-  },
-  "queuePending": {
-    "message": "en attente"
-  },
-  "queueRunning": {
-    "message": "en cours"
-  },
-  "labelProvider": {
-    "message": "Fournisseur"
-  },
-  "providerApiKey": {
-    "message": "Clé API (depuis l'onglet API)"
-  },
-  "providerOpenRouterHint": {
-    "message": "(clé API requise)"
-  },
-  "providerClaudeCliHint": {
-    "message": "(via la file d'attente)"
-  },
-  "statusCheckingServer": {
-    "message": "Vérification du serveur..."
-  },
-  "statusServerOk": {
-    "message": "Serveur de file d'attente actif"
-  },
-  "statusServerDown": {
-    "message": "Serveur de file d'attente indisponible"
-  },
   "labelEnabled": {
     "message": "Activé"
   },
@@ -482,23 +393,6 @@
     "message": "Chargement : $1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "Erreur de traduction sur le serveur"
-  },
-  "errorQueueTimeout": {
-    "message": "Délai d'attente de traduction dépassé (1 heure)"
-  },
-  "queueStatusInQueue": {
-    "message": "En file d'attente"
-  },
-  "queueStatusPosition": {
-    "message": "En file d'attente ($POS$)",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -547,9 +441,6 @@
   },
   "tabSubtitles": {
     "message": "Sous-titres"
-  },
-  "tabDev": {
-    "message": "Traducteur"
   },
   "accountSignInHint": {
     "message": "Connectez-vous — 5 traductions/mois gratuites"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$ (auto)",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$ (auto) — original corrigé",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "Corriger et afficher ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "Corriger et afficher"
+  },
+  "settingShowSameLangAsr": {
+    "message": "Afficher les sous-titres automatiques corrigés pour les vidéos dans ma langue"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "Désactivé par défaut. Ajoute une version corrigée des sous-titres automatiques YouTube quand la vidéo est déjà dans ta langue cible."
+  },
+  "badgeAsrImproving": {
+    "message": "Correction des sous-titres automatiques… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "Corrigé avec des erreurs — certaines parties laissées telles quelles"
+  },
+  "errorAsrUnusable": {
+    "message": "Les sous-titres automatiques de cette vidéo ne ressemblent pas à un discours cohérent."
+  },
+  "errorAsrImprove": {
+    "message": "Impossible de corriger les sous-titres automatiques. Réessaie ou choisis un autre modèle."
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "Traduit avec des erreurs — une partie a été traduite à partir des sous-titres automatiques bruts, sans correction"
   }
 }

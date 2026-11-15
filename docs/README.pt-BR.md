@@ -15,7 +15,7 @@ Extensão para Chrome: detecta legendas em plataformas de vídeo e traduz em tem
 
 Uma extensão para Chrome que intercepta legendas em sites de vídeo e as traduz usando modelos de IA (Claude, Gemini, DeepSeek, etc. via OpenRouter). Funciona com legendas em inglês, espanhol, alemão, finlandês — qualquer idioma. Traduz para qualquer idioma.
 
-Se alguém já traduziu o mesmo episódio, a tradução é carregada do cache compartilhado — instantaneamente e de graça.
+Rever um episódio que você já traduziu carrega a tradução na hora, do cache local do seu navegador.
 
 ## Início Rápido
 
@@ -30,7 +30,6 @@ Para traduzir conteúdo novo, você precisa de uma [chave de API do OpenRouter](
 |------|------|------|
 | **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Testado |
 | **Netflix** | TTML via Cadmium player API | Testado |
-| **HBO Max** | WebVTT via DASH manifest | Testado |
 | **BBC iPlayer** | TTML/EBU-TT-D | Testado |
 | **RaiPlay** | SRT via MAIN-world fetch interceptor | Testado |
 | **kino.pub** | HLS subtitles (Vidstack player) | Testado |
@@ -46,7 +45,6 @@ Outros sites com legendas HLS / VTT / TTML / `<track>` nativos também podem fun
 - **Qualquer idioma** — traduz de qualquer idioma de legenda para qualquer idioma de destino
 - **Vários modelos de IA** — escolha por qualidade e preço. Modelos gratuitos disponíveis
 - **Custo da tradução** — veja quanto cada tradução custou diretamente no vídeo
-- **Cache compartilhado** — uma pessoa traduz, todos os outros assistem de graça
 - **Cache local inteligente** — legendas traduzidas carregam instantaneamente ao rever
 - **Ajuste de timing** — `[` / `]` para deslocar ±0,5s
 - **Personalização visual** — fonte, cor, opacidade, posição
@@ -58,14 +56,14 @@ Outros sites com legendas HLS / VTT / TTML / `<track>` nativos também podem fun
 1. **Detecção** — o service worker intercepta requisições de legendas via `chrome.webRequest`
 2. **Download** — o background script baixa as legendas, contornando CORS
 3. **Tradução** — em lotes via API do OpenRouter (sua chave, sua escolha de modelo)
-4. **Cache** — VTT traduzido comprimido com gzip, armazenado localmente + cache compartilhado
+4. **Cache** — VTT traduzido comprimido com gzip e armazenado localmente no navegador
 5. **Renderização** — o content script exibe as legendas sincronizadas com a reprodução do vídeo
 
 ## FAQ
 
-**Preciso de uma chave de API?** Não, se o episódio já estiver no cache compartilhado. Para novas traduções — você precisa de uma chave OpenRouter.
+**Preciso de uma chave de API?** Sim — traduções novas usam a sua própria chave OpenRouter. O que você já traduziu volta do cache local, sem chave.
 
-**É gratuito?** A extensão é gratuita. Traduções em cache são gratuitas. Você só paga para traduzir conteúdo novo pelo provedor de IA.
+**É gratuito?** A extensão é gratuita. Você paga só ao provedor de IA pelas traduções novas; rever as suas traduções é grátis.
 
 **Qualidade da tradução?** Depende do modelo. Claude Opus está no nível de bons fansubs. DeepSeek e Gemini Flash são mais baratos, mas ainda legíveis.
 

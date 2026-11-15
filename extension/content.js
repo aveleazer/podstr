@@ -61,8 +61,6 @@
           target_lang,
           provider: 'openrouter',
           model: model || '',
-          title: 'File translation',
-          page_url: location.href,
         });
       }
 
@@ -133,13 +131,20 @@
       const rect = el.getBoundingClientRect();
       return rect.width >= video.clientWidth * 0.9 && rect.height > 0;
     };
-    let container = parentAcrossShadow(video);
+    // AS-265 (ARTE): an absolutely positioned <video> is laid out against its offsetParent.
+    // Static ancestors in between are not the video's box (video.js "fluid" div sized by the
+    // stream's natural size, larger than the clipping player). Mounting there and making it
+    // position:relative re-anchors the video to that box: it overflowed the player and our
+    // line landed outside the visible area. So the search starts at the containing block.
+    const start = (getComputedStyle(video).position === 'absolute' && video.offsetParent)
+      || parentAcrossShadow(video);
+    let container = start;
     while (container && container !== document.body) {
       if (isUsable(container)) return container;
       container = parentAcrossShadow(container);
     }
     // Fallback: any non-shadow non-custom-element ancestor, ignoring size
-    container = parentAcrossShadow(video);
+    container = start;
     while (container) {
       if (document.contains(container) && !container.shadowRoot
           && !(container.tagName && container.tagName.includes('-'))) return container;
@@ -282,6 +287,21 @@
     return null;
   }
 
+  // AS-268: the browser's page translation (Chrome, Google Translate) must not touch our own UI:
+  // it mistranslated the model name in the picker word by word. Every injected root is marked.
+  function markNoTranslate(el) {
+    el.setAttribute('translate', 'no');
+    el.classList.add('notranslate');
+    return el;
+  }
+
+  // AS-267: outside Italy RaiPlay plays a stub video instead of the film, while the page still
+  // fetches the subtitles. The stub is recognised by the name of the playing source.
+  function isGeoBlockStub() {
+    const v = queryVideo();
+    return !!v && /video_no_available/i.test(v.currentSrc || v.src || '');
+  }
+
   // ── State ──
   let overlay = null;
   let statusBadge = null;
@@ -296,11 +316,13 @@
   let activeTrackUrl = null;
   let activeTrackLabel = null;
   let translationDone = false;
+  // The active track's last attempt ended with translation_error (AS-264). activeTrackUrl is kept
+  // so a re-click resumes (keeps the cues already shown), but the picker must not look busy.
+  let translationFailed = false;
   let lastCueCount = 0;
   let keepaliveInterval = null;
   let lastProgressTime = Date.now();
   const ytUrlResolvers = {}; // youtube:videoId:lang -> resolve(webRequestUrl)
-  let cacheNotifyElement = null;
   // pickerVisibility: encapsulates show/hide strategy (control-class for Netflix-style,
   // mouse for everyone else). attach() on createPicker, detach() on stale-recreate.
   // Closes over pickerElement, activeTrackUrl, translationDone via outer scope.
@@ -311,7 +333,7 @@
     let hideTimer = null;
     let isOpen = false;
 
-    const isBusy = () => activeTrackUrl && !translationDone;
+    const isBusy = () => activeTrackUrl && !translationDone && !translationFailed;
 
     function show() {
       if (!pickerElement) return;
@@ -348,10 +370,20 @@
         controlObserver.observe(ctl, { attributes: true, attributeFilter: ['class'] });
         sync();
       } else {
-        const onMove = () => { show(); scheduleAutoHide(); };
-        const onLeave = () => { scheduleAutoHide(1000, false); };
-        container.addEventListener('mousemove', onMove);
-        container.addEventListener('mouseleave', onLeave);
+        // Listen on the document and test the pointer against the container's rectangle: players
+        // such as Plex lay a full-size controls layer over the video as a sibling of `container`,
+        // so mousemove/mouseleave on `container` itself never fire while the controls are shown.
+        let inside = false;
+        const onMove = (e) => {
+          const r = container.getBoundingClientRect();
+          const now = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+          if (now) { show(); scheduleAutoHide(); }
+          else if (inside) scheduleAutoHide(1000, false);
+          inside = now;
+        };
+        const onLeave = () => { inside = false; scheduleAutoHide(1000, false); };
+        document.addEventListener('mousemove', onMove, true);
+        document.documentElement.addEventListener('mouseleave', onLeave);
         mouseHandlers = { mousemove: onMove, mouseleave: onLeave };
         show();
         scheduleAutoHide();
@@ -360,9 +392,9 @@
 
     function detach() {
       if (controlObserver) { controlObserver.disconnect(); controlObserver = null; }
-      if (mouseHandlers && attachedTo) {
-        attachedTo.removeEventListener('mousemove', mouseHandlers.mousemove);
-        attachedTo.removeEventListener('mouseleave', mouseHandlers.mouseleave);
+      if (mouseHandlers) {
+        document.removeEventListener('mousemove', mouseHandlers.mousemove, true);
+        document.documentElement.removeEventListener('mouseleave', mouseHandlers.mouseleave);
       }
       if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
       mouseHandlers = null;
@@ -372,7 +404,6 @@
     return { attach, detach, show, hide, getOpen };
   })();
 
-  let cacheNotifyTimer = null;
   let lastCostInfo = null; // { cost, duration, model } — survives picker re-render
   let lastFromCache = false;
   let subtitleOffset = 0; // seconds, adjusted with [ and ]
@@ -384,16 +415,18 @@
 
   // Provider state (loaded from background)
   let selectedProvider = 'openrouter';
-  let selectedModel = 'google/gemini-3.1-flash-lite-preview';
+  let selectedModel = 'google/gemini-3.1-flash-lite';
   let targetLang = 'Russian';
   let devMode = false;
   let hideSDH = false;
+  let showSameLangAsr = false; // AS-261: cleaned-up ASR item for videos already in the target language
   let providersConfig = null;
 
   // Extension state: A|B|C|D|F|G (see AS-133 / overlay-states.md)
   let extensionState = 'A'; // safe default: can't translate
   let extConfig = {}; // full get_config response
   let lastProgressPct = 0; // track last progress for bar restoration
+  let lastProgressPhase = null; // 'asr' while auto-captions are being cleaned up (AS-261)
   let pendingNotification = null; // {text, type, expiry} for picker notification
   let lastProgressState = 'waiting';
 
@@ -443,14 +476,19 @@
     }
   });
 
-  chrome.storage.sync.get(['devMode', 'hideSDH'], (data) => {
+  chrome.storage.sync.get(['devMode', 'hideSDH', 'showSameLangAsr'], (data) => {
     devMode = !!data.devMode;
     hideSDH = !!data.hideSDH;
+    showSameLangAsr = !!data.showSameLangAsr;
   });
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'sync' && changes.hideSDH) {
       hideSDH = !!changes.hideSDH.newValue;
+    }
+    if (area === 'sync' && changes.showSameLangAsr) {
+      showSameLangAsr = !!changes.showSameLangAsr.newValue;
+      if (pickerElement) updatePicker();
     }
     // Re-fetch config when auth/key changes → extensionState may change
     if (area === 'local' && (changes.apiKey || changes.session_token || changes.user)) {
@@ -510,8 +548,20 @@
       if (added) added._type = 'srt';
     }
 
+    // HLS segment download progress (before translation starts): long films have 1000+ segments.
+    if (msg.type === 'segments_progress' && msg.url === activeTrackUrl && !translationDone) {
+      const loadingBtn = pickerElement?.querySelector('.ai-sub-picker-btn.loading');
+      if (loadingBtn) loadingBtn.textContent = chrome.i18n.getMessage('badgeQueueProgress', [String(msg.pct)]);
+    }
+
+    // Late messages of work that was stopped (navigation reset activeTrackUrl) must not render.
+    // podstr.cc file translations run without an active track.
+    const onPodstrSite = location.hostname === 'podstr.cc' || location.hostname.endsWith('.podstr.cc');
+    if ((msg.type === 'translation_progress' || msg.type === 'translation_done') && !activeTrackUrl && !onPodstrSite) return;
+
     if (msg.type === 'translation_progress') {
       lastProgressTime = Date.now(); // reset watchdog
+      lastProgressPhase = msg.phase || null;
       const pct = msg.total > 0 ? Math.round(msg.progress / msg.total * 100) : 0;
       // Progress bar + button text in picker
       updateProgressBar(pct, pct > 0 ? 'active' : 'indeterminate');
@@ -520,7 +570,9 @@
         if (msg.retry_info) {
           loadingBtn.textContent = msg.retry_info;
         } else {
-          if (pct > 0) {
+          if (lastProgressPhase === 'asr') {
+            loadingBtn.textContent = chrome.i18n.getMessage('badgeAsrImproving', [String(pct)]);
+          } else if (pct > 0) {
             loadingBtn.textContent = chrome.i18n.getMessage('badgeTranslatingCanWatch', [String(pct)]);
           } else {
             const base = chrome.i18n.getMessage('badgeTranslatingSimple') || 'Translating...';
@@ -545,6 +597,7 @@
     if (msg.type === 'translation_done') {
       updateTranslatedCues(msg.vtt);
       translationDone = true;
+      translationFailed = false;
       if (keepaliveInterval) { clearInterval(keepaliveInterval); keepaliveInterval = null; }
       updateProgressBar(100, msg.had_errors ? 'error' : 'active');
 
@@ -560,7 +613,13 @@
           doneText = (chrome.i18n.getMessage('badgeFromCache') || 'From cache') + ' · ' + model;
         }
       } else if (msg.had_errors) {
-        doneText = chrome.i18n.getMessage('errorPartialHint') || 'Translated with errors';
+        // the done path has no counts for errorPartialHint's $DONE$/$TOTAL$; this message needs none (AS-270)
+        const doneTrack = detectedTracks.find(t => t.url === activeTrackUrl);
+        doneText = doneTrack && doneTrack._asr === 'orig'
+          ? chrome.i18n.getMessage('badgeAsrDoneErrors')
+          : doneTrack && doneTrack._asr && msg.improve_errors
+            ? chrome.i18n.getMessage('badgeAsrTranslatedRaw') // part translated from auto-captions as is
+            : (chrome.i18n.getMessage('errorHboPartial') || 'Translated with errors');
       } else {
         const label = chrome.i18n.getMessage('badgeDone') || 'Done';
         doneText = chrome.i18n.getMessage('badgeDoneCount', [label, String(translatedCues.length)]);
@@ -606,11 +665,15 @@
       if (devMode) {
         showBadge('error', errText);
       }
-      // Don't clear activeTrackUrl — allow re-click resume
+      // Don't clear activeTrackUrl — allow re-click resume (startTranslation keeps the cues).
+      // translationFailed makes the picker offer the translate button instead of a disabled
+      // «Loading», and the error stays until the next attempt (AS-264).
+      console.warn('[podstr.cc] translation_error: ' + msg.error);
       translationDone = false;
+      translationFailed = true;
       hideProgressBar();
       updatePicker();
-      showPickerNotification(errText, 'error');
+      showPickerNotification(errText, 'error', { sticky: true });
       if (location.hostname === 'podstr.cc' || location.hostname.endsWith('.podstr.cc')) {
         window.postMessage({
           type: 'podstr_translate_error',
@@ -632,6 +695,7 @@
           if (list.length) selectedModel = list[0].code;
         }
         needUpdate = true;
+        if (pickerElement) updatePicker(); // ASR items are shown for OpenRouter only (AS-261)
       }
       if (changes.model && changes.model.newValue) {
         selectedModel = changes.model.newValue;
@@ -647,7 +711,6 @@
       }
       if (needUpdate && pickerElement) {
         checkCachedTracks();
-        checkSharedCache();
       }
       if (changes.subtitleStyle) {
         userStyle = changes.subtitleStyle.newValue || {};
@@ -874,8 +937,18 @@
     if (e.data?.type !== '__ai_sub_yt_tracks') return;
     const videoId = getYouTubeVideoId(location.href);
     if (!videoId) return;
+    const asrAll = e.data.tracks.filter(t => t.kind === 'asr');
+    const asrOriginal = pickOriginalAsrTracks(asrAll, e.data.originalAudioLang);
+    if (asrAll.length) {
+      console.log(`[podstr.cc] asr: tracks asr=${asrAll.length} original=${asrOriginal.length}`);
+      if (asrOriginal.length > 1) console.warn(`[podstr.cc] asr: ${asrOriginal.length} original ASR tracks`);
+      if (!asrOriginal.length) console.warn('[podstr.cc] asr: all ASR tracks are auto-dub, none shown');
+    }
     for (const track of e.data.tracks) {
-      if (track.kind === 'asr') continue;
+      if (track.kind === 'asr') {
+        if (asrOriginal.includes(track)) addAsrTrackItems(track, videoId, e.data);
+        continue;
+      }
       const lang = track.languageCode;
       const trackUrl = `youtube:${videoId}:${lang}`;
       if (detectedTracks.some(t => t.url === trackUrl)) continue;
@@ -889,6 +962,43 @@
     }
     if (detectedTracks.length > 0) showPicker();
   });
+
+  // ── YouTube auto-captions (AS-261) ──
+  // Auto-dub ASR tracks carry variant=timing-optimized (recognised synthetic speech of a machine
+  // translation). Any other variant (e.g. variant=gemini on the original speech) or none = original.
+  function isOriginalAsrTrack(track) {
+    try { return !!track.baseUrl && new URL(track.baseUrl, location.origin).searchParams.get('variant') !== 'timing-optimized'; }
+    catch (e) { return false; }
+  }
+
+  // Several candidates: keep those in the language of the original audio track (player response,
+  // audioIsDefault && !isAutoDubbed); unknown or unmatched audio language keeps all candidates.
+  function pickOriginalAsrTracks(asrTracks, originalAudioLang) {
+    const candidates = asrTracks.filter(isOriginalAsrTrack);
+    if (candidates.length < 2 || !originalAudioLang) return candidates;
+    const base = (l) => String(l || '').split('-')[0].toLowerCase();
+    const byAudio = candidates.filter(t => base(t.languageCode) === base(originalAudioLang));
+    return byAudio.length ? byAudio : candidates;
+  }
+
+  // Two picker items per original ASR track: translation and cleaned-up original.
+  // Display rules are filters on every picker build (pickerTracks / isViewerListed), not here.
+  function addAsrTrackItems(track, videoId, data) {
+    const lang = track.languageCode;
+    if (!lang) return;
+    const base = `youtube:${videoId}:${lang}:asr`;
+    const name = LANG_NAMES[lang] || LANG_NAMES[lang.split('-')[0]] || lang.toUpperCase();
+    for (const [mode, url, key] of [['translate', base, 'trackAsrLabel'], ['orig', base + ':orig', 'trackAsrImproved']]) {
+      if (detectedTracks.some(t => t.url === url)) continue;
+      detectedTracks.push({
+        lang, url, label: chrome.i18n.getMessage(key, [name]),
+        _asr: mode, _asrBase: base,
+        _ytChannel: data.channel || '',
+        _ytTitle: String(data.title || ''),
+        _ytDescription: String(data.description || ''),
+      });
+    }
+  }
 
   // ── RaiPlay: receive SRT URL from raiplay-detect.js (MAIN world) ──
   // RaiPlay's Service Worker intercepts fetch() before chrome.webRequest can
@@ -1081,12 +1191,19 @@
 
   // ── YouTube SPA navigation: full state reset ──
   document.addEventListener('yt-navigate-finish', () => {
+    // Stop the previous video's work: background aborts a tab's work only on a full page commit,
+    // so the old pipeline kept spending the key and rendering its cues over the new video (AS-261 review).
+    if (activeTrackUrl) chrome.runtime.sendMessage({ type: 'abort_translation' });
+    if (keepaliveInterval) { clearInterval(keepaliveInterval); keepaliveInterval = null; }
+    lastCueCount = 0;
+    translationFailed = false;
     detectedTracks.length = 0;
     activeTrackUrl = null;
     translationDone = false;
     translatedCues = [];
     subtitleOffset = 0;
     lastProgressPct = 0;
+    lastProgressPhase = null;
     lastProgressState = 'waiting';
     processedPlaylists.clear();
     hideProgressBar();
@@ -1146,13 +1263,19 @@
 
   // ── Picker UI ──
   function showPicker() {
+    if (isGeoBlockStub()) { hidePicker(); return; }
     if (!pickerElement) createPicker();
     updatePicker();
     checkCachedTracks();
-    checkSharedCache();
   }
 
+  // The stub may start playing after the picker was shown (media events do not bubble: capture).
+  document.addEventListener('loadstart', (e) => {
+    if (e.target instanceof HTMLVideoElement && pickerElement && isGeoBlockStub()) hidePicker();
+  }, true);
+
   function hidePicker() {
+    pendingNotification = null; // a kept error belongs to this picker, not to the next video's (AS-264)
     if (pickerElement) {
       pickerElement.remove();
       pickerElement = null;
@@ -1172,8 +1295,33 @@
     return track.url;
   }
 
+  // Cleaned-up ASR originals (AS-261) are cached under <base>@improved, not under the target language.
+  function checkCachedImproved() {
+    const origs = detectedTracks.filter(t => t._asr === 'orig');
+    if (!origs.length) return;
+    chrome.runtime.sendMessage({
+      type: 'check_cache',
+      urls: [...new Set(origs.map(t => t._asrBase))],
+      target_lang: 'improved',
+      provider: selectedProvider,
+      model: selectedModel,
+    }, (resp) => {
+      if (!resp?.cached) return;
+      const cachedSet = new Set(resp.cached);
+      let changed = false;
+      for (const track of origs) {
+        const was = track._hasCached;
+        track._hasCached = cachedSet.has(track._asrBase);
+        if (was !== track._hasCached) changed = true;
+      }
+      if (changed) updatePicker();
+    });
+  }
+
   function checkCachedTracks() {
-    const urls = detectedTracks.map(t => trackCacheUrl(t));
+    checkCachedImproved();
+    const mainTracks = detectedTracks.filter(t => t._asr !== 'orig');
+    const urls = mainTracks.map(t => trackCacheUrl(t));
     if (!urls.length) return;
     chrome.runtime.sendMessage({
       type: 'check_cache',
@@ -1185,107 +1333,13 @@
       if (!resp?.cached) return;
       const cachedSet = new Set(resp.cached);
       let changed = false;
-      for (const track of detectedTracks) {
+      for (const track of mainTracks) {
         const was = track._hasCached;
         track._hasCached = cachedSet.has(trackCacheUrl(track));
         if (was !== track._hasCached) changed = true;
       }
       if (changed) updatePicker();
     });
-  }
-
-  function checkSharedCache() {
-    const urls = detectedTracks.map(t => trackCacheUrl(t));
-    if (!urls.length) return;
-    console.log(`[podstr.cc] checkSharedCache: ${urls.length} URLs, targetLang=${targetLang}`);
-    chrome.runtime.sendMessage({
-      type: 'check_shared_cache',
-      urls,
-      target_lang: targetLang,
-    }, (resp) => {
-      console.log('[podstr.cc] checkSharedCache response:', resp);
-      if (chrome.runtime.lastError || !resp) return;
-
-      let changed = false;
-      if (resp.results?.length) {
-        for (const hit of resp.results) {
-          const track = detectedTracks.find(t => trackCacheUrl(t) === hit.url);
-          if (track && !track._hasSharedCached) {
-            track._hasSharedCached = { model: hit.model, model_rank: hit.model_rank };
-            changed = true;
-          }
-        }
-      }
-      updatePicker();
-      if (changed) showCacheNotification();
-    });
-  }
-
-  function showCacheNotification() {
-    // Don't show if subtitles already active or viewer mode (picker already shows "Субтитры доступны")
-    console.log('[podstr.cc] showCacheNotification: activeTrackUrl=', activeTrackUrl, 'devMode=', devMode);
-    if (activeTrackUrl) return;
-    if (!devMode) return;
-
-    // Find first track with shared cache hit
-    const hit = detectedTracks.find(t => t._hasSharedCached);
-    if (!hit) return;
-
-    // Find video container (same logic as createPicker)
-    const video = queryVideo();
-    if (!video) return;
-    let container = video.parentElement;
-    while (container && container !== document.body) {
-      const rect = container.getBoundingClientRect();
-      if (rect.width >= video.clientWidth * 0.9 && rect.height > 0) break;
-      container = container.parentElement;
-    }
-    if (!container || container === document.body) container = video.parentElement;
-
-    if (!cacheNotifyElement) {
-      cacheNotifyElement = document.createElement('div');
-      cacheNotifyElement.id = 'ai-subtitler-cache-notify';
-      for (const evt of ['click', 'mousedown', 'pointerdown', 'dblclick']) {
-        cacheNotifyElement.addEventListener(evt, (e) => e.stopPropagation());
-      }
-      container.appendChild(cacheNotifyElement);
-    }
-
-    // Build label: "DE → Rus готовы (sonnet)"
-    const modelShort = hit._hasSharedCached.model
-      .replace(/^.*\//, '')
-      .replace(/^claude-/, '')
-      .replace(/-\d+$/, '');
-    cacheNotifyElement.textContent = chrome.i18n.getMessage('cacheNotifyReady', [hit.label, targetLang.substring(0, 3), modelShort]);
-
-    // Click → start translation for this track
-    cacheNotifyElement.onclick = () => {
-      hideCacheNotification();
-      startTranslation(hit);
-    };
-
-    cacheNotifyElement.classList.remove('dimmed');
-    cacheNotifyElement.style.opacity = '1';
-
-    // Auto-hide after 8s → switch to hover mode
-    if (cacheNotifyTimer) clearTimeout(cacheNotifyTimer);
-    cacheNotifyTimer = setTimeout(() => dimCacheNotification(), 8000);
-  }
-
-  function dimCacheNotification() {
-    if (cacheNotifyElement) {
-      cacheNotifyElement.style.opacity = '';
-      cacheNotifyElement.classList.add('dimmed');
-    }
-    if (cacheNotifyTimer) { clearTimeout(cacheNotifyTimer); cacheNotifyTimer = null; }
-  }
-
-  function hideCacheNotification() {
-    if (cacheNotifyElement) {
-      cacheNotifyElement.style.opacity = '0';
-      cacheNotifyElement.classList.remove('dimmed');
-    }
-    if (cacheNotifyTimer) { clearTimeout(cacheNotifyTimer); cacheNotifyTimer = null; }
   }
 
   function createPicker() {
@@ -1308,6 +1362,7 @@
 
     pickerElement = document.createElement('div');
     pickerElement.id = 'ai-subtitler-picker';
+    markNoTranslate(pickerElement);
 
     // Prevent clicks from triggering player play/pause
     for (const evt of ['click', 'mousedown', 'pointerdown', 'dblclick']) {
@@ -1380,7 +1435,7 @@
       clearTimeout(_netflixMouseTimer);
       _netflixMouseTimer = setTimeout(() => {
         if (!pickerElement) return;
-        if (activeTrackUrl && !translationDone) return; // busy translating
+        if (activeTrackUrl && !translationDone && !translationFailed) return; // busy translating
         if (pickerElement.matches(':hover')) return;
         pickerElement.classList.add('hidden');
       }, 3000);
@@ -1417,14 +1472,40 @@
 
     if (!devMode) {
       renderViewerPicker();
-      return;
+    } else {
+      renderDevPicker();
     }
-
-    renderDevPicker();
+    // replaceChildren() also removed a pending notification: error paths call
+    // showBadge('error', ...) and then updatePicker(), which used to erase the error at once.
+    renderPickerNotification();
   }
 
   function isTrackSameAsTarget(track) {
     return LANG_TO_TARGET[track.lang] === targetLang;
+  }
+
+  // ── ASR display rules (AS-261 §4.1), applied on every picker build ──
+  // Panel only (no /embed/), clean-up pass only in BYOK via OpenRouter; state A keeps the setup call.
+  function isAsrSupportedHere() {
+    return !location.pathname.startsWith('/embed/')
+      && (extensionState === 'B' || extensionState === 'A')
+      && selectedProvider === 'openrouter';
+  }
+  // A manual track of the same language hides ASR: neither the player API nor the panel gives ASR text then.
+  function hasManualSameLang(track) {
+    const lang = (track.lang || '').split('-')[0];
+    return detectedTracks.some(m => !m._asr && (m.lang || '').split('-')[0] === lang);
+  }
+  function isAsrSameAsTarget(track) {
+    return LANG_TO_TARGET[(track.lang || '').split('-')[0]] === targetLang;
+  }
+  function isViewerListed(track) {
+    if (!track._asr) return !isTrackSameAsTarget(track);
+    if (track._asr === 'translate') return !isAsrSameAsTarget(track);
+    return !isAsrSameAsTarget(track) || showSameLangAsr;
+  }
+  function pickerTracks() {
+    return detectedTracks.filter(t => !t._asr || (isAsrSupportedHere() && !hasManualSameLang(t)));
   }
 
   function createCostChip(costInfo, fromCache) {
@@ -1445,7 +1526,8 @@
   }
 
   function renderViewerPicker() {
-    const translatableTracks = detectedTracks.filter(t => !isTrackSameAsTarget(t));
+    const tracks = pickerTracks();
+    const translatableTracks = tracks.filter(isViewerListed);
 
     // ── Translation done: subtitle count + cost chip + offset controls ──
     if (translationDone && translatedCues.length > 0) {
@@ -1461,12 +1543,14 @@
     }
 
     // ── Translation in progress ──
-    if (activeTrackUrl && !translationDone) {
+    if (activeTrackUrl && !translationDone && !translationFailed) {
       const btn = document.createElement('button');
       btn.className = 'ai-sub-picker-btn loading';
-      btn.textContent = lastProgressPct > 0
-        ? chrome.i18n.getMessage('badgeTranslatingCanWatch', [String(lastProgressPct)])
-        : chrome.i18n.getMessage('badgeTrackLoading');
+      btn.textContent = lastProgressPhase === 'asr'
+        ? chrome.i18n.getMessage('badgeAsrImproving', [String(lastProgressPct)])
+        : lastProgressPct > 0
+          ? chrome.i18n.getMessage('badgeTranslatingCanWatch', [String(lastProgressPct)])
+          : chrome.i18n.getMessage('badgeTrackLoading');
       btn.disabled = true;
       pickerElement.appendChild(btn);
       // Restore progress bar (replaceChildren destroyed it)
@@ -1477,7 +1561,7 @@
     }
 
     // ── Same-language hint ──
-    const sameLangTracks = detectedTracks.filter(t => isTrackSameAsTarget(t));
+    const sameLangTracks = tracks.filter(t => !t._asr && isTrackSameAsTarget(t));
     if (sameLangTracks.length > 0) {
       const hint = document.createElement('span');
       hint.className = 'ai-sub-viewer-label ai-sub-same-lang';
@@ -1568,61 +1652,32 @@
 
   // ── Shared: translate button (select or single) + click handler ──
   function appendTranslateUI(translatableTracks) {
-    const isCached = (t) => t._hasCached || t._hasSharedCached;
-    const cachedModel = (t) => {
-      // Shared cache knows the real model; local cache key includes model
-      // so _hasCached only means "cached with selectedModel"
-      if (t._hasSharedCached) return t._hasSharedCached.model || '';
-      if (t._hasCached) return selectedModel;
-      return '';
-    };
-    const isDifferentModel = (t) => {
-      if (!isCached(t)) return false;
-      const cm = cachedModel(t);
-      return cm && cm !== selectedModel;
-    };
+    // The local cache key includes the model: _hasCached means "cached with selectedModel"
+    const isCached = (t) => t._hasCached;
 
     if (translatableTracks.length === 1) {
       const track = translatableTracks[0];
-      if (isDifferentModel(track)) {
-        // Cached by different model — show + retranslate
-        const showBtn = document.createElement('button');
-        showBtn.className = 'ai-sub-picker-btn ai-sub-viewer-available';
-        const showLabel = chrome.i18n.getMessage('viewerCachedByModel', [shortModelName(cachedModel(track))])
-          || `Translated by ${shortModelName(cachedModel(track))}`;
-        showBtn.textContent = showLabel;
-        showBtn.addEventListener('click', () => startTranslation(track));
-        pickerElement.appendChild(showBtn);
+      const btn = document.createElement('button');
+      btn.className = 'ai-sub-picker-btn ai-sub-viewer-available';
+      const srcLabel = track.label || '?';
+      const msgKey = isCached(track) ? 'viewerShow' : (track._asr === 'orig' ? 'viewerShowImproved' : 'viewerTranslate');
+      const fallback = isCached(track) ? `Show (${srcLabel})` : `Translate (${srcLabel})`;
+      btn.textContent = chrome.i18n.getMessage(msgKey, [srcLabel]) || fallback;
+      btn.addEventListener('click', () => startTranslation(track));
+      pickerElement.appendChild(btn);
+      // Cached — still offer retranslate. Not for the cleaned-up original (AS-261).
+      if (isCached(track) && track._asr !== 'orig') {
         const reBtn = document.createElement('button');
         reBtn.className = 'ai-sub-picker-link ai-sub-retranslate-link';
         reBtn.textContent = chrome.i18n.getMessage('viewerRetranslate', [shortModelName(selectedModel)])
           || `Translate with ${shortModelName(selectedModel)}`;
         reBtn.addEventListener('click', () => startTranslation(track, { skipCache: true }));
         pickerElement.appendChild(reBtn);
-      } else {
-        const btn = document.createElement('button');
-        btn.className = 'ai-sub-picker-btn ai-sub-viewer-available';
-        const srcLabel = track.label || '?';
-        const msgKey = isCached(track) ? 'viewerShow' : 'viewerTranslate';
-        const fallback = isCached(track) ? `Show (${srcLabel})` : `Translate (${srcLabel})`;
-        btn.textContent = chrome.i18n.getMessage(msgKey, [srcLabel]) || fallback;
-        btn.addEventListener('click', () => startTranslation(track));
-        pickerElement.appendChild(btn);
-        // When cached by same model — still offer retranslate (different model
-        // branch above handles cross-model case).
-        if (isCached(track)) {
-          const reBtn = document.createElement('button');
-          reBtn.className = 'ai-sub-picker-link ai-sub-retranslate-link';
-          reBtn.textContent = chrome.i18n.getMessage('viewerRetranslate', [shortModelName(selectedModel)])
-            || `Translate with ${shortModelName(selectedModel)}`;
-          reBtn.addEventListener('click', () => startTranslation(track, { skipCache: true }));
-          pickerElement.appendChild(reBtn);
-        }
       }
     } else {
-      const cachedTrack = translatableTracks.find(isCached);
-      const englishTrack = !cachedTrack && translatableTracks.find(t => t.lang === 'en' || t.lang === 'eng');
-      const defaultTrack = cachedTrack || englishTrack;
+      const cachedTrack = translatableTracks.find(t => t._asr !== 'orig' && isCached(t));
+      const englishTrack = !cachedTrack && translatableTracks.find(t => t._asr !== 'orig' && (t.lang === 'en' || t.lang === 'eng'));
+      const defaultTrack = cachedTrack || englishTrack || translatableTracks.find(t => t._asr !== 'orig');
       const sel = document.createElement('select');
       sel.className = 'ai-sub-picker-target';
       for (const track of translatableTracks) {
@@ -1639,8 +1694,8 @@
       const updateBtnText = () => {
         const selected = translatableTracks.find(t => t.url === sel.value);
         const showMsg = selected && isCached(selected);
-        btn.textContent = chrome.i18n.getMessage(showMsg ? 'viewerShowBtn' : 'viewerTranslateBtn')
-          || (showMsg ? 'Show' : 'Translate');
+        const key = showMsg ? 'viewerShowBtn' : (selected && selected._asr === 'orig' ? 'viewerShowImprovedBtn' : 'viewerTranslateBtn');
+        btn.textContent = chrome.i18n.getMessage(key) || (showMsg ? 'Show' : 'Translate');
       };
       updateBtnText();
       sel.addEventListener('change', updateBtnText);
@@ -1651,22 +1706,13 @@
       pickerElement.appendChild(btn);
 
       // If selected track is cached — show retranslate option.
-      // For different-model cache: show "Translated by X" + "Translate with Y".
-      // For same-model cache: just the retranslate link.
       const addRetranslateLink = () => {
         const oldRow = pickerElement.querySelector('.ai-sub-info-row');
         if (oldRow) oldRow.remove();
         const selected = translatableTracks.find(t => t.url === sel.value);
-        if (!selected || !isCached(selected)) return;
+        if (!selected || !isCached(selected) || selected._asr === 'orig') return;
         const row = document.createElement('div');
         row.className = 'ai-sub-info-row';
-        if (isDifferentModel(selected)) {
-          const info = document.createElement('span');
-          info.className = 'ai-sub-viewer-label ai-sub-cached-model-info';
-          info.textContent = chrome.i18n.getMessage('viewerCachedByModel', [shortModelName(cachedModel(selected))])
-            || `Translated by ${shortModelName(cachedModel(selected))}`;
-          row.appendChild(info);
-        }
         const reBtn = document.createElement('button');
         reBtn.className = 'ai-sub-picker-link ai-sub-retranslate-link';
         reBtn.textContent = chrome.i18n.getMessage('viewerRetranslate', [shortModelName(selectedModel)])
@@ -1707,7 +1753,7 @@
   function appendSlowModelHint() {
     if (!isSlowModel(selectedModel)) return;
     // Don't show if any translatable track is cached — user likely clicks that one
-    if (detectedTracks.some(t => !isTrackSameAsTarget(t) && (t._hasCached || t._hasSharedCached))) return;
+    if (pickerTracks().some(t => isViewerListed(t) && t._hasCached)) return;
     const hint = document.createElement('span');
     hint.className = 'ai-sub-slow-hint';
     hint.textContent = chrome.i18n.getMessage('slowModelHint') || 'Slow model — translation may take a while';
@@ -1740,6 +1786,7 @@
   }
 
   function renderDevPicker() {
+    const tracks = pickerTracks();
     // Translation done — show label + cost chip + offset controls
     if (translationDone && translatedCues.length > 0) {
       const label = document.createElement('span');
@@ -1759,19 +1806,19 @@
     }
 
     // Source language: select (2+) or single button (1)
-    if (detectedTracks.length === 1) {
-      const track = detectedTracks[0];
+    if (tracks.length === 1) {
+      const track = tracks[0];
       const btn = document.createElement('button');
       btn.className = 'ai-sub-picker-btn ai-sub-viewer-available';
       btn.textContent = chrome.i18n.getMessage('viewerTranslate', [track.label]) || `Translate (${track.label})`;
       if (track.url === activeTrackUrl) btn.classList.add('loading');
       btn.addEventListener('click', () => startTranslation(track));
       pickerElement.appendChild(btn);
-    } else if (detectedTracks.length > 1) {
-      const devCached = detectedTracks.find(t => t._hasCached || t._hasSharedCached);
+    } else if (tracks.length > 1) {
+      const devCached = tracks.find(t => t._hasCached);
       const sel = document.createElement('select');
       sel.className = 'ai-sub-picker-target';
-      for (const track of detectedTracks) {
+      for (const track of tracks) {
         const opt = document.createElement('option');
         opt.value = track.url;
         opt.textContent = track.label || track.lang || '?';
@@ -1786,7 +1833,7 @@
       btn.textContent = chrome.i18n.getMessage('viewerTranslateBtn') || 'Translate';
       if (activeTrackUrl) btn.classList.add('loading');
       btn.addEventListener('click', () => {
-        const track = detectedTracks.find(t => t.url === sel.value);
+        const track = tracks.find(t => t.url === sel.value);
         if (track) startTranslation(track);
       });
       pickerElement.appendChild(btn);
@@ -1804,43 +1851,82 @@
     if (el) el.textContent = subtitleOffset === 0 ? '0' : (subtitleOffset > 0 ? '+' : '') + subtitleOffset.toFixed(1);
   }
 
-  // ── Page title for shared cache metadata ──
-  function getPageTitle() {
-    // Try Kinopub's PLAYER_PLAYLIST for rich episode info
-    try {
-      for (const script of document.querySelectorAll('script')) {
-        const text = script.textContent;
-        if (!text || !text.includes('PLAYER_PLAYLIST')) continue;
-        const playlistMatch = text.match(/PLAYER_PLAYLIST\s*=\s*(\[[\s\S]*?\])\s*;/);
-        if (!playlistMatch) continue;
-        const playlist = JSON.parse(playlistMatch[1]);
-        if (!Array.isArray(playlist) || playlist.length === 0) continue;
-        const indexMatch = text.match(/PLAYER_START_INDEX\s*=\s*(\d+)/);
-        const idx = indexMatch ? parseInt(indexMatch[1], 10) : 0;
-        const ep = playlist[idx] || playlist[0];
-        let showTitle = (ep.title || '').split('/')[0].trim();
-        let result = showTitle;
-        if (ep.season != null && ep.episode != null) {
-          result += ` S${String(ep.season).padStart(2,'0')}E${String(ep.episode).padStart(2,'0')}`;
-        }
-        if (ep.episode_title) {
-          result += ` ${ep.episode_title}`;
-        }
-        if (result.trim()) return result.trim();
-      }
-    } catch (e) { /* fall through */ }
-    // Fallback: clean page title
-    let title = document.title
-      .replace(/^\(\d+\)\s*/, '')                // YouTube notification count: (16)
-      .replace(/\s*[-–—|]\s*YouTube\s*$/i, '')   // YouTube suffix
-      .replace(/\s*[-–—|].*(kinopub|кинопаб|смотреть|онлайн|hd|1080).*/i, '')
-      .replace(/\s*[-–—|]\s*$/, '')
-      .trim();
-    const seMatch = location.href.match(/\/(s(\d{1,2})e(\d{1,3}))/i);
-    if (seMatch) {
-      title += ` S${seMatch[2].padStart(2, '0')}E${seMatch[3].padStart(2, '0')}`;
+  // ── YouTube transcript panel: select the caption track, open the panel, intercept /get_panel, close it.
+  // Used by manual CC (fallback, AS-249) and auto-captions (only path, AS-261).
+  // Returns {body, videoDurationMs} | {error} | {stale: true} (the user switched track meanwhile).
+  async function fetchYouTubePanelBody(lang, isStale) {
+    const v = document.querySelector('video');
+    const videoDurationMs = (v && Number.isFinite(v.duration) && v.duration > 0)
+      ? Math.floor(v.duration * 1000) : null;
+
+    if (lang) {
+      window.postMessage({ type: '__ai_sub_yt_set_caption_lang', lang }, window.location.origin);
+      await new Promise(r => setTimeout(r, 600));
     }
-    return title || document.title;
+    if (isStale()) return { stale: true };
+
+    const requestKey = String(Date.now()) + '-' + Math.random().toString(36).slice(2, 8);
+    const panelResp = await new Promise((resolve) => {
+      const handler = (e) => {
+        if (e.origin !== window.location.origin) return;
+        if (!e.data || e.data.type !== '__ai_sub_yt_panel_response') return;
+        if (e.data.requestKey !== requestKey) return;
+        window.removeEventListener('message', handler);
+        resolve(e.data);
+      };
+      window.addEventListener('message', handler);
+      window.postMessage({ type: '__ai_sub_yt_open_transcript', requestKey }, window.location.origin);
+      setTimeout(() => {
+        window.removeEventListener('message', handler);
+        resolve({ error: 'CONTENT_TIMEOUT' });
+      }, 15000);
+    });
+
+    window.postMessage({ type: '__ai_sub_yt_close_transcript' }, window.location.origin);
+
+    if (isStale()) return { stale: true };
+
+    if (panelResp.error || panelResp.endpoint !== '/get_panel' || panelResp.status !== 200 || !panelResp.body) {
+      console.warn('[podstr.cc] yt-panel fail:',
+        panelResp.error || panelResp.endpoint, panelResp.status,
+        'bodyLen', (panelResp.body || '').length);
+      return { error: panelResp.error || 'BAD_PANEL_RESPONSE' };
+    }
+    return { body: panelResp.body, videoDurationMs };
+  }
+
+  // ── YouTube auto-captions (AS-261): the background checks its caches first and asks for the
+  // panel text ({needRaw:true}) only when nothing is cached. The first send is always raw: null.
+  function sendStartAsr(track, opts, raw) {
+    chrome.runtime.sendMessage({
+      type: 'start_asr', mode: track._asr, url: track._asrBase, lang: track.lang, raw,
+      target_lang: targetLang, provider: selectedProvider, model: selectedModel,
+      page_url: location.href, channel: track._ytChannel || '', // page_url: local video-id check (bg-asr.js)
+      ytTitle: track._ytTitle || '', ytDescription: track._ytDescription || '',
+      skipCache: !!opts.skipCache,
+    }, (resp) => {
+      if (track.url !== activeTrackUrl) return;
+      if (chrome.runtime.lastError || resp?.error) {
+        showBadge('error', resp?.error || chrome.i18n.getMessage('errorGeneric'));
+        activeTrackUrl = null; updatePicker(); return;
+      }
+      if (!resp?.needRaw || raw) return;
+      // A retry after an error reuses the panel text it already has instead of reopening the panel
+      if (track._asrRaw) sendStartAsr(track, opts, track._asrRaw);
+      else fetchAsrRawAndResend(track, opts);
+    });
+  }
+
+  async function fetchAsrRawAndResend(track, opts) {
+    const panel = await fetchYouTubePanelBody(track.lang, () => track.url !== activeTrackUrl);
+    window.postMessage({ type: '__ai_sub_yt_disable_cc' }, window.location.origin);
+    if (panel.stale || track.url !== activeTrackUrl) return;
+    if (!panel.body) {
+      showBadge('error', chrome.i18n.getMessage('errorYouTube'));
+      activeTrackUrl = null; updatePicker(); return;
+    }
+    track._asrRaw = { body: panel.body, videoDurationMs: panel.videoDurationMs };
+    sendStartAsr(track, opts, track._asrRaw);
   }
 
   // ── Phase 2: Start translation (on user click) ──
@@ -1863,6 +1949,13 @@
     keepaliveInterval = setInterval(() => {
       chrome.runtime.sendMessage({ type: 'keepalive' }).catch(() => {});
       if (!translationDone && Date.now() - lastProgressTime > 480000 && activeTrackUrl === track.url) {
+        if (track._asr) {
+          // ASR has no _cachedVtt: re-send start_asr (raw if we have it, else the background asks again)
+          console.log('[podstr.cc] Watchdog: no progress for 8 min, re-sending start_asr');
+          lastProgressTime = Date.now();
+          sendStartAsr(track, opts, track._asrRaw || null);
+          return;
+        }
         if (!track._cachedVtt) {
           console.log('[podstr.cc] Watchdog: no VTT cached yet, skipping re-send');
           lastProgressTime = Date.now();
@@ -1885,18 +1978,19 @@
           target_lang: targetLang,
           provider: selectedProvider,
           model: selectedModel,
-          title: getPageTitle(),
+          partialSource: !!track._partialSource,
         });
       }
     }, 25000);
 
     // Reset state (skip on resume — keep existing cues)
     activeTrackUrl = track.url;
-    hideCacheNotification();
+    pendingNotification = null; // previous track's error must not reappear next to the new "Loading"
     lastCostInfo = null;
     lastFromCache = false;
     activeTrackLabel = track.label || track.lang || 'sub';
     translationDone = false;
+    translationFailed = false;
     if (!isResume) {
       translatedCues = [];
       lastCueCount = 0;
@@ -1912,6 +2006,8 @@
     try {
       // ── YouTube: primary /api/timedtext via webRequest, fallback /get_panel intercept ──
       if (track.url.startsWith('youtube:')) {
+        // Auto-captions: clean-up pass + translation in the background (AS-261)
+        if (track._asr) { sendStartAsr(track, opts, null); return; }
         const lang = track.lang;
 
         // Local cache hit — straight to start_translation.
@@ -1919,9 +2015,7 @@
           chrome.runtime.sendMessage({
             type: 'start_translation', vtt: '', url: track.url,
             target_lang: targetLang, provider: selectedProvider,
-            model: selectedModel, title: getPageTitle(),
-            page_url: location.href,
-            channel: track._ytChannel || '',
+            model: selectedModel,
           }, (resp) => {
             if (chrome.runtime.lastError || resp?.error) {
               showBadge('error', resp?.error || chrome.i18n.getMessage('errorGeneric'));
@@ -1975,47 +2069,12 @@
 
         // ─── Fallback path: open transcript panel, intercept /get_panel (AS-249) ───
         if (!resultVtt) {
-          const videoDurationMs = (() => {
-            const v = document.querySelector('video');
-            return (v && Number.isFinite(v.duration) && v.duration > 0)
-              ? Math.floor(v.duration * 1000) : null;
-          })();
-
-          if (lang) {
-            window.postMessage({ type: '__ai_sub_yt_set_caption_lang', lang }, window.location.origin);
-            await new Promise(r => setTimeout(r, 600));
-          }
-          if (track.url !== activeTrackUrl) return;
-
-          const requestKey = String(Date.now()) + '-' + Math.random().toString(36).slice(2, 8);
-          const panelResp = await new Promise((resolve) => {
-            const handler = (e) => {
-              if (e.origin !== window.location.origin) return;
-              if (!e.data || e.data.type !== '__ai_sub_yt_panel_response') return;
-              if (e.data.requestKey !== requestKey) return;
-              window.removeEventListener('message', handler);
-              resolve(e.data);
-            };
-            window.addEventListener('message', handler);
-            window.postMessage({ type: '__ai_sub_yt_open_transcript', requestKey }, window.location.origin);
-            setTimeout(() => {
-              window.removeEventListener('message', handler);
-              resolve({ error: 'CONTENT_TIMEOUT' });
-            }, 15000);
-          });
-
-          window.postMessage({ type: '__ai_sub_yt_close_transcript' }, window.location.origin);
-
-          if (track.url !== activeTrackUrl) return;
-
-          if (panelResp.error || panelResp.endpoint !== '/get_panel' || panelResp.status !== 200 || !panelResp.body) {
-            console.warn('[podstr.cc] yt-panel fail:',
-              panelResp.error || panelResp.endpoint, panelResp.status,
-              'bodyLen', (panelResp.body || '').length);
-          } else {
+          const panel = await fetchYouTubePanelBody(lang, () => track.url !== activeTrackUrl);
+          if (panel.stale) return;
+          if (panel.body) {
             const parsed = await new Promise(resolve =>
               chrome.runtime.sendMessage(
-                { type: 'youtube_panel_to_vtt', body: panelResp.body, videoDurationMs },
+                { type: 'youtube_panel_to_vtt', body: panel.body, videoDurationMs: panel.videoDurationMs },
                 resolve));
             if (track.url !== activeTrackUrl) return;
             if (parsed && !parsed.error && parsed.vtt) {
@@ -2046,9 +2105,7 @@
         chrome.runtime.sendMessage({
           type: 'start_translation', vtt: resultVtt, url: track.url,
           target_lang: targetLang, provider: selectedProvider,
-          model: selectedModel, title: getPageTitle(),
-          page_url: location.href,
-          channel: track._ytChannel || '',
+          model: selectedModel,
           skipCache: !!opts.skipCache,
         }, (resp) => {
           if (chrome.runtime.lastError || resp?.error) {
@@ -2097,8 +2154,6 @@
           target_lang: targetLang,
           provider: selectedProvider,
           model: selectedModel,
-          title: getPageTitle(),
-          page_url: location.href,
           skipCache: !!opts.skipCache,
         }, (resp) => {
           if (chrome.runtime.lastError || resp?.error) {
@@ -2180,8 +2235,6 @@
           target_lang: targetLang,
           provider: selectedProvider,
           model: selectedModel,
-          title: getPageTitle(),
-          page_url: location.href,
           skipCache: !!opts.skipCache,
         }, (resp) => {
           if (chrome.runtime.lastError || resp?.error) {
@@ -2235,8 +2288,6 @@
           target_lang: targetLang,
           provider: selectedProvider,
           model: selectedModel,
-          title: getPageTitle(),
-          page_url: location.href,
           skipCache: !!opts.skipCache,
         }, (resp) => {
           if (chrome.runtime.lastError || resp?.error) {
@@ -2276,7 +2327,7 @@
         chrome.runtime.sendMessage({
           type: 'start_translation', vtt: track._cachedVtt, url: cacheUrl,
           target_lang: targetLang, provider: selectedProvider,
-          model: selectedModel, title: getPageTitle(), page_url: location.href,
+          model: selectedModel,
           skipCache: !!opts.skipCache,
         }, (resp) => {
           if (chrome.runtime.lastError || resp?.error) {
@@ -2320,6 +2371,7 @@
           activeTrackUrl = null; updatePicker(); return;
         }
 
+        track._partialSource = !!dashResult.partial;
         if (dashResult.partial) {
           console.warn('[podstr.cc] HBO DASH: partial result — translating what was fetched');
           showBadge('error', chrome.i18n.getMessage('errorHboPartial'));
@@ -2337,9 +2389,8 @@
           target_lang: targetLang,
           provider: selectedProvider,
           model: selectedModel,
-          title: getPageTitle(),
-          page_url: location.href,
           skipCache: !!opts.skipCache,
+          partialSource: track._partialSource,
         }, (resp) => {
           if (chrome.runtime.lastError || resp?.error) {
             showBadge('error', resp?.error || chrome.i18n.getMessage('errorStartTranslation'));
@@ -2353,13 +2404,22 @@
       const result = await new Promise((resolve) => {
         chrome.runtime.sendMessage(
           { type: 'fetch_segments', playlistUrl: track.url },
-          resolve
+          (r) => {
+            if (chrome.runtime.lastError) console.warn('[podstr.cc] fetch_segments:', chrome.runtime.lastError.message);
+            resolve(r);
+          }
         );
       });
 
-      if (result.error) {
-        showBadge('error', result.error === 'not_subtitle_playlist'
-          ? chrome.i18n.getMessage('errorNotSubtitles') : chrome.i18n.getMessage('errorPrefix', [result.error]));
+      // No result: the service worker died or the message port closed mid-download.
+      if (!result || result.error) {
+        let userMsg;
+        if (!result) userMsg = chrome.i18n.getMessage('errorFetchFailed');
+        else if (result.error === 'not_subtitle_playlist') userMsg = chrome.i18n.getMessage('errorNotSubtitles');
+        else if (result.error === 'download_timeout') userMsg = chrome.i18n.getMessage('errorSegmentsTimeout');
+        else if (result.error === 'segments_failed') userMsg = chrome.i18n.getMessage('errorFetchFailed');
+        else userMsg = chrome.i18n.getMessage('errorPrefix', [result.error]);
+        showBadge('error', userMsg);
         activeTrackUrl = null;
         updatePicker();
         return;
@@ -2367,7 +2427,10 @@
 
       if (track.url !== activeTrackUrl) return;
 
-      console.log(`[podstr.cc] Downloaded ${result.total} segments`);
+      console.log(`[podstr.cc] Downloaded ${result.total} segments` + (result.failed ? `, ${result.failed} failed` : ''));
+      // Some segments failed twice: translate what we have, but say so and keep it out of the caches.
+      track._partialSource = result.failed > 0;
+      if (track._partialSource) showBadge('error', chrome.i18n.getMessage('errorHboPartial'));
 
       // Combine segments into VTT
       const combined = combineSegments(result.texts);
@@ -2391,9 +2454,8 @@
         target_lang: targetLang,
         provider: selectedProvider,
         model: selectedModel,
-        title: getPageTitle(),
-        page_url: location.href,
         skipCache: !!opts.skipCache,
+        partialSource: track._partialSource,
       }, (resp) => {
         if (chrome.runtime.lastError || resp?.error) {
           showBadge('error', resp?.error || chrome.i18n.getMessage('errorStartTranslation'));
@@ -2571,10 +2633,12 @@
       }
     }
 
-    // Check .vjs-text-track-display for content (Video.js may have 0x0 but render via children)
+    // Check .vjs-text-track-display for content (Video.js may have 0x0 but render via children).
+    // Display none = hidden by setNativeSubtitlesVisible(false); Video.js keeps the cue text in it
+    // (AS-265, ARTE: our line went to the top while native subs were off screen).
     if (!nativeVisible) {
       const vjs = document.querySelector('.vjs-text-track-display');
-      if (vjs && vjs.textContent.trim()) {
+      if (vjs && vjs.textContent.trim() && getComputedStyle(vjs).display !== 'none') {
         nativeVisible = true;
       }
     }
@@ -2753,6 +2817,7 @@
 
     overlay = document.createElement('div');
     overlay.id = 'ai-subtitler-overlay';
+    markNoTranslate(overlay);
     const span = document.createElement('span');
     span.id = 'ai-subtitler-text';
     overlay.appendChild(span);
@@ -2801,6 +2866,7 @@
     if (statusBadge) return;
     statusBadge = document.createElement('div');
     statusBadge.id = 'ai-subtitler-badge';
+    markNoTranslate(statusBadge);
     document.body.appendChild(statusBadge);
   }
 
@@ -2885,10 +2951,21 @@
     }
   }
 
-  function showPickerNotification(text, type) {
+  // sticky: stays until replaced or cleared (a new attempt clears it in startTranslation).
+  function showPickerNotification(text, type, { sticky = false } = {}) {
     if (!pickerElement) return;
-    pendingNotification = { text, type: type || 'ready', expiry: Date.now() + 6000 };
+    const shown = pendingNotification = {
+      text, type: type || 'ready', expiry: sticky ? Infinity : Date.now() + 6000,
+    };
     renderPickerNotification();
+    pickerVisibility.show();
+    if (sticky) return;
+    // One timer per notification; it clears only its own notification, not a newer one.
+    setTimeout(() => {
+      if (pendingNotification !== shown) return;
+      pendingNotification = null;
+      pickerElement?.querySelector('.ai-sub-picker-notify')?.remove();
+    }, 6000);
   }
 
   function renderPickerNotification() {
@@ -2901,10 +2978,6 @@
     el.className = 'ai-sub-picker-notify ' + pendingNotification.type;
     el.textContent = pendingNotification.text;
     pickerElement.appendChild(el);
-    pickerVisibility.show();
-    // Auto-clear
-    const remaining = pendingNotification.expiry - Date.now();
-    setTimeout(() => { pendingNotification = null; if (el.parentNode) el.remove(); }, remaining);
   }
 
   // ── Keyboard shortcuts for subtitle offset ──

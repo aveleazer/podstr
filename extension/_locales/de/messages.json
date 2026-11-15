@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "Trotzdem übersetzen"
   },
-  "viewerCachedByModel": {
-    "message": "Übersetzt mit $1",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "Mit $1 übersetzen",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "Anmelden für kostenlose Übersetzungen"
-  },
-  "viewerSignInForCache": {
-    "message": "Anmelden um Übersetzung anzusehen"
   },
   "viewerSetupApi": {
     "message": "oder API-Schlüssel einrichten"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "Wird geladen..."
   },
-  "tooltipSharedCache": {
-    "message": "Im gemeinsamen Cache bereit ($MODEL$)",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "Untertitel früher (−0.5s)"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "Untertitel später (+0.5s)"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ bereit ($MODEL$)",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "Versatz: $OFFSET$s",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "Download fehlgeschlagen"
+  },
+  "errorSegmentsTimeout": {
+    "message": "Untertitel nicht geladen: Die Videoseite antwortet nicht"
   },
   "errorInvalidApiKey": {
     "message": "Ungültiger OpenRouter-API-Schlüssel"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "Datenschutz"
   },
-  "dropZoneDefault": {
-    "message": ".srt- oder .vtt-Datei hierher ziehen"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": "Nur .srt- und .vtt-Dateien"
-  },
-  "dropZoneTooBig": {
-    "message": "Datei zu groß (max. 2 MB)"
-  },
-  "dropZoneReading": {
-    "message": "Datei wird gelesen..."
-  },
-  "dropZoneSubmitting": {
-    "message": "Wird in die Warteschlange gesendet..."
-  },
-  "dropZoneSent": {
-    "message": "Gesendet"
-  },
-  "dropZonePosition": {
-    "message": "($1 in der Warteschlange)",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "Datei konnte nicht gelesen werden"
-  },
-  "labelQueue": {
-    "message": "Übersetzungswarteschlange"
-  },
-  "queuePending": {
-    "message": "wartend"
-  },
-  "queueRunning": {
-    "message": "läuft"
-  },
-  "labelProvider": {
-    "message": "Anbieter"
-  },
-  "providerApiKey": {
-    "message": "API-Schlüssel (aus dem API-Tab)"
-  },
-  "providerOpenRouterHint": {
-    "message": "(API-Schlüssel erforderlich)"
-  },
-  "providerClaudeCliHint": {
-    "message": "(über Warteschlange)"
-  },
-  "statusCheckingServer": {
-    "message": "Server wird geprüft..."
-  },
-  "statusServerOk": {
-    "message": "Warteschlangenserver läuft"
-  },
-  "statusServerDown": {
-    "message": "Warteschlangenserver nicht erreichbar"
-  },
   "labelEnabled": {
     "message": "Aktiviert"
   },
@@ -482,23 +393,6 @@
     "message": "Laden: $1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "Übersetzungsfehler auf dem Server"
-  },
-  "errorQueueTimeout": {
-    "message": "Zeitüberschreitung beim Warten auf Übersetzung (1 Stunde)"
-  },
-  "queueStatusInQueue": {
-    "message": "In der Warteschlange"
-  },
-  "queueStatusPosition": {
-    "message": "In der Warteschlange ($POS$)",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -547,9 +441,6 @@
   },
   "tabSubtitles": {
     "message": "Untertitel"
-  },
-  "tabDev": {
-    "message": "Übersetzer"
   },
   "accountSignInHint": {
     "message": "Anmelden — 5 Übersetzungen/Monat kostenlos"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$ (auto)",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$ (auto) — bereinigtes Original",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "Bereinigen & anzeigen ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "Bereinigen & anzeigen"
+  },
+  "settingShowSameLangAsr": {
+    "message": "Bereinigte automatische Untertitel für Videos in meiner Sprache anzeigen"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "Standardmäßig aus. Fügt eine bereinigte Fassung der automatischen YouTube-Untertitel hinzu, wenn das Video bereits in deiner Zielsprache ist."
+  },
+  "badgeAsrImproving": {
+    "message": "Automatische Untertitel werden bereinigt… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "Mit Fehlern bereinigt — einige Teile wie im Original belassen"
+  },
+  "errorAsrUnusable": {
+    "message": "Die automatischen Untertitel dieses Videos sehen nicht nach zusammenhängender Sprache aus."
+  },
+  "errorAsrImprove": {
+    "message": "Automatische Untertitel konnten nicht bereinigt werden. Versuche es erneut oder wähle ein anderes Modell."
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "Mit Fehlern übersetzt — ein Teil wurde unbereinigt aus den automatischen Untertiteln übersetzt"
   }
 }

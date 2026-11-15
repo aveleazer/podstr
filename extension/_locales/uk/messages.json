@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "Все одно перекласти"
   },
-  "viewerCachedByModel": {
-    "message": "Перекладено ($1)",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "Перекласти через $1",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "Увійдіть для безкоштовних перекладів"
-  },
-  "viewerSignInForCache": {
-    "message": "Увійдіть щоб подивитися переклад"
   },
   "viewerSetupApi": {
     "message": "або налаштуйте API-ключ"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "Завантаження..."
   },
-  "tooltipSharedCache": {
-    "message": "Готово у спільному кеші ($MODEL$)",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "Субтитри раніше (−0.5с)"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "Субтитри пізніше (+0.5с)"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ готово ($MODEL$)",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "Зсув: $OFFSET$с",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "Помилка завантаження"
+  },
+  "errorSegmentsTimeout": {
+    "message": "Субтитри не завантажилися: сайт відео не відповідає"
   },
   "errorInvalidApiKey": {
     "message": "Невірний API-ключ OpenRouter"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "Конфіденційність"
   },
-  "dropZoneDefault": {
-    "message": "Перетягніть .srt або .vtt файл"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": "Лише .srt та .vtt файли"
-  },
-  "dropZoneTooBig": {
-    "message": "Файл завеликий (макс. 2 МБ)"
-  },
-  "dropZoneReading": {
-    "message": "Читання файлу..."
-  },
-  "dropZoneSubmitting": {
-    "message": "Надсилання до черги..."
-  },
-  "dropZoneSent": {
-    "message": "Надіслано"
-  },
-  "dropZonePosition": {
-    "message": "($1 у черзі)",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "Не вдалося прочитати файл"
-  },
-  "labelQueue": {
-    "message": "Черга перекладу"
-  },
-  "queuePending": {
-    "message": "очікує"
-  },
-  "queueRunning": {
-    "message": "виконується"
-  },
-  "labelProvider": {
-    "message": "Провайдер"
-  },
-  "providerApiKey": {
-    "message": "API-ключ (з вкладки API)"
-  },
-  "providerOpenRouterHint": {
-    "message": "(потрібен API-ключ)"
-  },
-  "providerClaudeCliHint": {
-    "message": "(через чергу)"
-  },
-  "statusCheckingServer": {
-    "message": "Перевірка сервера..."
-  },
-  "statusServerOk": {
-    "message": "Сервер черги працює"
-  },
-  "statusServerDown": {
-    "message": "Сервер черги недоступний"
-  },
   "labelEnabled": {
     "message": "Увімкнено"
   },
@@ -482,23 +393,6 @@
     "message": "Завантаження: $1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "Помилка перекладу на сервері"
-  },
-  "errorQueueTimeout": {
-    "message": "Тайм-аут очікування перекладу (1 година)"
-  },
-  "queueStatusInQueue": {
-    "message": "У черзі"
-  },
-  "queueStatusPosition": {
-    "message": "У черзі ($POS$)",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -547,9 +441,6 @@
   },
   "tabSubtitles": {
     "message": "Субтитри"
-  },
-  "tabDev": {
-    "message": "Перекладач"
   },
   "accountSignInHint": {
     "message": "Увійдіть — 5 перекладів/міс безкоштовно"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$ (авто)",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$ (авто) — покращений оригінал",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "Покращити й показати ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "Покращити й показати"
+  },
+  "settingShowSameLangAsr": {
+    "message": "Показувати покращені автосубтитри для відео моєю мовою"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "Типово вимкнено. Додає до списку покращені автосубтитри YouTube, коли відео вже мовою, на яку ти перекладаєш."
+  },
+  "badgeAsrImproving": {
+    "message": "Упорядковую автосубтитри… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "Упорядковано з помилками — частину тексту залишено як в оригіналі"
+  },
+  "errorAsrUnusable": {
+    "message": "Автосубтитри цього відео не схожі на зв’язне мовлення."
+  },
+  "errorAsrImprove": {
+    "message": "Не вдалося впорядкувати автосубтитри. Спробуй ще раз або вибери іншу модель."
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "Перекладено з помилками — частину перекладено з автосубтитрів як є, без покращення"
   }
 }

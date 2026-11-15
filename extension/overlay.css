@@ -135,12 +135,6 @@
   color: #fff;
 }
 
-.ai-sub-picker-btn.shared-cached {
-  border-color: rgba(0, 200, 120, 0.7);
-  border-style: dashed;
-  color: #fff;
-}
-
 .ai-sub-picker-link {
   background: none;
   border: none;
@@ -154,39 +148,6 @@
 
 .ai-sub-picker-link:hover {
   color: #fff;
-}
-
-/* Shared cache notification (clickable badge in video container) */
-#ai-subtitler-cache-notify {
-  position: absolute;
-  bottom: 110px;
-  right: 10px;
-  z-index: 999999;
-  padding: 6px 14px;
-  border-radius: 6px;
-  background: rgba(0, 180, 100, 0.9);
-  color: #fff;
-  font-family: 'Segoe UI', 'Roboto', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  pointer-events: auto;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-#ai-subtitler-cache-notify:hover {
-  background: rgba(0, 200, 120, 1);
-}
-
-#ai-subtitler-cache-notify.dimmed {
-  opacity: 0;
-  pointer-events: none;
-}
-
-*:hover > #ai-subtitler-cache-notify.dimmed {
-  opacity: 0.8;
-  pointer-events: auto;
 }
 
 .ai-sub-offset-btn {
@@ -274,12 +235,6 @@
 :fullscreen .ai-sub-picker-model {
   font-size: 14px;
   padding: 4px 10px;
-}
-
-:fullscreen #ai-subtitler-cache-notify {
-  bottom: 90px;
-  right: 14px;
-  font-size: 14px;
 }
 
 /* ── Viewer picker ── */

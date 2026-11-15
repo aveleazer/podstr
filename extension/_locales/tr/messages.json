@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "Yine de çevir"
   },
-  "viewerCachedByModel": {
-    "message": "$1 ile çevrildi",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "$1 ile çevir",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "Ücretsiz çeviriler için giriş yapın"
-  },
-  "viewerSignInForCache": {
-    "message": "Çeviriyi görmek için giriş yapın"
   },
   "viewerSetupApi": {
     "message": "veya API anahtarı ayarlayın"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "Yükleniyor..."
   },
-  "tooltipSharedCache": {
-    "message": "Paylaşılan önbellekte hazır ($MODEL$)",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "Altyazılar erken (−0.5s)"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "Altyazılar geç (+0.5s)"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ hazır ($MODEL$)",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "Kaydırma: $OFFSET$s",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "İndirme başarısız"
+  },
+  "errorSegmentsTimeout": {
+    "message": "Altyazılar yüklenemedi: video sitesi yanıt vermiyor"
   },
   "errorInvalidApiKey": {
     "message": "Geçersiz OpenRouter API anahtarı"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "Gizlilik"
   },
-  "dropZoneDefault": {
-    "message": ".srt veya .vtt dosyasını sürükleyin"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": "Yalnızca .srt ve .vtt dosyaları"
-  },
-  "dropZoneTooBig": {
-    "message": "Dosya çok büyük (maks. 2 MB)"
-  },
-  "dropZoneReading": {
-    "message": "Dosya okunuyor..."
-  },
-  "dropZoneSubmitting": {
-    "message": "Sıraya gönderiliyor..."
-  },
-  "dropZoneSent": {
-    "message": "Gönderildi"
-  },
-  "dropZonePosition": {
-    "message": "(sırada $1.)",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "Dosya okunamadı"
-  },
-  "labelQueue": {
-    "message": "Çeviri sırası"
-  },
-  "queuePending": {
-    "message": "bekliyor"
-  },
-  "queueRunning": {
-    "message": "çalışıyor"
-  },
-  "labelProvider": {
-    "message": "Sağlayıcı"
-  },
-  "providerApiKey": {
-    "message": "API anahtarı (API sekmesinden)"
-  },
-  "providerOpenRouterHint": {
-    "message": "(API anahtarı gerekli)"
-  },
-  "providerClaudeCliHint": {
-    "message": "(sıra üzerinden)"
-  },
-  "statusCheckingServer": {
-    "message": "Sunucu kontrol ediliyor..."
-  },
-  "statusServerOk": {
-    "message": "Sıra sunucusu çalışıyor"
-  },
-  "statusServerDown": {
-    "message": "Sıra sunucusu kullanılamıyor"
-  },
   "labelEnabled": {
     "message": "Etkin"
   },
@@ -482,23 +393,6 @@
     "message": "Yükleniyor: $1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "Sunucuda çeviri hatası"
-  },
-  "errorQueueTimeout": {
-    "message": "Çeviri bekleme zaman aşımı (1 saat)"
-  },
-  "queueStatusInQueue": {
-    "message": "Sırada"
-  },
-  "queueStatusPosition": {
-    "message": "Sırada ($POS$.)",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -547,9 +441,6 @@
   },
   "tabSubtitles": {
     "message": "Altyazılar"
-  },
-  "tabDev": {
-    "message": "Çevirmen"
   },
   "accountSignInHint": {
     "message": "Giriş yapın — ayda 5 ücretsiz çeviri"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$ (otomatik)",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$ (otomatik) — düzeltilmiş orijinal",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "Düzelt ve göster ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "Düzelt ve göster"
+  },
+  "settingShowSameLangAsr": {
+    "message": "Kendi dilimdeki videolar için düzeltilmiş otomatik altyazıları göster"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "Varsayılan olarak kapalı. Video zaten hedef dilindeyse YouTube otomatik altyazılarının düzeltilmiş halini ekler."
+  },
+  "badgeAsrImproving": {
+    "message": "Otomatik altyazılar düzeltiliyor… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "Hatalarla düzeltildi — bazı kısımlar orijinaldeki gibi bırakıldı"
+  },
+  "errorAsrUnusable": {
+    "message": "Bu videonun otomatik altyazıları tutarlı bir konuşmaya benzemiyor."
+  },
+  "errorAsrImprove": {
+    "message": "Otomatik altyazılar düzeltilemedi. Tekrar dene veya başka bir model seç."
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "Hatalarla çevrildi — bir kısmı otomatik altyazılardan düzeltilmeden olduğu gibi çevrildi"
   }
 }

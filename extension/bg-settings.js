@@ -1,35 +1,25 @@
 // bg-settings.js — Extension settings and state
-// Provides: settings, settingsReady, getActiveModel, getExtensionStatus,
-//           SHARED_CACHE_DEFAULT_URL, SHARED_CACHE_KEY
+// Provides: settings, settingsReady, getExtensionStatus
 // Expects: DEFAULT_PROVIDER, DEFAULT_MODEL, PROVIDERS (from providers.js)
 'use strict';
-
-const SHARED_CACHE_KEY = '';  // Set via popup settings or env
-const SHARED_CACHE_DEFAULT_URL = 'https://podstr.cc';
 
 let settings = {
   provider: DEFAULT_PROVIDER,
   model: DEFAULT_MODEL,
-  cliModel: 'sonnet',
   targetLang: 'Russian',
   apiKey: null,
-  sharedCacheUrl: SHARED_CACHE_DEFAULT_URL,
-  sharedCacheApiKey: SHARED_CACHE_KEY,
   session_token: null,
   user: null,
 };
 
 const settingsReady = new Promise(resolve => {
-  chrome.storage.sync.get(['provider', 'model', 'cliModel', 'targetLang', 'sharedCacheUrl'], (syncData) => {
+  chrome.storage.sync.get(['provider', 'model', 'targetLang'], (syncData) => {
     if (syncData.provider && PROVIDERS[syncData.provider]) settings.provider = syncData.provider;
     if (syncData.model) settings.model = syncData.model;
-    if (syncData.cliModel) settings.cliModel = syncData.cliModel;
     if (syncData.targetLang) settings.targetLang = syncData.targetLang;
-    if (syncData.sharedCacheUrl) settings.sharedCacheUrl = syncData.sharedCacheUrl;
 
-    chrome.storage.local.get(['apiKey', 'sharedCacheApiKey', 'session_token', 'user'], (localData) => {
+    chrome.storage.local.get(['apiKey', 'session_token', 'user'], (localData) => {
       if (localData.apiKey) settings.apiKey = localData.apiKey;
-      if (localData.sharedCacheApiKey) settings.sharedCacheApiKey = localData.sharedCacheApiKey;
       if (localData.session_token) settings.session_token = localData.session_token;
       if (localData.user) settings.user = localData.user;
       resolve();
@@ -37,38 +27,41 @@ const settingsReady = new Promise(resolve => {
   });
 });
 
-function getActiveModel() {
-  if (settings.provider === 'claude-cli') return settings.cliModel || 'sonnet';
-  return settings.model;
-}
-
-// Migration: move sharedCacheApiKey from sync to local (one-time)
+// Cleanup (AS-278): keys of the removed shared cache and Claude CLI queue (idempotent; drop in 1.0.0)
 settingsReady.then(() => {
-  chrome.storage.sync.get(['sharedCacheApiKey'], (syncData) => {
-    if (syncData.sharedCacheApiKey) {
-      chrome.storage.local.get(['sharedCacheApiKey'], (localData) => {
-        if (!localData.sharedCacheApiKey) {
-          chrome.storage.local.set({ sharedCacheApiKey: syncData.sharedCacheApiKey });
-          settings.sharedCacheApiKey = syncData.sharedCacheApiKey;
-          console.log('[podstr.cc] Migrated sharedCacheApiKey from sync to local');
-        }
-        chrome.storage.sync.remove('sharedCacheApiKey');
-      });
+  chrome.storage.sync.remove(['sharedCacheUrl', 'sharedCacheApiKey', 'cliModel'], () => {
+    if (chrome.runtime.lastError) console.warn('[podstr.cc] Settings cleanup (sync) failed:', chrome.runtime.lastError.message);
+  });
+  chrome.storage.local.remove('sharedCacheApiKey', () => {
+    if (chrome.runtime.lastError) console.warn('[podstr.cc] Settings cleanup (local) failed:', chrome.runtime.lastError.message);
+  });
+});
+
+// Migration (AS-258): the retired preview model id -> stable one (idempotent; other models untouched)
+const RETIRED_PREVIEW_MODEL = 'google/gemini-3.1-flash-lite-preview';
+settingsReady.then(() => {
+  if (settings.model !== RETIRED_PREVIEW_MODEL) return;
+  settings.model = DEFAULT_MODEL;
+  chrome.storage.sync.set({ model: DEFAULT_MODEL }, () => {
+    if (chrome.runtime.lastError) {
+      console.warn('[podstr.cc] Model migration failed:', chrome.runtime.lastError.message);
+    } else {
+      console.log('[podstr.cc] Migrated model preview ->', DEFAULT_MODEL);
     }
   });
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'sync') {
-    if (changes.provider) settings.provider = changes.provider.newValue || DEFAULT_PROVIDER;
+    if (changes.provider) {
+      const v = changes.provider.newValue;
+      settings.provider = (v && PROVIDERS[v]) ? v : DEFAULT_PROVIDER; // same check as at startup: a synced value from another version/device may be unknown
+    }
     if (changes.model) settings.model = changes.model.newValue || DEFAULT_MODEL;
-    if (changes.cliModel) settings.cliModel = changes.cliModel.newValue || 'sonnet';
     if (changes.targetLang) settings.targetLang = changes.targetLang.newValue || 'Russian';
-    if (changes.sharedCacheUrl !== undefined) settings.sharedCacheUrl = changes.sharedCacheUrl.newValue || null;
   }
   if (area === 'local') {
     if (changes.apiKey) settings.apiKey = changes.apiKey.newValue || null;
-    if (changes.sharedCacheApiKey !== undefined) settings.sharedCacheApiKey = changes.sharedCacheApiKey.newValue || '';
     if (changes.session_token) settings.session_token = changes.session_token.newValue || null;
     if (changes.user) settings.user = changes.user.newValue || null;
   }
@@ -81,7 +74,7 @@ async function getExtensionStatus() {
 
   return {
     provider: settings.provider || 'openrouter',
-    model: getActiveModel(),
+    model: settings.model,
     canTranslate: hasKey || (!!settings.session_token && !!user && (user.quota_used || 0) < (user.quota_limit || 0)),
     auth: user ? {
       email: user.email,

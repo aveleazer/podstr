@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "Усё адно перакласці"
   },
-  "viewerCachedByModel": {
-    "message": "Перакладзена ($1)",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "Перакласці праз $1",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "Увайдзіце для бясплатных перакладаў"
-  },
-  "viewerSignInForCache": {
-    "message": "Увайдзіце каб паглядзець пераклад"
   },
   "viewerSetupApi": {
     "message": "або наладзьце API-ключ"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "Загрузка..."
   },
-  "tooltipSharedCache": {
-    "message": "Гатова ў агульным кэшы ($MODEL$)",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "Субтытры раней (−0.5с)"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "Субтытры пазней (+0.5с)"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ гатова ($MODEL$)",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "Зрух: $OFFSET$с",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "Памылка загрузкі"
+  },
+  "errorSegmentsTimeout": {
+    "message": "Субтытры не загрузіліся: сайт відэа не адказвае"
   },
   "errorInvalidApiKey": {
     "message": "Няправільны API-ключ OpenRouter"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "Прыватнасць"
   },
-  "dropZoneDefault": {
-    "message": "Перацягніце .srt або .vtt файл"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": "Толькі .srt і .vtt файлы"
-  },
-  "dropZoneTooBig": {
-    "message": "Файл занадта вялікі (макс. 2 МБ)"
-  },
-  "dropZoneReading": {
-    "message": "Чытанне файла..."
-  },
-  "dropZoneSubmitting": {
-    "message": "Адпраўка ў чаргу..."
-  },
-  "dropZoneSent": {
-    "message": "Адпраўлена"
-  },
-  "dropZonePosition": {
-    "message": "($1 у чарзе)",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "Не атрымалася прачытаць файл"
-  },
-  "labelQueue": {
-    "message": "Чарга перакладу"
-  },
-  "queuePending": {
-    "message": "чакае"
-  },
-  "queueRunning": {
-    "message": "выконваецца"
-  },
-  "labelProvider": {
-    "message": "Правайдар"
-  },
-  "providerApiKey": {
-    "message": "API-ключ (з укладкі API)"
-  },
-  "providerOpenRouterHint": {
-    "message": "(патрэбен API-ключ)"
-  },
-  "providerClaudeCliHint": {
-    "message": "(праз чаргу)"
-  },
-  "statusCheckingServer": {
-    "message": "Праверка сервера..."
-  },
-  "statusServerOk": {
-    "message": "Сервер чаргі працуе"
-  },
-  "statusServerDown": {
-    "message": "Сервер чаргі недаступны"
-  },
   "labelEnabled": {
     "message": "Уключана"
   },
@@ -482,23 +393,6 @@
     "message": "Загрузка: $1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "Памылка перакладу на серверы"
-  },
-  "errorQueueTimeout": {
-    "message": "Тайм-аўт чакання перакладу (1 гадзіна)"
-  },
-  "queueStatusInQueue": {
-    "message": "У чарзе"
-  },
-  "queueStatusPosition": {
-    "message": "У чарзе ($POS$)",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -547,9 +441,6 @@
   },
   "tabSubtitles": {
     "message": "Субтытры"
-  },
-  "tabDev": {
-    "message": "Перакладчык"
   },
   "accountSignInHint": {
     "message": "Увайдзіце — 5 перакладаў/мес бясплатна"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$ (аўта)",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$ (аўта) — палепшаны арыгінал",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "Палепшыць і паказаць ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "Палепшыць і паказаць"
+  },
+  "settingShowSameLangAsr": {
+    "message": "Паказваць палепшаныя аўтасубтытры для відэа на маёй мове"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "Па змаўчанні выключана. Дадае ў спіс палепшаныя аўтасубтытры YouTube, калі відэа ўжо на мове, на якую ты перакладаеш."
+  },
+  "badgeAsrImproving": {
+    "message": "Упарадкоўваю аўтасубтытры… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "Упарадкавана з памылкамі — частка тэксту пакінута як у арыгінале"
+  },
+  "errorAsrUnusable": {
+    "message": "Аўтасубтытры гэтага відэа не падобныя на звязнае маўленне."
+  },
+  "errorAsrImprove": {
+    "message": "Не атрымалася ўпарадкаваць аўтасубтытры. Паспрабуй яшчэ раз або выберы іншую мадэль."
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "Перакладзена з памылкамі — частка перакладзена з аўтасубтытраў як ёсць, без паляпшэння"
   }
 }

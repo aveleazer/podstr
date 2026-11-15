@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "그래도 번역하기"
   },
-  "viewerCachedByModel": {
-    "message": "$1로 번역됨",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "$1로 번역하기",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "로그인하여 무료 번역 이용"
-  },
-  "viewerSignInForCache": {
-    "message": "로그인하여 번역 보기"
   },
   "viewerSetupApi": {
     "message": "또는 API 키 설정"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "로딩 중..."
   },
-  "tooltipSharedCache": {
-    "message": "공유 캐시에 준비됨 ($MODEL$)",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "자막 앞으로 (−0.5초)"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "자막 뒤로 (+0.5초)"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ 준비 완료 ($MODEL$)",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "오프셋: $OFFSET$초",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "다운로드 실패"
+  },
+  "errorSegmentsTimeout": {
+    "message": "자막을 불러오지 못했습니다: 동영상 사이트가 응답하지 않습니다"
   },
   "errorInvalidApiKey": {
     "message": "잘못된 OpenRouter API 키"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "개인정보"
   },
-  "dropZoneDefault": {
-    "message": ".srt 또는 .vtt 파일을 드롭하세요"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": ".srt 및 .vtt 파일만 가능"
-  },
-  "dropZoneTooBig": {
-    "message": "파일이 너무 큽니다 (최대 2 MB)"
-  },
-  "dropZoneReading": {
-    "message": "파일 읽는 중..."
-  },
-  "dropZoneSubmitting": {
-    "message": "대기열에 제출 중..."
-  },
-  "dropZoneSent": {
-    "message": "제출됨"
-  },
-  "dropZonePosition": {
-    "message": "(대기열 $1번째)",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "파일을 읽을 수 없습니다"
-  },
-  "labelQueue": {
-    "message": "번역 대기열"
-  },
-  "queuePending": {
-    "message": "대기 중"
-  },
-  "queueRunning": {
-    "message": "진행 중"
-  },
-  "labelProvider": {
-    "message": "제공업체"
-  },
-  "providerApiKey": {
-    "message": "API 키 (API 탭에서)"
-  },
-  "providerOpenRouterHint": {
-    "message": "(API 키 필요)"
-  },
-  "providerClaudeCliHint": {
-    "message": "(대기열 경유)"
-  },
-  "statusCheckingServer": {
-    "message": "서버 확인 중..."
-  },
-  "statusServerOk": {
-    "message": "대기열 서버 가동 중"
-  },
-  "statusServerDown": {
-    "message": "대기열 서버 사용 불가"
-  },
   "labelEnabled": {
     "message": "활성화됨"
   },
@@ -482,23 +393,6 @@
     "message": "로딩 중: $1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "서버 번역 오류"
-  },
-  "errorQueueTimeout": {
-    "message": "번역 대기 시간 초과 (1시간)"
-  },
-  "queueStatusInQueue": {
-    "message": "대기열에 있음"
-  },
-  "queueStatusPosition": {
-    "message": "대기열에 있음 ($POS$번째)",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -547,9 +441,6 @@
   },
   "tabSubtitles": {
     "message": "자막"
-  },
-  "tabDev": {
-    "message": "번역가"
   },
   "accountSignInHint": {
     "message": "로그인 — 월 5회 무료 번역"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$ (자동)",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$ (자동) — 다듬은 원문",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "다듬어서 보기 ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "다듬어서 보기"
+  },
+  "settingShowSameLangAsr": {
+    "message": "내 언어로 된 동영상에도 다듬은 자동 자막 표시"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "기본값은 꺼짐. 동영상이 이미 번역 대상 언어일 때 YouTube 자동 자막을 다듬은 버전을 추가합니다."
+  },
+  "badgeAsrImproving": {
+    "message": "자동 자막을 다듬는 중… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "오류와 함께 다듬음 — 일부는 원문 그대로 남겨 두었습니다"
+  },
+  "errorAsrUnusable": {
+    "message": "이 동영상의 자동 자막은 일관된 말처럼 보이지 않습니다."
+  },
+  "errorAsrImprove": {
+    "message": "자동 자막을 다듬지 못했습니다. 다시 시도하거나 다른 모델을 선택하세요."
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "오류와 함께 번역됨 — 일부는 자동 자막을 다듬지 않고 그대로 번역했습니다"
   }
 }

@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "それでも翻訳する"
   },
-  "viewerCachedByModel": {
-    "message": "$1で翻訳済み",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "$1で翻訳する",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "ログインして無料翻訳を利用"
-  },
-  "viewerSignInForCache": {
-    "message": "ログインして翻訳を表示"
   },
   "viewerSetupApi": {
     "message": "またはAPIキーを設定"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "読み込み中..."
   },
-  "tooltipSharedCache": {
-    "message": "共有キャッシュで準備完了（$MODEL$）",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "字幕を早める（−0.5秒）"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "字幕を遅らせる（+0.5秒）"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ 準備完了（$MODEL$）",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "オフセット：$OFFSET$秒",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "ダウンロード失敗"
+  },
+  "errorSegmentsTimeout": {
+    "message": "字幕を読み込めませんでした：動画サイトが応答しません"
   },
   "errorInvalidApiKey": {
     "message": "OpenRouter APIキーが無効です"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "プライバシー"
   },
-  "dropZoneDefault": {
-    "message": ".srt または .vtt ファイルをドロップ"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": ".srt と .vtt ファイルのみ"
-  },
-  "dropZoneTooBig": {
-    "message": "ファイルが大きすぎます（最大 2 MB）"
-  },
-  "dropZoneReading": {
-    "message": "ファイルを読み込み中..."
-  },
-  "dropZoneSubmitting": {
-    "message": "キューに送信中..."
-  },
-  "dropZoneSent": {
-    "message": "送信済み"
-  },
-  "dropZonePosition": {
-    "message": "（キュー内 $1 番目）",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "ファイルを読み込めませんでした"
-  },
-  "labelQueue": {
-    "message": "翻訳キュー"
-  },
-  "queuePending": {
-    "message": "待機中"
-  },
-  "queueRunning": {
-    "message": "実行中"
-  },
-  "labelProvider": {
-    "message": "プロバイダー"
-  },
-  "providerApiKey": {
-    "message": "APIキー（APIタブから）"
-  },
-  "providerOpenRouterHint": {
-    "message": "（APIキーが必要）"
-  },
-  "providerClaudeCliHint": {
-    "message": "（キュー経由）"
-  },
-  "statusCheckingServer": {
-    "message": "サーバーを確認中..."
-  },
-  "statusServerOk": {
-    "message": "キューサーバーは稼働中"
-  },
-  "statusServerDown": {
-    "message": "キューサーバーに接続できません"
-  },
   "labelEnabled": {
     "message": "有効"
   },
@@ -482,23 +393,6 @@
     "message": "読み込み中：$1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "サーバーでの翻訳エラー"
-  },
-  "errorQueueTimeout": {
-    "message": "翻訳待ちがタイムアウト（1時間）"
-  },
-  "queueStatusInQueue": {
-    "message": "キュー内"
-  },
-  "queueStatusPosition": {
-    "message": "キュー内（$POS$番目）",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -547,9 +441,6 @@
   },
   "tabSubtitles": {
     "message": "字幕"
-  },
-  "tabDev": {
-    "message": "翻訳者"
   },
   "accountSignInHint": {
     "message": "ログイン — 月5回まで無料翻訳"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$（自動）",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$（自動）— 整えた原文",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "整えて表示（$1）",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "整えて表示"
+  },
+  "settingShowSameLangAsr": {
+    "message": "自分の言語の動画でも整えた自動字幕を表示する"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "既定ではオフ。動画がすでに翻訳先の言語の場合、YouTube の自動字幕を整えたものを追加します。"
+  },
+  "badgeAsrImproving": {
+    "message": "自動字幕を整えています… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "エラーありで整えました — 一部は原文のままです"
+  },
+  "errorAsrUnusable": {
+    "message": "この動画の自動字幕はまとまった発話に見えません。"
+  },
+  "errorAsrImprove": {
+    "message": "自動字幕を整えられませんでした。もう一度試すか、別のモデルを選んでください。"
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "エラーありで翻訳しました — 一部は自動字幕を整えずにそのまま翻訳しています"
   }
 }

@@ -18,7 +18,7 @@ How it should have worked
 **Environment:**
 - Browser: Chrome / Edge / other
 - Video site: YouTube / BBC iPlayer / ARTE / Plex / Filmzie / other
-- AI model: (e.g. google/gemini-3.1-flash-lite-preview)
+- AI model: (e.g. google/gemini-3.1-flash-lite)
 - Extension version: (see chrome://extensions/)
 
 **Console errors (if any):**

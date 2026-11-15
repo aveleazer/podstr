@@ -6,8 +6,8 @@
 // 3. Message API for content.js communication
 // 4. Managed translation (backend POST /translate), auth, session refresh
 //
-// Cache (local gzip + shared community) → bg-cache.js
-// Translation engine (batching, OpenRouter API, Claude CLI queue) → bg-translate.js
+// Local cache (gzip) → bg-cache.js
+// Translation engine (batching, OpenRouter API) → bg-translate.js
 //
 // CWS permissions justification:
 // - host_permissions "https://*/*": needed for (a) webRequest.onCompleted to detect
@@ -17,10 +17,10 @@
 // - scripting: dynamic content script registration (registerContentScripts) for per-site
 //   activation instead of static content_scripts in manifest.
 
-importScripts('parsers.js', 'detectors.js', 'providers.js', 'bg-settings.js', 'bg-cache.js', 'bg-translate.js');
+importScripts('parsers.js', 'detectors.js', 'providers.js', 'bg-settings.js', 'bg-cache.js', 'bg-translate.js', 'bg-asr.js');
 
 // URL prefixes that already encode a stable cache identifier (no need to wrap in 'playlist:')
-// Used by check_cache, check_shared_cache, watchdog. AS-244 added 'hbo:'.
+// Used by check_cache, watchdog. AS-244 added 'hbo:'.
 const HAS_PREFIX_RE = /^(youtube|ttml|srt|native|hbo|netflix):/;
 
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
@@ -37,7 +37,7 @@ const PREDEFINED_SITES = [
   { id: 'netflix',  matches: ['*://*.netflix.com/*'] },
   { id: 'bbc',      matches: ['*://*.bbc.co.uk/*', '*://*.bbc.com/*'] },
   { id: 'raiplay',  matches: ['*://*.raiplay.it/*'] },
-  { id: 'hbomax',   matches: ['*://play.hbomax.com/*', '*://play.max.com/*'] },
+  { id: 'hbomax',   matches: ['*://*.hbomax.com/*', '*://play.max.com/*'] },
   { id: 'podstr',   matches: ['*://*.podstr.cc/*', '*://podstr.cc/*'] },
 ];
 
@@ -72,7 +72,7 @@ function isPredefinedOrigin(origin) {
 }
 
 // Script registration version — bump to force re-registration
-const SCRIPT_REG_VERSION = 8; // v8: Netflix MAIN world (AS-245) + HBO Max MAIN+content scripts (AS-244)
+const SCRIPT_REG_VERSION = 9; // v9: HBO Max moved to www.hbomax.com -> *.hbomax.com (AS-250); v8: Netflix MAIN (AS-245) + HBO Max (AS-244)
 
 async function ensurePredefinedScripts() {
   // Force re-register if version changed (e.g. allFrames added)
@@ -164,7 +164,7 @@ async function ensurePredefinedScripts() {
   }
 
   // HBO Max MAIN world script for DASH manifest capture (AS-244)
-  const hboHosts = ['play.hbomax.com', 'play.max.com'];
+  const hboHosts = ['hbomax.com', 'play.max.com'];
   const hboDisabled = disabledSites.some(o => {
     try {
       const h = new URL(o).hostname;
@@ -174,7 +174,7 @@ async function ensurePredefinedScripts() {
   if (!hboDisabled && !existingIds.has('site-hbo-main')) {
     toRegister.push({
       id: 'site-hbo-main',
-      matches: ['*://play.hbomax.com/*', '*://play.max.com/*'],
+      matches: ['*://*.hbomax.com/*', '*://play.max.com/*'],
       js: ['hbo-detect.js'],
       runAt: 'document_start',
       world: 'MAIN',
@@ -266,7 +266,7 @@ chrome.webRequest.onCompleted.addListener(
     if (!result) return;
 
     const tabId = details.tabId;
-    if (tabId < 0) return; // Skip extension-initiated requests (SW fetches to shared cache, etc.)
+    if (tabId < 0) return; // Skip extension-initiated requests
 
     seenUrls.add(url);
     console.log(`[podstr.cc] ${result.type}:`, url.substring(0, 120));
@@ -717,7 +717,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === 'fetch_segments') {
-    fetchAllSegments(msg.playlistUrl)
+    // Download progress → picker ("Loading: N%"), at most once per percent.
+    const tabId = sender.tab?.id;
+    let lastPct = -1;
+    const onProgress = tabId == null ? null : (done, total) => {
+      const pct = Math.floor(done * 100 / total);
+      if (pct === lastPct) return;
+      lastPct = pct;
+      chrome.tabs.sendMessage(tabId, { type: 'segments_progress', url: msg.playlistUrl, pct }).catch(() => {});
+    };
+    fetchAllSegments(msg.playlistUrl, { onProgress })
       .then(sendResponse)
       .catch(e => sendResponse({ error: e.message }));
     return true;
@@ -827,7 +836,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     sendResponse({
       providers: PROVIDERS,
       provider: settings.provider,
-      model: getActiveModel(),
+      model: settings.model,
       targetLang: settings.targetLang,
       targetLangs: TARGET_LANGS,
       hasApiKey: !!settings.apiKey,
@@ -852,7 +861,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
 
     const provider = msg.provider || settings.provider;
-    const model = msg.model || getActiveModel();
+    const model = msg.model || settings.model;
     const targetLang = msg.target_lang || settings.targetLang;
 
     if (!PROVIDERS[provider]) {
@@ -874,26 +883,29 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     // so cached translations work without a key
 
     // Fire-and-forget; content.js sends keepalive pings to keep SW alive
-    runTranslation(tabId, msg.vtt, msg.url, targetLang, provider, model, settings.apiKey, msg.title, msg.channel, msg.page_url, !!msg.skipCache);
+    runTranslation(tabId, msg.vtt, msg.url, targetLang, provider, model, settings.apiKey, !!msg.skipCache, !!msg.partialSource);
     sendResponse({ ok: true });
     return true;
   }
 
-  // ── Submit file for translation (drag & drop from popup) ──
+  // ── YouTube auto-captions (ASR, AS-261): clean up, then translate ──
+  // Replies once: {needRaw:true} when the panel text is needed, otherwise {} (results and refusals
+  // arrive as translation_progress / translation_done / translation_error, like start_translation).
 
-  if (msg.type === 'submit_file') {
-    (async () => {
-      try {
-        await settingsReady;
-        const result = await submitToQueue(
-          msg.vtt, settings.targetLang, getActiveModel(),
-          null, null, msg.title
-        );
-        sendResponse({ ok: true, job_id: result.job_id, position: result.position });
-      } catch (e) {
-        sendResponse({ error: e.message });
-      }
-    })();
+  if (msg.type === 'start_asr') {
+    const tabId = sender.tab?.id;
+    if (!tabId) { sendResponse({ error: 'no tab' }); return true; }
+    // Abort previous work of this tab unconditionally, before any cache check
+    if (activeTranslations[tabId]) activeTranslations[tabId].abort.abort();
+    settingsReady.then(() => runAsrPipeline(tabId, {
+      ...msg,
+      provider: msg.provider || settings.provider,
+      model: msg.model || settings.model,
+      target_lang: msg.target_lang || settings.targetLang,
+    }, sendResponse)).catch(e => {
+      console.error('[podstr.cc] asr: start failed:', e.message);
+      sendResponse({ error: e.message });
+    });
     return true;
   }
 
@@ -922,7 +934,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const urls = msg.urls || [];
     const targetLang = msg.target_lang || settings.targetLang;
     const provider = msg.provider || settings.provider;
-    const model = msg.model || getActiveModel();
+    const model = msg.model || settings.model;
     Promise.all(urls.map(async (url) => {
       const prefix = HAS_PREFIX_RE.test(url) ? '' : 'playlist:';
       const key = buildCacheKey(prefix + url, targetLang, provider, model);
@@ -934,66 +946,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
-  // ── Check which URLs have translations in shared cache (VPS) ──
-
-  if (msg.type === 'check_shared_cache') {
-    if (!settings.sharedCacheUrl) {
-      sendResponse({ results: [], normalized: {} });
-      return true;
-    }
-    const urls = msg.urls || [];
-    const targetLang = msg.target_lang || settings.targetLang;
-    // Build normalized URL map for ALL requested URLs (needed for cache lookups)
-    const normalizedMap = {};
-    for (const url of urls) {
-      const prefixed = HAS_PREFIX_RE.test(url) ? url : 'playlist:' + url;
-      normalizedMap[url] = normalizeCacheKey(prefixed).replace(/^playlist:/, '');
-    }
-    Promise.all(urls.map(async (url) => {
-      try {
-        const normalized = normalizedMap[url];
-        const resp = await fetch(
-          `${settings.sharedCacheUrl}/cache/by-url?url=${encodeURIComponent(normalized)}&target_lang=${encodeURIComponent(targetLang)}`,
-          { signal: AbortSignal.timeout(5000) }
-        );
-        if (!resp.ok) return null;
-        const data = await resp.json();
-        return { url, model: data.model, model_rank: data.model_rank };
-      } catch (e) {
-        return null;
-      }
-    })).then(results => {
-      sendResponse({ results: results.filter(Boolean), normalized: normalizedMap });
-    });
-    return true;
-  }
-
-  // ── Queue list (from shared cache, dev only) ──
-
-  if (msg.type === 'get_queue_list') {
-    const url = settings.sharedCacheUrl;
-    if (!url) { sendResponse({ error: 'Shared cache URL not configured' }); return true; }
-    const limit = msg.limit || 20;
-    fetch(`${url}/queue/list?limit=${limit}`, {
-      signal: AbortSignal.timeout(10000),
-    })
-      .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
-      .then(data => sendResponse(data))
-      .catch(e => sendResponse({ error: e.message }));
-    return true;
-  }
-
-  // ── Backward compat: ping_server (now pings shared cache) ──
-
-  if (msg.type === 'ping_server') {
-    const url = settings.sharedCacheUrl;
-    if (!url) { sendResponse({ ok: false }); return true; }
-    fetch(`${url}/ping`, { signal: AbortSignal.timeout(2000) })
-      .then(r => r.ok ? sendResponse({ ok: true }) : sendResponse({ ok: false }))
-      .catch(() => sendResponse({ ok: false }));
-    return true;
-  }
-
   if (msg.type === 'open_setup') {
     const lang = chrome.i18n.getUILanguage().startsWith('ru') ? 'ru' : 'en';
     chrome.tabs.create({ url: `${API_BASE_URL.replace('api.', '')}/${lang}/install/` });
@@ -1002,9 +954,35 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 // ── Download m3u8 playlist + all VTT segments ──
-async function fetchAllSegments(playlistUrl) {
+// Long films come as 1000+ tiny segments (Filmzie: 1261 × 4 s). Batches of 5 with a pause took
+// ~45 s of a silent "Loading...", and one stalled request hung the picker forever.
+// 8 requests in flight: seconds instead of a minute, still modest for the CDN
+// (Chrome queues anything above 6 per host on HTTP/1.1 anyway).
+const SEGMENT_CONCURRENCY = 8;
+// One request (playlist or segment) longer than this is a failure; a failed segment gets one retry.
+const SEGMENT_TIMEOUT_MS = 15000;
+// No segment downloaded for this long → the CDN is dead, stop with a visible error (Fail visibly).
+// A slow but progressing download is never cut off.
+const SEGMENT_STALL_MS = 30000;
+
+// onProgress(done, total) — after each segment. segmentTimeoutMs / stallMs — overridable for tests.
+// Result: { texts, total, failed } — texts[i] belongs to segment i, a failed segment is ''.
+async function fetchAllSegments(playlistUrl, {
+  onProgress, segmentTimeoutMs = SEGMENT_TIMEOUT_MS, stallMs = SEGMENT_STALL_MS,
+} = {}) {
+  const stall = new AbortController();
+  let lastSuccess = Date.now();
+  const stallTimer = setInterval(() => {
+    if (Date.now() - lastSuccess > stallMs) stall.abort();
+  }, Math.min(1000, stallMs / 4));
+  const requestSignal = () => AbortSignal.any([stall.signal, AbortSignal.timeout(segmentTimeoutMs)]);
+
   try {
-    const resp = await fetch(playlistUrl);
+    const resp = await fetch(playlistUrl, { signal: requestSignal() });
+    if (!resp.ok) {
+      console.warn(`[podstr.cc] Subtitle playlist HTTP ${resp.status}: ${playlistUrl}`);
+      return { error: `HTTP ${resp.status}` };
+    }
     const content = await resp.text();
 
     if (!content.includes('.vtt')) {
@@ -1029,32 +1007,53 @@ async function fetchAllSegments(playlistUrl) {
     }
 
     console.log(`[podstr.cc] Downloading ${segmentUrls.length} subtitle segments...`);
+    lastSuccess = Date.now();
 
-    const texts = [];
-    for (let i = 0; i < segmentUrls.length; i += 5) {
-      const batch = segmentUrls.slice(i, i + 5);
-      const results = await Promise.all(
-        batch.map(async (url) => {
+    // One attempt: segment text, or throws (HTTP error, network error, per-request timeout).
+    const fetchSegment = async (url) => {
+      const r = await fetch(url, { signal: requestSignal() });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.text();
+    };
+
+    const texts = new Array(segmentUrls.length).fill('');
+    let next = 0, done = 0, failed = 0;
+    const worker = async () => {
+      while (next < segmentUrls.length) {
+        const i = next++;
+        for (let attempt = 1; attempt <= 2; attempt++) {
           try {
-            const r = await fetch(url);
-            return r.ok ? await r.text() : '';
+            texts[i] = await fetchSegment(segmentUrls[i]);
+            lastSuccess = Date.now();
+            break;
           } catch (e) {
-            return '';
+            if (stall.signal.aborted) throw e; // no progress at all — stop the whole download
+            if (attempt === 2) {
+              failed++;
+              console.warn(`[podstr.cc] Subtitle segment failed twice (${e.message}): ${segmentUrls[i]}`);
+            }
           }
-        })
-      );
-      texts.push(...results);
-      if (i + 5 < segmentUrls.length) {
-        await new Promise(r => setTimeout(r, 100));
+        }
+        done++;
+        if (onProgress) onProgress(done, segmentUrls.length);
       }
-    }
+    };
+    await Promise.all(Array.from({ length: Math.min(SEGMENT_CONCURRENCY, segmentUrls.length) }, worker));
 
-    console.log(`[podstr.cc] Downloaded ${texts.filter(t => t).length}/${segmentUrls.length} segments`);
-    return { texts, total: segmentUrls.length };
+    if (failed === segmentUrls.length) return { error: 'segments_failed' };
+    if (failed) console.warn(`[podstr.cc] ${failed}/${segmentUrls.length} subtitle segments failed to download`);
+    console.log(`[podstr.cc] Downloaded ${segmentUrls.length - failed}/${segmentUrls.length} segments`);
+    return { texts, total: segmentUrls.length, failed };
 
   } catch (e) {
+    if (stall.signal.aborted || e.name === 'TimeoutError') {
+      console.error(`[podstr.cc] Subtitle download timed out (request ${segmentTimeoutMs / 1000}s / no progress ${stallMs / 1000}s): ${playlistUrl}`);
+      return { error: 'download_timeout' };
+    }
     console.error('[podstr.cc] fetchAllSegments error:', e);
     return { error: e.message };
+  } finally {
+    clearInterval(stallTimer);
   }
 }
 

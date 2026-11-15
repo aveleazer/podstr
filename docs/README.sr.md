@@ -15,7 +15,7 @@ Chrome ekstenzija: pronalazi titlove na video platformama i prevodi ih u realnom
 
 Ekstenzija presreće titlove na video sajtovima i prevodi ih kroz AI modele (Claude, Gemini, DeepSeek i dr. preko OpenRouter-a). Radi sa engleskim, španskim, nemačkim, finskim — bilo kojim titlovima. Prevodi na bilo koji jezik.
 
-Ako je neko već preveo ovu epizodu — prevod se povlači iz zajedničkog keša trenutno i besplatno.
+Epizoda koju ste već preveli otvara se pri ponovnom gledanju trenutno iz lokalnog keša pretraživača.
 
 ## Hoću da gledam
 
@@ -42,7 +42,6 @@ Detaljna uputstva: [CONTRIBUTING.md](CONTRIBUTING.md)
 |------|------|------|
 | **YouTube** | Manual CC (not auto-generated) — primary `/api/timedtext` + transcript-panel fallback | Testirano |
 | **Netflix** | TTML via Cadmium player API | Testirano |
-| **HBO Max** | WebVTT via DASH manifest | Testirano |
 | **BBC iPlayer** | TTML/EBU-TT-D | Testirano |
 | **RaiPlay** | SRT via MAIN-world fetch interceptor | Testirano |
 | **kino.pub** | HLS subtitles (Vidstack player) | Testirano |
@@ -57,7 +56,6 @@ Drugi sajtovi sa HLS / VTT / TTML / nativnim `<track>` titlovima takođe mogu ra
 
 - **Višejezičnost** — prevodi sa bilo kog jezika na bilo koji. Srpski podrazumevano
 - **Izbor AI modela** — DeepSeek, Gemini, Claude Sonnet/Opus, Llama preko OpenRouter-a
-- **Zajednički keš** — jedan prevede, ostali gledaju besplatno
 - **Cena prevoda** — vidljivo koliko je prevod koštao direktno na videu
 - **Podešavanje tajminga** — `[` / `]` za pomeranje ±0.5s
 - **Podešavanje izgleda** — font, boja, providnost, pozicija
@@ -66,11 +64,11 @@ Drugi sajtovi sa HLS / VTT / TTML / nativnim `<track>` titlovima takođe mogu ra
 
 ### Da li mi treba API ključ?
 
-Ne, ako je ovu epizodu već neko preveo (zajednički keš). Za novi prevod — potreban je ključ za OpenRouter ili pretplata na Claude Max.
+Da — novi prevod se radi vašim OpenRouter ključem. Ono što ste već preveli pri ponovnom gledanju dolazi iz lokalnog keša, bez ključa.
 
 ### Da li je besplatno?
 
-Ekstenzija je besplatna. Prevodi iz zajedničkog keša — besplatni. Plaća se samo za prevod novog sadržaja preko OpenRouter API.
+Ekstenzija je besplatna. Plaćate samo AI provajderu za nove prevode; ponovno gledanje vaših prevoda je besplatno.
 
 ### Kakav je kvalitet prevoda?
 

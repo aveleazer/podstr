@@ -1,121 +1,14 @@
-// bg-cache.js — Local cache (gzip) + shared cache (community translations)
+// bg-cache.js — Local cache (gzip)
 //
-// Provides: sha256, sharedCacheGet, sharedCacheGetByUrl, sharedCachePut,
-//           cacheGet, cachePut, buildCacheKey, compressText, decompressText,
-//           sanitizePageUrl
-// Expects:  settings, settingsReady (from bg-settings.js or background.js)
-//           normalizeCacheKey (from providers.js)
+// Provides: sha256, cacheGet, cachePut, buildCacheKey, compressText, decompressText
+// Expects:  normalizeCacheKey (from providers.js)
 
 'use strict';
-
-// ══════════════════════════════════════════════════
-// ── Shared cache (community translations) ──
-// ══════════════════════════════════════════════════
 
 async function sha256(text) {
   const data = new TextEncoder().encode(text);
   const hash = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function sharedCacheGet(hash, srcLang, tgtLang) {
-  await settingsReady;
-  if (!settings.sharedCacheUrl) return null;
-  try {
-    const key = `${hash}@${srcLang}@${tgtLang}`;
-    const resp = await fetch(`${settings.sharedCacheUrl}/cache/${key}`, {
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    if (!data.vtt) return null;
-    return { vtt: data.vtt, model: data.model || null };
-  } catch (e) {
-    console.log('[podstr.cc] Shared cache GET failed:', e.message);
-    return null;
-  }
-}
-
-async function sharedCacheGetByUrl(normalizedUrl, tgtLang) {
-  await settingsReady;
-  if (!settings.sharedCacheUrl) return null;
-  try {
-    const resp = await fetch(
-      `${settings.sharedCacheUrl}/cache/by-url?url=${encodeURIComponent(normalizedUrl)}&target_lang=${encodeURIComponent(tgtLang)}&include_vtt=1`,
-      { signal: AbortSignal.timeout(10000) }
-    );
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    if (!data.vtt) return null;
-    return { vtt: data.vtt, model: data.model || null };
-  } catch (e) {
-    console.log('[podstr.cc] Shared cache GET by-url failed:', e.message);
-    return null;
-  }
-}
-
-async function sharedCachePut(hash, srcLang, tgtLang, vtt, model, tabId, playlistUrl, overrideTitle, channel = '', earlyPageUrl = '') {
-  await settingsReady;
-  if (!settings.sharedCacheUrl) {
-    console.log('[podstr.cc] Shared cache PUT skipped: no URL');
-    return;
-  }
-  try {
-    let pageTitle = overrideTitle || '';
-    let pageUrl = earlyPageUrl ? sanitizePageUrl(earlyPageUrl) : '';
-    if (tabId && (!pageTitle || !pageUrl)) {
-      try {
-        const tab = await chrome.tabs.get(tabId);
-        if (!pageTitle) pageTitle = tab.title || '';
-        if (!pageUrl) pageUrl = sanitizePageUrl(tab.url);
-      } catch (e) { /* tab may be closed */ }
-    }
-
-    const key = `${hash}@${srcLang}@${tgtLang}`;
-    console.log(`[podstr.cc] Shared cache PUT: ${key.substring(0, 20)}... to ${settings.sharedCacheUrl}`);
-    const resp = await fetch(`${settings.sharedCacheUrl}/cache/${key}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': settings.sharedCacheApiKey || '',
-      },
-      body: JSON.stringify({
-        vtt,
-        model,
-        model_rank: 1,
-        title: pageTitle,
-        page_url: pageUrl,
-        normalized_url: playlistUrl ? normalizeCacheKey('playlist:' + playlistUrl).replace('playlist:', '') : '',
-        channel: channel || '',
-      }),
-      signal: AbortSignal.timeout(10000),
-    });
-    if (!resp.ok) {
-      const err = await resp.text().catch(() => '');
-      console.log(`[podstr.cc] Shared cache PUT ${resp.status}: ${err.substring(0, 100)}`);
-    } else {
-      console.log('[podstr.cc] Shared cache PUT OK');
-    }
-  } catch (e) {
-    console.log('[podstr.cc] Shared cache PUT failed:', e.message);
-  }
-}
-
-// ══════════════════════════════════════════════════
-// ── URL sanitization (for shared cache metadata) ──
-// ══════════════════════════════════════════════════
-
-function sanitizePageUrl(url) {
-  if (!url) return '';
-  try {
-    const parsed = new URL(url);
-    if (parsed.hostname.includes('youtube.com') && parsed.searchParams.has('v')) {
-      return parsed.origin + parsed.pathname + '?v=' + parsed.searchParams.get('v');
-    }
-    return parsed.origin + parsed.pathname;
-  } catch (e) {
-    return '';
-  }
 }
 
 // ══════════════════════════════════════════════════

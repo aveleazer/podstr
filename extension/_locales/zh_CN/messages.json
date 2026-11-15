@@ -170,14 +170,6 @@
   "viewerTranslateAnyway": {
     "message": "仍然翻译"
   },
-  "viewerCachedByModel": {
-    "message": "已由$1翻译",
-    "placeholders": {
-      "1": {
-        "content": "$1"
-      }
-    }
-  },
   "viewerRetranslate": {
     "message": "用$1翻译",
     "placeholders": {
@@ -196,9 +188,6 @@
   },
   "viewerSignIn": {
     "message": "登录即可免费翻译"
-  },
-  "viewerSignInForCache": {
-    "message": "登录即可观看翻译"
   },
   "viewerSetupApi": {
     "message": "或设置 API 密钥"
@@ -240,14 +229,6 @@
   "badgeTrackLoading": {
     "message": "加载中..."
   },
-  "tooltipSharedCache": {
-    "message": "已在共享缓存中就绪（$MODEL$）",
-    "placeholders": {
-      "model": {
-        "content": "$1"
-      }
-    }
-  },
   "tooltipOffsetMinus": {
     "message": "字幕提前（−0.5秒）"
   },
@@ -256,20 +237,6 @@
   },
   "tooltipOffsetPlus": {
     "message": "字幕延后（+0.5秒）"
-  },
-  "cacheNotifyReady": {
-    "message": "$SRC$ → $TGT$ 已就绪（$MODEL$）",
-    "placeholders": {
-      "src": {
-        "content": "$1"
-      },
-      "tgt": {
-        "content": "$2"
-      },
-      "model": {
-        "content": "$3"
-      }
-    }
   },
   "badgeOffset": {
     "message": "偏移：$OFFSET$秒",
@@ -319,6 +286,9 @@
   },
   "errorFetchFailed": {
     "message": "下载失败"
+  },
+  "errorSegmentsTimeout": {
+    "message": "字幕未能加载：视频网站无响应"
   },
   "errorInvalidApiKey": {
     "message": "OpenRouter API 密钥无效"
@@ -416,65 +386,6 @@
   "footerPrivacy": {
     "message": "隐私"
   },
-  "dropZoneDefault": {
-    "message": "拖放 .srt 或 .vtt 文件"
-  },
-  "dropZoneOnlySrtVtt": {
-    "message": "仅支持 .srt 和 .vtt 文件"
-  },
-  "dropZoneTooBig": {
-    "message": "文件过大（最大 2 MB）"
-  },
-  "dropZoneReading": {
-    "message": "正在读取文件..."
-  },
-  "dropZoneSubmitting": {
-    "message": "正在提交到队列..."
-  },
-  "dropZoneSent": {
-    "message": "已提交"
-  },
-  "dropZonePosition": {
-    "message": "（队列第 $1 位）",
-    "placeholders": {
-      "pos": {
-        "content": "$1"
-      }
-    }
-  },
-  "dropZoneReadError": {
-    "message": "无法读取文件"
-  },
-  "labelQueue": {
-    "message": "翻译队列"
-  },
-  "queuePending": {
-    "message": "等待中"
-  },
-  "queueRunning": {
-    "message": "进行中"
-  },
-  "labelProvider": {
-    "message": "服务商"
-  },
-  "providerApiKey": {
-    "message": "API 密钥（来自 API 标签页）"
-  },
-  "providerOpenRouterHint": {
-    "message": "（需要 API 密钥）"
-  },
-  "providerClaudeCliHint": {
-    "message": "（通过队列）"
-  },
-  "statusCheckingServer": {
-    "message": "正在检查服务器..."
-  },
-  "statusServerOk": {
-    "message": "队列服务器运行正常"
-  },
-  "statusServerDown": {
-    "message": "队列服务器不可用"
-  },
   "labelEnabled": {
     "message": "已启用"
   },
@@ -482,23 +393,6 @@
     "message": "加载中：$1%",
     "placeholders": {
       "pct": {
-        "content": "$1"
-      }
-    }
-  },
-  "errorQueueServer": {
-    "message": "服务器翻译错误"
-  },
-  "errorQueueTimeout": {
-    "message": "等待翻译超时（1 小时）"
-  },
-  "queueStatusInQueue": {
-    "message": "排队中"
-  },
-  "queueStatusPosition": {
-    "message": "排队中（第 $POS$ 位）",
-    "placeholders": {
-      "pos": {
         "content": "$1"
       }
     }
@@ -538,9 +432,6 @@
   },
   "tabSubtitles": {
     "message": "字幕"
-  },
-  "tabDev": {
-    "message": "翻译者"
   },
   "accountSignInHint": {
     "message": "登录即享每月 5 次免费翻译"
@@ -672,5 +563,58 @@
   },
   "errorHboPartial": {
     "message": "Some segments missing — translation may be incomplete"
+  },
+  "trackAsrLabel": {
+    "message": "$LANG$（自动）",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "trackAsrImproved": {
+    "message": "$LANG$（自动）— 整理后的原文",
+    "placeholders": {
+      "lang": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImproved": {
+    "message": "整理并显示（$1）",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "viewerShowImprovedBtn": {
+    "message": "整理并显示"
+  },
+  "settingShowSameLangAsr": {
+    "message": "为我所用语言的视频显示整理后的自动字幕"
+  },
+  "settingShowSameLangAsrHint": {
+    "message": "默认关闭。当视频已经是你的目标语言时，添加整理后的 YouTube 自动字幕。"
+  },
+  "badgeAsrImproving": {
+    "message": "正在整理自动字幕… $PCT$%",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeAsrDoneErrors": {
+    "message": "整理时出错 — 部分内容保留原样"
+  },
+  "errorAsrUnusable": {
+    "message": "此视频的自动字幕看起来不像连贯的语音。"
+  },
+  "errorAsrImprove": {
+    "message": "无法整理自动字幕。请重试或选择其他模型。"
+  },
+  "badgeAsrTranslatedRaw": {
+    "message": "翻译时出错 — 部分内容直接由未整理的自动字幕翻译"
   }
 }
